@@ -1,0 +1,201 @@
+﻿@using BagGomla.Models
+@model LoginViewModel
+@using BagGomla.LocalResource
+@{
+    ViewBag.Title = Resource.Login;
+    Layout = "~/Views/Shared/_DefualtLayout.cshtml";
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+}
+
+<style>
+    #loginForm2 {
+        -webkit-border-radius: 10px 10px 10px 10px;
+        border-radius: 10px 10px 10px 10px;
+        background: #fff;
+        padding: 10px;
+        width: 90%;
+        max-width: 650px;
+        position: relative;
+        -webkit-box-shadow: 0 30px 60px 0 rgba(0,0,0,0.3);
+        box-shadow: 0 30px 60px 0 rgba(0,0,0,0.3);
+    }
+
+    .main-menu-m a, i {
+        margin-left: 0px !important;
+    }
+</style>
+@if (lang == "ar-EG")
+{
+    <style>
+        [type=email], [type=number], [type=tel], [type=url] {
+            direction: rtl !important;
+        }
+    </style>
+}
+<!-- Login Form -->
+
+<div class="container register" id="loginForm">
+    <div class="row">
+        <div class="col-md-3 register-left">
+            <img src="https://image.ibb.co/n7oTvU/logo_white.png" alt="" />
+            <h3>@Resource.Welcome</h3>
+            <p>@Resource.DecAbout</p>
+        </div>
+        <div class="col-md-9 register-right">
+            <ul class="nav nav-tabs nav-justified" id="myTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/Account/Login">@Resource.Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/Account/Register">@Resource.Register</a>
+                </li>
+            </ul>
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                    <h3 class="register-heading"> @Resource.Login</h3>
+                    <div class="row register-form">
+                        <div class="col-md-12">
+                            @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form", id = "LoginForm" }))
+                            {
+                                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                                <span class="dis-none field-validation-error text-danger" data-valmsg-replace="true" id="msgValidUser">@Resource.UserNotExist</span>
+                                <div class="form-group">
+                                    <label for="Email" class="font-weight-bold text-capitalize"><i class="fa fa-envelope" aria-hidden="true"></i> @Resource.Email @Resource.Or @Resource.Phone</label>
+                                    <div class="col-md-12">
+                                        <input name="EmailOrPhone" class="form-control" placeholder="@Resource.Email @Resource.Or @Resource.Phone" id="EmailOrPhone" />
+                                        <span class="dis-none field-validation-error text-danger" data-valmsg-for="EmailOrPhone" data-valmsg-replace="true" id="msgEmailOrPhone">@Resource.Email @Resource.Or @Resource.Phone @Resource.IsRequired</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="Password" class="font-weight-bold text-capitalize"><i class="fa fa-lock" aria-hidden="true"></i> @Resource.Password</label>
+                                    <div class="col-md-12">
+                                        <div class="input-group">
+                                            @Html.PasswordFor(m => m.Password, new { @class = "form-control", @placeholder = @Resource.Password })
+                                            <div class="input-group-append">
+                                                <span class="input-group-btn" tabindex="0">
+                                                    <label for="filestyle-3" style="margin-bottom: 0;">
+                                                        <a class="btn btn-light">
+                                                            <i toggle="#password-field" class="fa fa-fw fa-eye field_icon toggle-password"></i>
+                                                        </a>
+                                                    </label>
+                                                </span>
+                                            </div>
+
+                                            @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                                        </div>
+                                        <span class="dis-none field-validation-error text-danger" data-valmsg-for="Password" data-valmsg-replace="true" id="msgPassword">@Resource.Password @Resource.IsRequired</span>
+                                    </div>
+
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-md-12">
+                                        @Html.CheckBoxFor(m => m.RememberMe, new { @class = "dis-inline" })
+                                        <label for="RememberMe" class="dis-inline"> @Resource.RememberMe</label>
+                                    </div>
+                                </div>
+                                <button type="button" id="btnSubmit" class="btn btn-warning font-weight-bold px-4 d-block mb-3 mx-auto">@Resource.Login</button>
+                                <div class="form-group row">
+                                    <div class="col-7">
+                                        <a href="/Account/Register" class="d-inline-block text-right">@Resource.Create @Resource.Account <i class="fa fa-arrow-circle-right" aria-hidden="true"></i></a>
+                                    </div>
+                                    <div class="col-5">
+                                        <a href="/Account/ForgotPasswordUser" class="d-inline-block text-right">@Resource.Forgot @Resource.Password <i class="fa fa-arrow-circle-right"></i></a>
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<br />
+<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+@*<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>*@
+
+<script>
+    $(document).ready(function () {
+        $('input[type="radio"]').click(function () {
+            var demovalue = $(this).val();
+            if (demovalue == "One") {
+                $(".Show" + demovalue).show();
+                $(".ShowTwo").hide();
+            }
+            else {
+                $(".Show" + demovalue).show();
+                $(".ShowOne").hide();
+            }
+        });
+    });
+
+    $('.toggle-password').click(function () {
+        $(this).toggleClass("fa-eye fa-eye-slash");
+        var input = $("#Password");
+        if (input.attr("type") === "password") {
+            input.attr("type", "text");
+        } else {
+            input.attr("type", "password");
+        }
+    });
+
+    $("#btnSubmit").click(function () {
+        var EmailOrPhone = $("#EmailOrPhone").val(),
+            Password = $("#Password").val();
+        $.when(ValidateUser(EmailOrPhone, Password)).done(function (validUser, e2, e3, e4) {
+
+            if (EmailOrPhone != "" && EmailOrPhone != null && Password != "" && Password != null && validUser == 1) {
+                $("#LoginForm").submit();
+            }
+            else {
+                if (EmailOrPhone == "" || EmailOrPhone == null) {
+                    $("#msgEmailOrPhone").removeClass("dis-none");
+                }
+                else {
+                    $("#msgEmailOrPhone").addClass("dis-none");
+                }
+
+                if (Password == "" || Password == null) {
+                    $("#msgPassword").removeClass("dis-none");
+                }
+                else {
+                    $("#msgPassword").addClass("dis-none");
+                }
+
+                if (EmailOrPhone != null && EmailOrPhone != "" && Password != "" && Password != null &&
+                    validUser != 1) {
+                    debugger;
+                    $("#msgValidUser").removeClass("dis-none");
+                    if (validUser == 0) {
+                        $("#msgValidUser").html("@Resource.UserNotExist");
+                    }
+                    else {
+                        $("#msgValidUser").html("@Resource.PasswordWrong");
+                    }
+                }
+                else {
+                    $("#msgValidUser").addClass("dis-none");
+                }
+            }
+
+        });
+
+    });
+
+    function ValidateUser(EmailOrPhone, Password) {
+        return $.ajax({
+            type: "GET",
+            url: "/Account/IsUserExisting1?EmailOrPhone=" + EmailOrPhone + "&&Password=" + Password,
+            cache: false,
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8'
+        }).done(function (result) {
+        });
+    }
+</script>
+
+

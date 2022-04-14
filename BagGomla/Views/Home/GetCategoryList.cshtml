@@ -1,0 +1,75 @@
+﻿@model IEnumerable<IEnumerable<FWYCategory>>
+@using BagGomla.Models;
+@using System.Web.UI.WebControls
+@using IdentityLibrary.DataModel;
+@using BagGomla.LocalResource
+
+@{
+    ViewBag.Title = "Category List";
+    if (User.Identity.IsAuthenticated)
+    {
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_DefualtLayout.cshtml";
+    }
+}
+<!-- ======================== Categories and Sub Categories Container ========================== -->
+<section class="main-sub-cat p-t-100 p-b-100">
+    <div class="container">
+
+
+
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-none">
+                <li class="breadcrumb-item"><a href="#">@Resource.Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">@Resource.Categories</li>
+            </ol>
+        </nav>
+
+        <div class="card border-0">
+            <div class="card-header border-bottom bg-none px-0 pb-0">
+                <div class="card-header m-0 w-50 rounded">
+                    @Resource.Categories
+
+                </div>
+            </div>
+            <div class="card-body p-0">
+
+                <div class="row border-bottom">
+                    @foreach (var maincat in Model)
+                    {
+                        <div class="col-md-4">
+                            <a href="/Products/Index" class="cat-title m-t-30">@maincat.First().Name</a>
+                            <br />
+                            <div id="jstree">
+                                @(Html.TreeView(maincat)
+                                  .EmptyContent("")
+                                  .Children(m => m.FWYCategory1)
+                                  .HtmlAttributes(new { id = "tree" })
+                                  .ChildrenHtmlAttributes(new { @class = "subItem" })
+                                  .ItemText(m => m.Name)
+                                  .ItemTemplate(
+                                @<text>
+                                    @if (item.ID != maincat.First().ID)
+                                    {
+                                        <a href="/Products/Index" desc="@item.Description">@item.Name</a>
+                                    }
+                                </text>)
+                                )
+                            </div>
+                        </div>
+                    }
+
+
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ======================== Categories and Sub Categories Container  End========================== -->

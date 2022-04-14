@@ -1,0 +1,45 @@
+﻿@model List<IdentityLibrary.DataModel.FWYGallery>
+@{
+    ViewBag.Title = "معرض الصور";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<br /><br />
+<div class="container" dir="rtl">
+        <div class="card">
+            <div class="card-body">
+                @using (Html.BeginForm("Gallery", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                    {
+                <div class="form-group row">
+                    <label for="Images" class="control-label col-md-2">الصورة </label>
+                    <div class="col-md-10">
+                        <input type="file" name="Images" id="Images" multiple class="form-control-file" accept="image/*" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-6">
+                        <button type="submit" class="btn btn-success">حفظ</button>
+                    </div>
+                </div>
+                    }
+            </div>
+        </div>
+        <br />
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    @foreach (var item in Model)
+                        {
+                    <div class="row">
+                        <div class="col-md-3">
+                            <img src="@item.Image" alt="IMG-PRODUCT" height="100" width="300">
+                            <a href="/Admin/DeleteGallery/@item.ID">
+                                حذف
+                            </a>
+                        </div>
+                    </div>
+                        }
+                </div>
+            </div>
+        </div>
+</div>

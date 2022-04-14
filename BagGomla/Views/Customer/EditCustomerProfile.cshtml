@@ -1,0 +1,396 @@
+﻿@model IdentityLibrary.DataModel.AspNetUsers
+@using BagGomla.Models;
+@using System.Web.UI.WebControls
+@using IdentityLibrary.DataModel;
+@using Microsoft.AspNet.Identity;
+@using BagGomla.LocalResource
+@{
+    ViewBag.Title = Resource.Edit + " " + Resource.Profile;
+    if (User.Identity.IsAuthenticated)
+    {
+        DatabaseContext db = new DatabaseContext();
+        var userId = User.Identity.GetUserId();
+        var user = db.AspNetUsers.SingleOrDefault(c => c.Id == userId);
+        if (User.IsInRole("1"))
+        {
+            Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+        }
+        else
+        {
+            Layout = "~/Views/Shared/_Layout.cshtml";
+        }
+    }
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+
+}
+
+@using (Html.BeginForm("EditCustomerProfile", "Customer", FormMethod.Post, new { @class = "p-t-75 p-b-85", enctype = "multipart/form-data", id= "EditCustomerForm" }))
+{
+
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(c => c.UserName)
+    @Html.HiddenFor(c => c.Id)
+    <section class="">
+        <div class="container">
+            @if (User.Identity.IsAuthenticated)
+            {
+                DatabaseContext db = new DatabaseContext();
+                var userId = User.Identity.GetUserId();
+                var user = db.AspNetUsers.SingleOrDefault(c => c.Id == userId);
+
+                <div class="row no-gutters">
+                    <div class="col-md-3">
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                @Resource.ProfilePicture
+                            </div>
+                            <div class="card-body">
+                                <a href="#" onclick="ChangeImg()">
+                                    <i class="fa fa-edit"></i>@Resource.Edit @Resource.Image
+                                </a>
+                                <img src="~/Images/Users/@Model.Image" id="ImgID" class="img-fluid rounded-circle img-thumbnail">
+                                <input type="file" name="Image" class="form-control-file" style="display:none;" id="InpImgId" />
+                                <span class="dis-none field-validation-error text-danger" data-valmsg-for="InpImgId" data-valmsg-replace="true" id="msgImage"></span>
+                            </div>
+                        </div>
+                        @if (user.Name != "Admin")
+                        {
+                            <div class="card mt-4">
+                                <div class="card-header">
+                                    @Resource.Advertisements
+                                </div>
+                                <div class="card-body">
+                                    @*<a href="/Account/RegisterSupplier" class="font-weight-bold">@Resource.ContactAsSupplier</a>
+                                    <br />*@
+                                    <a href="/Products/Discounts" class="font-weight-bold">@Resource.GoToOffers</a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="col-md-9 pl-17">
+                        <div class="card mt-4 ">
+                            <div class="card-header">
+                                @Resource.Basic @Resource.Information
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    @Html.TextBoxFor(m => m.Id, new { @class = "form-control", style = "display: none;" })
+                                    <div class="col-md-5">
+                                        <p>@Resource.EnName</p>
+                                    </div>
+                                    <div class="col-md-7">
+                                        @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+                                        <span class="dis-none field-validation-error text-danger" data-valmsg-for="Name" data-valmsg-replace="true" id="msgName"></span>
+                                        @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-md-5">
+                                        <p>@Resource.ArName</p>
+                                    </div>
+                                    <div class="col-md-7">
+                                        @Html.TextBoxFor(m => m.ARName, new { @class = "form-control" })
+                                        <span class="dis-none field-validation-error text-danger" data-valmsg-for="ARName" data-valmsg-replace="true" id="msgARName"></span>
+                                        @Html.ValidationMessageFor(m => m.ARName, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-md-5">
+                                        <p>@Resource.Email:</p>
+                                    </div>
+                                    <div class="col-md-7">
+                                        @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+                                        <span class="dis-none field-validation-error text-danger" data-valmsg-for="Email" data-valmsg-replace="true" id="msgEmail"></span>
+                                        @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                                    </div>
+
+                                    <div class="col-md-5">
+                                        <p> @Resource.Address:</p>
+                                    </div>
+                                    <div class="col-md-7">
+                                        @Html.HiddenFor(c => c.Address)
+                                        <input type="text" id="txtAddress" class="form-control" value="@Model.Address"/>
+                                        <span class="dis-none field-validation-error text-danger" data-valmsg-for="txtAddress" data-valmsg-replace="true" id="msgAddress"></span>
+                                        @Html.ValidationMessageFor(m => m.Address, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-md-5">
+                                        <p>@Resource.Latitude:</p>
+                                    </div>
+                                    <div class="col-md-7">
+                                        @Html.TextBoxFor(m => m.Latitude, new { @class = "form-control", @readonly = "readonly", @id = "txtLatitude" })
+                                        @Html.ValidationMessageFor(m => m.Latitude, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-md-5">
+                                        <p>@Resource.Longitude:</p>
+                                    </div>
+                                    <div class="col-md-7">
+                                        @Html.TextBoxFor(m => m.Longitude, new { @class = "form-control", @readonly = "readonly", @id = "txtLongitude" })
+                                        @Html.ValidationMessageFor(m => m.Longitude, "", new { @class = "text-danger" })
+                                    </div>
+
+                                    <div class="col-md-5">
+                                        <p>@Resource.Phone:</p>
+                                    </div>
+                                    <div class="col-md-7">
+                                        @Html.TextBoxFor(m => m.PhoneNumber, new { @class = "form-control", type = "number" })
+                                        <span class="dis-none field-validation-error text-danger" data-valmsg-for="PhoneNumber" data-valmsg-replace="true" id="msgPhone"></span>
+                                        @Html.ValidationMessageFor(m => m.PhoneNumber, "", new { @class = "text-danger" })
+                                    </div>
+                                    @*<div class="col-md-5">
+                                            <p>Password:</p>
+                                        </div>*@
+                                    @*<div class="col-md-7">
+                                            @Html.TextBoxFor(m => m.PasswordHash, new { @class = "form-control", type = "password" })
+                                        </div>*@
+                                    <div class="col-md-7">
+                                    </div>
+                                    <div class="col-md-5 mx-auto">
+                                        <button type="button" id="btnSubmit" class="btn btn-success font-weight-bold" style="width:150px;">@Resource.Save</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (user.Name != "Admin")
+                        {
+                            <div class="card mt-4">
+                                <div class="card-header">
+                                    @Resource.Latest @Resource.Orders
+                                </div>
+                                <div class="card-body">
+                                    <div class="sec-blog bg0 p-b-90">
+                                        <div class="container">
+                                            <div class="row">
+                                                @{
+                                                    if (Model.FWYInvoiceOrder.Count > 5)
+                                                    {
+                                                        Model.FWYInvoiceOrder.Reverse().Take(3);
+                                                    }
+                                                    else
+                                                    {
+                                                        Model.FWYInvoiceOrder.Reverse();
+                                                    }
+                                                    foreach (var item in Model.FWYInvoiceOrder)
+                                                    {
+                                                        foreach (var item2 in item.FWYInvoiceOrderProduct)
+                                                        {
+                                                            var img = "";
+                                                            if (item2.FWYProduct.FWYProductImage.Where(c => c.IsMain == true).ToList().Count > 0)
+                                                            {
+                                                                img = item2.FWYProduct.FWYProductImage.Where(c => c.IsMain == true).ToList().First().Image;
+                                                            }
+                                                            <div class="col-sm-6 col-md-3 p-b-40">
+                                                                <div class="blog-item">
+                                                                    <div class="hov-img0">
+                                                                        <a href="/SupplierCorporation/CustomerOrder/@item.ID">
+                                                                            <img src="~/Images/Products/@img" alt="IMG-BLOG" height="250">
+                                                                        </a>
+                                                                    </div>
+
+                                                                    <div class="p-t-15">
+                                                                        @if (lang == "ar-EG")
+                                                                        {
+                                                                            <p class="stext-108 cl6">
+                                                                                @item2.FWYProduct.ARName
+                                                                            </p>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <p class="stext-108 cl6">
+                                                                                @item2.FWYProduct.Name
+                                                                            </p>
+                                                                        }
+                                                                        
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    }
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+            }
+        </div>
+    </section>
+}
+<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+@*<script src="~/Scripts/js/maps-google-api.js"></script>*@
+@*<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>*@
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=AIzaSyAPFGkzEre1YIwcyejsVgRrl8T1DWJZouU"></script>
+
+<script>
+    function ChangeImg() {
+        $('#ImgID').hide();
+        $('#InpImgId').show();
+    }
+
+</script>
+<script type="text/javascript">
+    google.maps.event.addDomListener(window, 'load', function () {
+        var places = new google.maps.places.Autocomplete(document.getElementById('txtAddress'));
+        google.maps.event.addListener(places, 'place_changed', function () {
+            var place = places.getPlace();
+            document.getElementById('txtAddress').value = place.formatted_address;
+            document.getElementById('txtLatitude').value = place.geometry.location.lat();
+            document.getElementById('txtLongitude').value = place.geometry.location.lng();
+        });
+    });
+</script>
+
+
+<script>
+    $("#btnSubmit").click(function () {
+        var FullName = $("#Name").val(),
+            ArFullName = $("#ARName").val(),
+            Phone = $("#PhoneNumber").val(),
+            Email = $("#Email").val(),
+            Address = $("#txtAddress").val(),
+            Image = $("#InpImgId").val(),
+            UserID = $("#Id").val();
+        //alert(Address);
+        var validEmail = ValidateEmail(Email);
+        var ValidImage = ValidateImage(Image);
+
+        $.when(IsUniqueEmail(Email, UserID)).done(function (emailResult, e2, e3, e4) {
+            $.when(IsUniquePhone(Phone, UserID)).done(function (phoneResult, p2, p3, p4) {
+
+                if (FullName != "" && FullName != null && ArFullName != "" && ArFullName != null && Phone != "" && Phone != null
+           && Phone.length == 11 && phoneResult == 1 && (emailResult == 1 || emailResult == 0) && Address != "" && Address != null
+           && ValidImage == true) {
+                    //document.getElementById("btnSubmit").setAttribute("type", "submit");
+                    document.getElementById("EditCustomerForm").submit();
+                }
+                else {
+                    if (FullName == "" || FullName == null) {
+                        $("#msgName").removeClass("dis-none");
+                        $("#msgName").html("@Resource.EnName @Resource.IsRequired");
+                    }
+                    else {
+                        $("#msgName").html("");
+                    }
+                    //
+                    if (ArFullName == "" || ArFullName == null) {
+                        $("#msgARName").removeClass("dis-none");
+                        $("#msgARName").html("@Resource.ArName @Resource.IsRequired");
+                    }
+                    else {
+                        $("#msgARName").html("");
+                    }
+                    //
+                    if (Phone == "" || Phone == null) {
+                        $("#msgPhone").removeClass("dis-none");
+                        $("#msgPhone").html("@Resource.Phone @Resource.IsRequired");
+                    }
+                    else {
+                        if (Phone.length < 11 || Phone.length > 11) {
+                            $("#msgPhone").removeClass("dis-none");
+                            $("#msgPhone").html("@Resource.Phone @Resource.MustBeLength");
+                        }
+                        else if (phoneResult == -2) {
+                            $("#msgPhone").removeClass("dis-none");
+                            $("#msgPhone").html("@Resource.Phone @Resource.Existing");
+                        }
+                        else {
+                            $("#msgPhone").html("");
+                        }
+                    }
+                    //
+                    //alert(validEmail);
+                    if (validEmail == -1) {
+                        $("#msgEmail").removeClass("dis-none");
+                        $("#msgEmail").html("@Resource.Email @Resource.IsNotValid");
+                    }
+                    else if (emailResult == -2) {
+                        $("#msgEmail").removeClass("dis-none");
+                        $("#msgEmail").html("@Resource.Email @Resource.Existing");
+                    }
+                    else {
+                        $("#msgEmail").html("");
+                    }
+                    //
+                    if (Address == "" || Address == null) {
+                        $("#msgAddress").removeClass("dis-none");
+                        $("#msgAddress").html("@Resource.Address @Resource.IsRequired");
+                    }
+                    else {
+                        $("#msgAddress").html("");
+                    }
+                    //
+                    if (ValidImage == false) {
+                        $("#msgImage").removeClass("dis-none");
+                        $("#msgImage").html("@Resource.Image @Resource.IsNotValid");
+                    }
+                    else {
+                        $("#msgImage").html("");
+                    }
+                }
+
+            });
+        });
+
+
+    });
+
+
+
+    function IsUniqueEmail(email, id) {
+        return $.ajax({
+            type: "GET",
+            url: "/Home/IsUniqueEmail?Email=" + email + "&&UserID=" + id,
+            cache: false,
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8'
+        }).done(function (result) {
+        });
+    }
+
+    function IsUniquePhone(phone, id) {
+        return $.ajax({
+            type: "GET",
+            url: "/Home/IsUniquePhone?Phone=" + phone + "&&UserID=" + id,
+            cache: false,
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8'
+        }).done(function (result) {
+        });
+    }
+
+
+    function ValidateEmail(email) {
+        //alert(email);
+        if (email != "" && email != null) {
+            const re = /^(([^<>()\[\]\\.,;:\s@@"]+(\.[^<>()\[\]\\.,;:\s@@"]+)*)|(".+"))@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            var x = re.test(String(email).toLowerCase());
+            if (x == false) {
+                return -1;
+            }
+            else {
+                return 1;
+            }
+        }
+        else {
+            return 0;
+        }
+
+    }
+
+
+    function ValidateImage(file) {
+        if(file == null || file == ""){
+            return true;
+        }
+        var FileArr = file.split(".");
+        var extension = FileArr[FileArr.length - 1];
+        //alert(extension);
+        if (extension == "jpg" || extension == "png" || extension == "jpeg" || extension == "gif") {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+</script>

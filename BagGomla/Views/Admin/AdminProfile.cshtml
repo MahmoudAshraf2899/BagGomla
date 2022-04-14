@@ -1,0 +1,268 @@
+﻿@model IdentityLibrary.DataModel.AspNetUsers
+@using BagGomla.Models;
+@using IdentityLibrary.DataModel;
+@using Microsoft.AspNet.Identity;
+@{
+    ViewBag.Title = "الصفحة الشخصية";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    AspNetUsers user = Model;
+}
+
+<div dir="rtl">
+
+    @using (Html.BeginForm("AdminProfile", "Admin", FormMethod.Post, new { enctype = "multipart/form-data",id="EditAdminForm" }))
+    {
+        @Html.ValidationSummary("");
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(c => c.Id)
+        @Html.HiddenFor(c => c.UserName)
+        <section class="">
+            <div class="container">
+                @if (User.Identity.IsAuthenticated)
+            {
+
+            <div class="row no-gutters">
+                <div class="col-md-3">
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            الصورة الشخصيه
+                        </div>
+                        <div class="card-body">
+                            <a href="#" onclick="ChangeImg()">
+                                <i class="fa fa-edit"></i>تعديل الصورة
+                            </a>
+                            <img src="@Model.Image" id="ImgID" class="img-fluid rounded-circle img-thumbnail">
+                            <input type="file" name="Image" class="form-control-file" style="display:none;" id="InpImgId" />
+                            <span class="dis-none field-validation-error text-danger" data-valmsg-for="InpImgId" data-valmsg-replace="true" id="msgImage"></span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-md-9 pl-17">
+                    <div class="card mt-4 ">
+                        <div class="card-header">
+                            معلومات اساسيه
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                @Html.TextBoxFor(m => m.Id, new { @class = "form-control", style = "display: none;" })
+                                <div class="col-md-5">
+                                    <p>اسم الشخص</p>
+                                </div>
+                                <div class="col-md-7">
+                                    @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="Name" data-valmsg-replace="true" id="msgName"></span>
+                                    @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-5">
+                                    <p>الايميل:</p>
+                                </div>
+                                <div class="col-md-7">
+                                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="Email" data-valmsg-replace="true" id="msgEmail"></span>
+                                    @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-5">
+                                    <p> العنوان:</p>
+                                </div>
+                                <div class="col-md-7">
+                                    @Html.TextBoxFor(m => m.Address, new { @class = "form-control", @id = "txtAddress" })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="Address" data-valmsg-replace="true" id="msgAddress"></span>
+                                    @Html.ValidationMessageFor(m => m.Address, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-7" hidden>
+                                    @Html.TextBoxFor(m => m.Longitude, new { @class = "form-control", @readonly = "readonly", @id = "txtLongitude" })
+                                    @Html.TextBoxFor(m => m.Latitude, new { @class = "form-control", @readonly = "readonly", @id = "txtLatitude" })
+                                </div>
+
+
+
+                                <div class="col-md-5">
+                                    <p>رقم الموبايل:</p>
+                                </div>
+                                <div class="col-md-7">
+                                    @Html.TextBoxFor(m => m.PhoneNumber, new { @class = "form-control", type = "number" })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="PhoneNumber" data-valmsg-replace="true" id="msgPhone"></span>
+                                    @Html.ValidationMessageFor(m => m.PhoneNumber, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-7">
+                                </div>
+                                <div class="col-md-5 mx-auto">
+                                    <button type="button" id="btnSubmit" class="btn btn-success font-weight-bold" style="width:150px;">حفظ</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             }
+            </div>
+        </section>
+    }
+</div>
+
+<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+@*<script src="~/Scripts/js/maps-google-api.js"></script>*@
+@*<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>*@
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=AIzaSyAPFGkzEre1YIwcyejsVgRrl8T1DWJZouU"></script>
+
+<script>
+    function ChangeImg() {
+        $('#ImgID').hide();
+        $('#InpImgId').show();
+    }
+</script>
+<script type="text/javascript">
+    google.maps.event.addDomListener(window, 'load', function () {
+        var places = new google.maps.places.Autocomplete(document.getElementById('txtAddress'));
+        google.maps.event.addListener(places, 'place_changed', function () {
+            var place = places.getPlace();
+            document.getElementById('txtAddress').value = place.formatted_address;
+            document.getElementById('txtLatitude').value = place.geometry.location.lat();
+            document.getElementById('txtLongitude').value = place.geometry.location.lng();
+        });
+    });
+</script>
+
+<script>
+    $("#btnSubmit").click(function () {
+        var Name = $("#Name").val(),
+            Email = $("#Email").val(),
+            Address = $("#txtAddress").val(),
+            PhoneNumber = $("#PhoneNumber").val(),
+            ImgID = $("#InpImgId").val();
+        var ValidImage = ValidateImage(ImgID);
+        var ValidEmail = ValidateEmail(Email);
+        //alert(PhoneNumber.length);
+
+        $.when(IsUniqueEmail(Email)).done(function (emailResult, e2, e3, e4) {
+            $.when(IsUniquePhone(PhoneNumber)).done(function (phoneResult, p2, p3, p4) {
+
+                if (Name != "" && Name != null && (emailResult == 1 || emailResult == 0) && ValidImage == true && Address != "" && Address != null
+           && PhoneNumber != "" && PhoneNumber != null && PhoneNumber.length == 11 && phoneResult == 1) {
+                    //document.getElementById("btnSubmit").setAttribute("type", "submit");
+                    document.getElementById("EditAdminForm").submit();
+                }
+                else {
+                    if (Name == "" || Name == null) {
+                        $("#msgName").removeClass("dis-none");
+                        $("#msgName").html("الاسم مطلوب ادخاله");
+                    }
+                    else {
+                        $("#msgName").html("");
+                    }
+                    //
+                    if (Address == "" || Address == null) {
+                        $("#msgAddress").removeClass("dis-none");
+                        $("#msgAddress").html("العنوان مطلوب ادخاله");
+                    }
+                    else {
+                        $("#msgAddress").html("");
+                    }
+                    //
+                    if (PhoneNumber == "" || PhoneNumber == null) {
+                        $("#msgPhone").removeClass("dis-none");
+                        $("#msgPhone").html("رقم الهاتف مطلوب ادخاله");
+                    }
+                    else {
+                        if (PhoneNumber.length < 11 || PhoneNumber.length > 11) {
+                            $("#msgPhone").removeClass("dis-none");
+                            $("#msgPhone").html("رقم الهاتف يجب ان يكون 11 رقم");
+                        }
+                        else if (phoneResult == -2) {
+                            $("#msgPhone").removeClass("dis-none");
+                            $("#msgPhone").html("هذا الرقم موجود بالفعل");
+                        }
+                        else {
+                            $("#msgPhone").html("");
+                        }
+                    }
+                    //
+                    if (ValidEmail == -1) {
+                        $("#msgEmail").removeClass("dis-none");
+                        $("#msgEmail").html("عنوان البريد غير صالح");
+                    }
+                    else if (emailResult == -2) {
+                        $("#msgEmail").removeClass("dis-none");
+                        $("#msgEmail").html("هذا البريد موجود بالفعل");
+                    }
+                    else {
+                        $("#msgEmail").html("");
+                    }
+                    //
+                    if (ValidImage == false) {
+                        $("#msgImage").removeClass("dis-none");
+                        $("#msgImage").html("الصورة غير صالحة");
+                    }
+                    else {
+                        $("#msgImage").html("");
+                    }
+                }
+
+            });
+        });
+
+
+    });
+
+
+    function IsUniqueEmail(email) {
+        return $.ajax({
+            type: "GET",
+            url: "/Home/IsUniqueEmail?Email=" + email + "&UserID=@User.Identity.GetUserId()",
+            cache: false,
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8'
+        }).done(function (result) {
+        });
+    }
+
+    function IsUniquePhone(phone) {
+        return $.ajax({
+            type: "GET",
+            url: "/Home/IsUniquePhone?Phone=" + phone + "&UserID=@User.Identity.GetUserId()",
+            cache: false,
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8'
+        }).done(function (result) {
+        });
+    }
+
+    function ValidateEmail(email) {
+        //alert(email);
+        if (email != "" && email != null) {
+            const re = /^(([^<>()\[\]\\.,;:\s@@"]+(\.[^<>()\[\]\\.,;:\s@@"]+)*)|(".+"))@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            var x = re.test(String(email).toLowerCase());
+            if (x == false) {
+                return -1;
+            }
+            else {
+                return 1;
+            }
+        }
+        else {
+            return 0;
+        }
+
+    }
+
+
+    function ValidateImage(file) {
+        if (file == null || file == "") {
+            return true;
+        }
+        var FileArr = file.split(".");
+        var extension = FileArr[FileArr.length - 1];
+        //alert(extension);
+        if (extension == "jpg" || extension == "png" || extension == "jpeg" || extension == "gif") {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+</script>

@@ -1,0 +1,180 @@
+﻿@model PagedList.IPagedList<IdentityLibrary.DataModel.FWYNotification>
+@using PagedList.Mvc;
+@using BagGomla.LocalResource
+@using System.Globalization;
+@using System.Threading;
+
+@{ ViewBag.Title = Resource.Notifications;
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+    if (User.IsInRole("1"))
+    {
+        lang = "ar-EG";
+        var cultureInfo = new CultureInfo(lang);
+        Thread.CurrentThread.CurrentUICulture = cultureInfo;
+        Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture(cultureInfo.Name);
+        HttpCookie langCookie = new HttpCookie("culture", lang);
+        langCookie.Expires = DateTime.Now.AddYears(1);
+        HttpContext.Current.Response.Cookies.Add(langCookie);
+        Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    } }
+
+<link href="~/Content/PagedList.css" rel="stylesheet" />
+<br />
+<br />
+@if (!User.IsInRole("1"))
+{
+<div class="row">
+    <div class="col-md-10 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="dis-inline">@Resource.Notifications</h3>
+                @if (lang == "ar-EG")
+                {
+<span class="float-left">
+    <a href="/Notification/MarkAllAsRead">@Resource.MarkAllAsRead</a>
+</span> }
+else
+{
+<span class="float-right">
+    <a href="/Notification/MarkAllAsRead">@Resource.MarkAllAsRead</a>
+</span>}
+
+            </div>
+            <div class="card-body">
+
+                <table class="table table-striped table-bordered table-hover">
+                    <thead>
+                        <tr class="text-center">
+                            <th>التاريخ</th>
+                            <th>الاشعار</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+        <tr>
+            <td>@(((DateTime)item.DateTime).ToString("dd/MM/yyyy"))</td>
+            <td>
+                @if (item.IsRead == true)
+                {
+<a class="dropdown-item notify-item" href="@item.DetailsURL">
+    <span class="notify-icon">
+        <i class="fa fa-envelope-open-text text-black-50"></i>
+    </span>
+    @if (lang == "ar-EG")
+    {
+<span class="notify-details text-blue">@item.ArTitle</span>
+                            <span class="text-muted mb-0 user-msg">
+                                @item.ArDetails
+                            </span> }
+                        else
+                        {
+<span class="notify-details text-blue">@item.Title</span>
+                            <span class="text-muted mb-0 user-msg">
+                                @item.Details
+                            </span>}
+
+</a> }
+else
+{
+<a class="dropdown-item notify-item active-pagination1" href="@item.DetailsURL">
+    <span class="notify-icon">
+        <i class="fa fa-envelope-open-text text-black-50"></i>
+    </span>
+    @if (lang == "ar-EG")
+    {
+<span class="notify-details text-blue">@item.ArTitle</span>
+                            <span class="text-muted mb-0 user-msg">
+                                @item.ArDetails
+                            </span> }
+                        else
+                        {
+<span class="notify-details text-blue">@item.Title</span>
+                            <span class="text-muted mb-0 user-msg">
+                                @item.Details
+                            </span>}
+
+</a>}
+            </td>
+        </tr>
+}
+                    </tbody>
+                </table>
+                <div style="text-align:center!important">
+                    <h5>
+                        @Resource.Page @(ViewBag.PageCount < ViewBag.PageNumber ? 0 : ViewBag.PageNumber) @Resource.Of @ViewBag.PageCount
+                    </h5>
+                    <p>
+                        @Html.PagedListPager(Model, page => Url.Action("UserNotifications",
+                                              new { page = page }))
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> }
+else
+{
+<div class="row text-right" dir="rtl">
+    <div class="col-md-10 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h3 style="display:inline;float:right">الاشعارات</h3>
+                <span class="float-left">
+                    <a href="/Notification/MarkAllAsRead">تحديد الكل كمقروء</a>
+                </span>
+            </div>
+            <div class="card-body">
+
+                <table class="table table-striped table-bordered table-hover">
+                    <thead style="width:100% !important;">
+                        <tr class="text-center">
+                            <th>التاريخ</th>
+                            <th>الاشعار</th>
+                        </tr>
+                    </thead>
+                    <tbody style="width:100% !important;">
+                        @foreach (var item in Model)
+                        {
+        <tr>
+            <td>@(((DateTime)item.DateTime).ToLocalTime().ToString("dd/MM/yyyy"))</td>
+            <td>
+                @if (item.IsRead == true)
+                {
+<a class="dropdown-item notify-item" href="@item.DetailsURL">
+
+    <span class="notify-details text-blue">@item.ArTitle</span>
+    <span class="text-muted mb-0 user-msg">
+        @item.ArDetails
+    </span>
+</a> }
+else
+{
+<a class="dropdown-item notify-item active-pagination1" href="@item.DetailsURL">
+
+    <span class="notify-details text-blue">@item.ArTitle</span>
+    <span class="text-muted mb-0 user-msg">
+        @item.ArDetails
+    </span>
+</a>}
+            </td>
+        </tr>}
+                    </tbody>
+                </table>
+                <div style="text-align:center!important">
+                    <h5>
+                        @Resource.Page @(ViewBag.PageCount < ViewBag.PageNumber ? 0 : ViewBag.PageNumber) @Resource.Of @ViewBag.PageCount
+                    </h5>
+                    <p>
+                        @Html.PagedListPager(Model, page => Url.Action("UserNotifications",
+                                              new { page = page }))
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>}

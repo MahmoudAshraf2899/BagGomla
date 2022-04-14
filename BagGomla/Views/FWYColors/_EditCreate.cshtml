@@ -1,0 +1,67 @@
+﻿@model IdentityLibrary.DataModel.FWYColor
+
+@{
+    ViewBag.Title = "EditCreate";
+}
+@using BagGomla.LocalResource
+<div class="card">
+    <div class="card-body">
+        <h2>@Resource.EditCreate @Resource.Color</h2>
+
+@using (Html.BeginForm("EditCreate", "FWYColors", FormMethod.Post, new { }))
+{
+            @Html.HiddenFor(c => c.ID);
+            @Html.HiddenFor(c => c.SupplierID);
+            @Html.AntiForgeryToken()
+
+            <div class="form-horizontal">
+                <hr />
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group">
+                    <label for="Name" class="control-label col-md-2">@Resource.Select @Resource.Color</label>
+                    <div class="col-md-12">
+                        @Html.TextBoxFor(model => model.Name,new {@class="form-control",type="color",style="height:40px;" })
+                        <span class="dis-none field-validation-error text-danger" data-valmsg-for="Name" data-valmsg-replace="true" id="colorName">@Resource.EnName @Resource.IsRequired</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="Name" class="control-label col-md-2">@Resource.Color</label>
+                    <div class="col-md-12">
+                        @Html.TextBoxFor(model => model.ARName, new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+               
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="button" value="@Resource.Save" class="btn btn-success" id="btnSubmit"/>
+                    </div>
+                </div>
+            </div>
+  }
+      </div>
+</div>
+
+
+<script>
+    $("#btnSubmit").click(function () {
+        var name = $("#Name").val();
+        if (name != "" && name != null) {
+            document.getElementById("btnSubmit").setAttribute("type", "submit");
+        }
+        else {
+            $("#colorName").removeClass("dis-none");
+            //alert("error");
+        }
+    });
+</script>
+
+<script src="~/Scripts/js/ntc.js"></script>
+<script type="text/javascript">
+    $("#Name").change(function () {
+        var ColorCode = $(this).val();
+        var ntcMatch = ntc.name(ColorCode);
+        //alert(ntcMatch[1]);
+        $("#ARName").val(ntcMatch[1]);
+    });
+    
+</script>

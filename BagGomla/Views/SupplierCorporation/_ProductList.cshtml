@@ -1,0 +1,79 @@
+﻿@using IdentityLibrary.DataModel
+@model IEnumerable<IdentityLibrary.DataModel.FWYProduct>
+@using BagGomla.Models;
+@using System.Web.UI.WebControls
+@using IdentityLibrary.DataModel;
+@using Microsoft.AspNet.Identity;
+@using BagGomla.Helper;
+@using BagGomla.LocalResource
+@{
+    TagHelper helper = new TagHelper();
+    Layout = null;
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+}
+
+<div class="row">
+    @{
+        foreach (var item in Model)
+        {
+            var img = "";
+            if (item.FWYProductImage.ToList().Count > 0)
+            {
+                var proimage = item.FWYProductImage.ToList().First();
+                img = proimage.Image;
+            }
+             <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item women Search">
+                        <!-- Block2 -->
+                        <div class="block2">
+                            <div class="block2-pic hov-img0">
+                                <img src="~/Images/Products/@img" alt="IMG-PRODUCT" height="300">
+
+                                <a onclick="ViewProduct('@item.ID');" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04" style="cursor:pointer;">
+                                    @Resource.QuickView
+                                </a>
+                            </div>
+
+                            <div class="block2-txt flex-w flex-t p-t-14">
+                                <div class="block2-txt-child1 flex-col-l ">
+                                    @if (lang == "ar-EG")
+                                    {
+                                        <a href="/Products/Details/@item.ID" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+                                            @item.ARName
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="/Products/Details/@item.ID" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+                                            @item.Name
+                                        </a>
+                                    }
+
+                                    <span class="stext-105 cl3">
+                                        Egp @item.Price
+                                    </span>
+                                </div>
+                                <div class="block2-txt-child2 flex-r p-t-3">
+
+                                    @if (BagGomla.Helper.TagHelper.IsProductInMyFav(item.ID, User.Identity.GetUserId()) == true)
+                                    {
+                                        <a class="btn-addwish-b2 dis-block pos-relative js-addedwish-b2" onclick="RemoveFav(@item.ID)">
+                                            <img class="icon-heart2 dis-block trans-04 ab-t-l" src="~/Images/icons/icon-heart-02.png" alt="ICON">
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a  class="btn-addwish-b2 dis-block pos-relative js-addwish-b2" onclick="AddFav(@item.ID)">
+                                            <img class="icon-heart1 dis-block trans-04" src="~/Images/icons/icon-heart-01.png" alt="ICON">
+                                            <img class="icon-heart2 dis-block trans-04 ab-t-l" src="~/Images/icons/icon-heart-02.png" alt="ICON">
+                                        </a>
+                                    }
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+        }
+    }
+</div>
+

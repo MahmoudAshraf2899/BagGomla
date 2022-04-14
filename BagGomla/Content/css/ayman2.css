@@ -1,0 +1,34 @@
+@media screen and (min-width:800px) {
+        .vendor-profile {
+                max-width:900px;
+                padding: 0px 40px 40px 40px;
+        }
+}
+
+.vendor-profile {
+        
+        margin: 0 auto 50px auto;
+        border-left: 1px solid #e4e4e4;
+        border-right: 1px solid #e4e4e4;
+        background: #f5f5f5;
+        box-shadow: 0px 0px 5px rgba(0,0,0,0.20);
+
+}
+
+.position-fixed {
+position: fixed!important;
+}
+
+
+@media screen and (min-width:768px) {
+        .no-gutters > [class*="col-"].pl-17 {
+                padding-left:17px;
+        }
+        
+        .no-gutters > [class*="col-"].pr-17 {
+        
+                padding-right:17px;
+        
+        }
+}
+

@@ -1,0 +1,81 @@
+﻿@model IdentityLibrary.DataModel.FWYUnit
+@using BagGomla.LocalResource
+<div class="row">
+    <div class="col-md-10 mx-auto">
+        <div class="card">
+            <div class="card-body">
+                <h2>@Resource.Add @Resource.NewUnit</h2>
+                @using (Html.BeginForm("AddNewUnit", "FWYStores", FormMethod.Post, new { id = "UnitForm" }))
+                {
+                    @Html.HiddenFor(c => c.SupplierID);
+
+                    @Html.AntiForgeryToken()
+                    <div class="form-horizontal">
+                        <hr />
+                        @*@Html.ValidationSummary(true, "", new { @class = "text-danger" })*@
+                        <div class="form-group row">
+                            <div class="col-md-6">
+                                <label for="Name"
+                                       class="font-weight-bold text-capitalize">
+                                    @Resource.Name:
+                                </label>
+                                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                                <span class="dis-none field-validation-error text-danger" data-valmsg-for="Name" data-valmsg-replace="true" id="unitName">@Resource.EnName @Resource.IsRequired</span>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="ARName"
+                                       class="font-weight-bold text-capitalize">
+                                    @Resource.ArName:
+                                </label>
+                                @Html.EditorFor(model => model.ARName, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.ARName, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-offset-2 col-md-10">
+                                <input type="button" value="@Resource.Save" class="btn btn-success" id="btnSubmit2" />
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/js/BindingList.js"></script>
+@*<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>*@
+<script>
+    $("#btnSubmit2").click(function () {
+        var name = $("#Name").val();
+        if (name != "" && name != null) {
+            //document.getElementById("btnSubmit").setAttribute("type", "submit");
+            var form = $('#UnitForm')[0]; // Get form
+            var data = new FormData(form); // Create an FormData object
+            $.ajax({
+                url: "/FWYStores/AddNewUnit/",
+                type: "Post",
+                data: data,
+                processData: false,
+                contentType: false,
+                cache: false,
+                timeout: 600000,
+                success: function (data) {
+                    swal("Done", "Data Saved Successfully", "success");
+                    $("#Product_UnitID").empty();
+                    BindCombo("Product_UnitID", data, "Select Unit", false);
+                },
+                error: function (e) {
+                    swal("Error", "Data Not Saved", "error");
+                    window.location.href = "";
+                }
+            });
+            $('.js-modal1').removeClass('show-modal1');
+        }
+        else {
+            $("#unitName").removeClass("dis-none");
+            //alert("error");
+        }
+    });
+</script>
+

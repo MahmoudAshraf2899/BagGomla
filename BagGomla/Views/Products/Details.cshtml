@@ -1,0 +1,815 @@
+﻿@model BagGomla.Models.ProductViewModel
+@using Microsoft.AspNet.Identity;
+@using IdentityLibrary.DataModel;
+@using BagGomla.LocalResource
+
+@{ ViewBag.Title = Resource.ProductDetails;
+                if (User.Identity.IsAuthenticated)
+                {
+                    Layout = "~/Views/Shared/_Layout.cshtml";
+                }
+                else
+                {
+                    Layout = "~/Views/Shared/_DefualtLayout.cshtml";
+                }
+                var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+                string SupName = "";
+
+                string SupAddres = "";
+                bool Check = false;
+                int? CompID = null;
+                if (Model.Product.FWYStoreProduct != null && Model.Product.FWYStoreProduct.Count() > 0)
+                {
+                    SupAddres = Model.Product.FWYStoreProduct.First().FWYStore.AspNetUsers.Address;
+                    Check = Model.Product.FWYStoreProduct.First().FWYStore.AspNetUsers.FWYSupplierCooperation.First().IsVerified;
+                    CompID = Model.Product.FWYStoreProduct.First().FWYStore.AspNetUsers.FWYSupplierCooperation.First().ID;
+                    SupName = Model.Product.FWYStoreProduct.First().FWYStore.AspNetUsers.ARName;
+                    if (lang != "ar-EG" || SupName == null || SupName == "")
+                    {
+                        SupName = Model.Product.FWYStoreProduct.First().FWYStore.AspNetUsers.Name;
+                    }
+                } }
+<head>
+
+    <link href="~/Content/css/desk_and_mobile.css" rel="stylesheet" />
+    <style>
+        btn-block2:hover {
+            color: white !important;
+        }
+
+        input,
+        textarea {
+            border: 1px solid #eeeeee;
+            box-sizing: border-box;
+            margin: 0;
+            outline: none;
+            padding: 10px;
+        }
+
+            input[type="button"] {
+                -webkit-appearance: button;
+                cursor: pointer;
+            }
+
+            input::-webkit-outer-spin-button,
+            input::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+            }
+
+        .input-group {
+            clear: both;
+            margin-left: 20px;
+            position: relative;
+        }
+
+            .input-group input[type='button'] {
+                background-color: #3fca67;
+                min-width: 38px;
+                width: auto;
+                transition: all 300ms ease;
+            }
+
+            .input-group .button-minus,
+            .input-group .button-plus {
+                font-weight: bold;
+                height: 38px;
+                padding: 0;
+                width: 38px;
+                position: relative;
+            }
+
+            .input-group .quantity-field {
+                position: relative;
+                height: 38px;
+                left: -6px;
+                text-align: center;
+                width: 62px;
+                display: inline-block;
+                font-size: 13px;
+                margin: 0 0 5px;
+                resize: vertical;
+            }
+
+        .button-plus {
+            left: -13px;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+            -webkit-appearance: none;
+        }
+
+        #divDes {
+            background-color: white;
+            padding: 15px;
+            box-shadow: 10px 10px 5px grey;
+        }
+
+        .slick3-dots li {
+            width: 50px !important;
+        }
+    </style>
+</head>
+
+<!-- breadcrumb -->
+<div class="container">
+    <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+        <a href="/Home/Index" class="stext-109 cl8 hov-cl1 trans-04">
+            @Resource.Home
+            <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+        </a>
+        @if (lang == "ar-EG")
+        {
+<a href="/Products/Index?CategoryID=@Model.Product.FWYCategory.ID" class="stext-109 cl8 hov-cl1 trans-04">
+    <span>@Model.Product.FWYCategory.ARName</span>
+    <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+</a>
+
+                <span class="stext-109 cl4">
+                    @Model.Product.ARName
+                </span> }
+                            else
+                            {
+                <a href="/Products/Index?CategoryID=@Model.Product.FWYCategory.ID" class="stext-109 cl8 hov-cl1 trans-04">
+                    <span>@Model.Product.FWYCategory.Name</span>
+                    <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+                </a>
+
+                                <span class="stext-109 cl4">
+                                    @Model.Product.Name
+                                </span>}
+
+    </div>
+</div>
+
+
+<!-- Product Detail -->
+<section class="sec-product-detail bg0 p-t-65 p-b-60">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-lg-7 p-b-30">
+                <div class="p-l-25 p-r-30 p-lr-0-lg">
+                    <div class="wrap-slick3 flex-sb flex-w">
+                        <div class="wrap-slick3-dots" onclick="slickDotsClk()"></div>
+                        @if (lang == "ar-EG")
+                        {
+            <div class="wrap-slick3-arrows flex-sb-m flex-w" style="margin-right:100.7px!important;" onclick="slickDotsClk()"></div> @*<div class="wrap-slick3-arrows flex-sb-m flex-w" style="margin-right:55px!important;"></div>*@ }
+                        else
+                        {
+            <div class="wrap-slick3-arrows flex-sb-m flex-w" onclick="slickDotsClk()"></div>}
+
+                        <div class="slick3 gallery-lb">
+                            @foreach (var item in Model.Product.FWYProductImage)
+                            {
+                <div class="item-slick3" data-thumb="/Images/Products/@item.Image">
+                    <div class="wrap-pic-w pos-relative">
+                        <img src="~/Images/Products/@item.Image" alt="IMG-PRODUCT" height="400">
+
+                        <a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="/Images/Products/@item.Image">
+                            <i class="fa fa-expand"></i>
+                        </a>
+                    </div>
+                </div>}
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-5 p-b-30">
+                <div class="p-r-50 p-t-5 p-lr-0-lg">
+                    <div class="card" id="divDes">
+                        <div class="card-body">
+
+                            <h4 class="mtext-105 cl2 js-name-detail p-b-14">
+                                @Model.Product.ARName
+                            </h4>
+
+                            @if (Model.Product.FWYProductPriceRange.Count > 0)
+                            {
+                                var min = Model.Product.FWYProductPriceRange.Min(c => c.Price);
+                                var max = Model.Product.FWYProductPriceRange.Max(c => c.Price);
+                <p class="mtext-106 cl2">
+                    <h5 style="display:inline!important;font:bold">@Resource.Price :</h5>  @Resource.From  @min @Resource.To @max
+                </p> }
+                            else
+                            {
+                <p class="mtext-106 cl2">
+                    <h5 style="display:inline!important;font:bold">@Resource.Price :</h5>  @Resource.From @Model.Product.FinalPrice @Resource.To @Model.Product.FinalPrice
+                </p>}
+
+                            @if (Model.Product.LessQuantityGomla != null)
+                            {
+                <p class="mtext-106 cl2">
+                    <h5 style="display:inline!important;font:bold"> @Resource.LessQuanGomla :</h5>  @Model.Product.LessQuantityGomla
+                </p>}
+                            <p class="mtext-106 cl2">
+                                @if (Model.Product.ARDescription != null)
+                                {
+                                    if (Model.Product.ARDescription.Length >= 100)
+                                    {
+                    <h5 style="display:inline!important;font:bold">@Resource.Description :</h5> @(new string(Model.Product.ARDescription.Take(100).ToArray())) }
+                                                        else
+                                                        {
+                                        <h5 style="display:inline!important;font:bold">@Resource.Description :</h5>
+                                                            @Model.Product.ARDescription}
+                                                                        }
+                            </p>
+                            <p class="mtext-106 cl2">
+                                @if (Model.Product.TypeID != null && Model.Product.CountryID != null)
+                                {
+                    <h5 style="display:inline!important;font:bold">@Resource.Country :</h5>
+                                    <span>@Model.Product.FWYCountry.ArName</span>}
+                            </p>
+                            @if (Check == true)
+                            {
+                <a href="/SupplierCorporation/CompanyProducts/@CompID" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+                    <p class="text-success font-weight-bold">
+                        @SupName  <i class="fa fa-check-circle text-success" aria-hidden="true"> </i>
+                    </p>
+                    <p class="text-secondary font-weight-bold">
+                        <a href="https://www.google.com/maps/place/@SupAddres" target="_blank" style="color:darkblue">@SupAddres</a>
+                        <i class="far fa-map"></i>
+                    </p>
+                </a> }
+                            else
+                            {
+                <a href="/SupplierCorporation/CompanyProducts/@CompID" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+                    <p class="text-secondary font-weight-bold">
+                        @SupName  <i class="fa fa-check-circle text-secondary" aria-hidden="true"> </i>
+                    </p>
+                    <p class="text-secondary font-weight-bold">
+                        <a href="https://www.google.com/maps/place/@SupAddres" target="_blank" style="color:darkblue">@SupAddres</a>
+                        <i class="far fa-map"></i>
+                    </p>
+                </a>}
+
+                            <div class="block2-txt-child2 flex-r p-t-3">
+                                @if (BagGomla.Helper.TagHelper.IsProductInMyFav(Model.Product.ID, User.Identity.GetUserId()) == true)
+                                {
+                    <a class="btn-addwish-b2 dis-block pos-relative js-addedwish-b2" onclick="RemoveFav(@Model.Product.ID)">
+                        <img class="icon-heart2 dis-block trans-04 ab-t-l" src="~/Images/icons/icon-heart-02.png" alt="ICON">
+                    </a> }
+                                else
+                                {
+                    <a class="btn-addwish-b2 dis-block pos-relative js-addwish-b2" onclick="AddFav(@Model.Product.ID)">
+                        <img class="icon-heart1 dis-block trans-04" src="~/Images/icons/icon-heart-01.png" alt="ICON">
+                        <img class="icon-heart2 dis-block trans-04 ab-t-l" src="~/Images/icons/icon-heart-02.png" alt="ICON">
+                    </a>}
+                            </div>
+                            <br />
+                            <a href="/SupplierCorporation/CompanyProducts/@CompID" style="font-weight:bold;color:blue;">
+                                @if (lang == "ar-EG")
+                                {
+                    <span>تواصل مع البائع</span> }
+                                else
+                                {
+                    <span>Contact the seller</span>}
+                            </a>
+
+
+
+                            <!--  -->
+                            @*  <div class="p-t-33">
+                                    <div class="flex-w flex-r-m p-b-10">
+                                        <div class="size-204 flex-w flex-m respon6-next">
+                                            <div class="row flex-w m-tb-10">
+                                                <div class="input-group">
+                                                    <input type="button" value="-" class="button-minus" data-field="quantity">
+                                                    <input type="number" step="1" max="" min="1" value="1" name="quantity" class="quantity-field" id="QV_Qty" readonly>
+                                                    <input type="button" value="+" class="button-plus" data-field="quantity">
+                                                </div>
+                                            </div>
+
+                                            <button class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail" onclick="AddCart(@Model.Product.ID)">
+                                                @Resource.Add @Resource.To @Resource.Cart
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>*@
+                        </div>
+                    </div>
+                    <!--  -->
+                </div>
+            </div>
+        </div>
+
+        <div class="bor10 m-t-50 p-t-43 p-b-40" id="divDes">
+            <!-- Tab01 -->
+            <div class="tab01">
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item p-b-10">
+                        <a class="nav-link active" data-toggle="tab" href="#description" role="tab">@Resource.Description</a>
+                    </li>
+
+                    <li class="nav-item p-b-10">
+                        <a class="nav-link" data-toggle="tab" href="#information" role="tab">@Resource.AddtionalInformation</a>
+                    </li>
+
+                    <li class="nav-item p-b-10">
+                        <a class="nav-link" data-toggle="tab" href="#reviews" role="tab">@Resource.Reviews (@Model.Product.FWYProductReview.Count)</a>
+                    </li>
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content p-t-43">
+                    <!-- - -->
+                    <div class="tab-pane fade show active" id="description" role="tabpanel">
+                        <div class="how-pos2 p-lr-15-md">
+                            @if (lang == "ar-EG")
+                            {
+                <p class="stext-102 cl6">
+                    @Model.Product.ARDescription
+                </p> }
+                            else
+                            {
+                <p class="stext-102 cl6">
+                    @Model.Product.Description
+                </p>}
+
+                        </div>
+                    </div>
+
+                    <!-- - -->
+                    <div class="tab-pane fade" id="information" role="tabpanel">
+                        <div class="row">
+                            <div class="col-sm-10 col-md-8 col-lg-6 m-lr-auto">
+                                <ul class="p-lr-28 p-lr-15-sm">
+
+                                    <li class="flex-w flex-t p-b-7">
+                                        <span class="stext-102 cl3 size-205">
+                                            @Resource.Brand
+                                        </span>
+
+                                        <span class="stext-102 cl6 size-206">
+                                            @if (Model.Product.FWYBrand != null)
+                                            {
+                                                if (lang == "ar-EG")
+                                                {
+                                <span>@Model.Product.FWYBrand.ARName</span> }
+                                                else
+                                                {
+                                <span>@Model.Product.FWYBrand.Name</span>}
+
+
+                                            }
+                                        </span>
+                                    </li>
+                                    <li class="flex-w flex-t p-b-7">
+                                        <span class="stext-102 cl3 size-205">
+                                            @Resource.Unit
+                                        </span>
+
+                                        <span class="stext-102 cl6 size-206">
+                                            @if (Model.Product.FWYUnit != null)
+                                            {
+                                                if (lang == "ar-EG")
+                                                {
+                                <span>@Model.Product.FWYUnit.ARName </span> }
+                                                else
+                                                {
+                                <span>@Model.Product.FWYUnit.Name </span>}
+
+                                            }
+                                        </span>
+                                    </li>
+                                    @if (Model.ProductColorList.Count > 0)
+                                    {
+                        <li class="flex-w flex-t p-b-7">
+                            <span class="stext-102 cl3 size-205">
+                                @Resource.Color
+                            </span>
+
+                            <span class="stext-102 cl6 size-206">
+                                @foreach (var item in Model.ProductColorList)
+                                {
+                                    if (lang == "ar-EG")
+                                    {
+                <span>@item.ARName</span> }
+                                    else
+                                    {
+                <span>@item.Name</span> }
+
+                                    if (item.ID != Model.ProductColorList.ToList().Last().ID)
+                                    {
+                <span>, </span>}
+                                }
+                            </span>
+                        </li>}
+
+
+                                    @if (Model.ProductSizeList.Count > 0)
+                                    {
+                        <li class="flex-w flex-t p-b-7">
+                            <span class="stext-102 cl3 size-205">
+                                @Resource.Size
+                            </span>
+
+                            <span class="stext-102 cl6 size-206">
+                                @foreach (var item in Model.ProductSizeList)
+                                {
+                                    if (lang == "ar-EG")
+                                    {
+                <span>@item.ARName</span> }
+                                    else
+                                    {
+                <span>@item.Name</span> }
+
+                                    if (item.ID != Model.ProductSizeList.ToList().Last().ID)
+                                    {
+                <span>, </span>}
+                                }
+                            </span>
+                        </li>}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- - -->
+                    <div class="tab-pane fade" id="reviews" role="tabpanel">
+                        <div class="row">
+                            <div class="col-sm-10 col-md-8 col-lg-6 m-lr-auto">
+                                <div class="p-b-30 m-lr-15-sm">
+                                    <!-- Review -->
+                                    @foreach (var item in Model.Product.FWYProductReview)
+                                    {
+                                        var img = "no-image.jpg";
+                                        if (item.AspNetUsers.Image != null && item.AspNetUsers.Image != "")
+                                        {
+                                            img = item.AspNetUsers.Image;
+                                        }
+                        <div class="flex-w flex-t p-b-68">
+                            <div class="wrap-pic-s size-109 bor0 of-hidden m-r-18 m-t-6">
+                                <img src="~/Images/Products/@img" alt="AVATAR">
+                            </div>
+
+                            <div class="size-207">
+                                <div class="flex-w flex-sb-m p-b-17">
+                                    @if (lang == "ar-EG")
+                                    {
+                    <span class="mtext-107 cl2 p-r-20">
+                        @item.AspNetUsers.ARName
+                    </span> }
+                                    else
+                                    {
+                    <span class="mtext-107 cl2 p-r-20">
+                        @item.AspNetUsers.Name
+                    </span>}
+
+
+                                    <span class="fs-18 cl11">
+                                        @for (var i = 1; i <= item.Rate; i++)
+                                        {
+                        <i class="zmdi zmdi-star"></i>}
+                                        @for (var i = 1; i <= (5 - item.Rate); i++)
+                                        {
+                        <i class="zmdi zmdi-star-outline"></i>}
+                                    </span>
+                                </div>
+
+                                <p class="stext-102 cl6">
+                                    @item.Review
+                                </p>
+                            </div>
+                        </div>}
+
+
+                                    <!-- Add review -->
+                                    @{ if (User.Identity.IsAuthenticated)
+                                                    {
+                                                        bool check = false;
+                                                        foreach (var item in Model.Product.FWYInvoiceOrderProduct)
+                                                        {
+                                                            string CurrentUserID = User.Identity.GetUserId();
+                                                            if (item.FWYInvoiceOrder.UserID == CurrentUserID && item.FWYInvoiceOrder.OrderTypeID == 3)
+                                                            {
+                                                                check = true;
+                                                            }
+                                                        }
+                                                        if (check == true)
+                                                        {
+                                        <form id="reviewForm" class="w-full">
+                                            <input type="hidden" name="ProductID" value="@Model.Product.ID" />
+                                            <h5 class="mtext-108 cl2 p-b-7">
+                                                @Resource.AddReview
+                                            </h5>
+
+                                            <p class="stext-102 cl6">
+                                                @Resource.ReviewMsg
+                                            </p>
+
+                                            <div class="flex-w flex-m p-t-50 p-b-23">
+                                                <span class="stext-102 cl3 m-r-16">
+                                                    @Resource.Rating
+                                                </span>
+
+                                                <span class="wrap-rating fs-18 cl11 pointer">
+                                                    <i class="item-rating pointer zmdi zmdi-star-outline"></i>
+                                                    <i class="item-rating pointer zmdi zmdi-star-outline"></i>
+                                                    <i class="item-rating pointer zmdi zmdi-star-outline"></i>
+                                                    <i class="item-rating pointer zmdi zmdi-star-outline"></i>
+                                                    <i class="item-rating pointer zmdi zmdi-star-outline"></i>
+                                                    <input class="dis-none" type="number" name="rating">
+                                                </span>
+                                            </div>
+
+                                            <div class="row p-b-25">
+                                                <div class="col-12 p-b-5">
+                                                    <label class="stext-102 cl3" for="review">@Resource.Review</label>
+                                                    <textarea class="size-110 bor8 stext-102 cl2 p-lr-20 p-tb-10" id="review" name="review"></textarea>
+                                                </div>
+                                            </div>
+
+                                            <button id="btnSubmitReview" class="flex-c-m stext-101 cl0 size-112 bg7 bor11 hov-btn3 p-lr-15 trans-04 m-b-10">
+                                                @Resource.Submit
+                                            </button>
+                                        </form> }
+                                                        else
+                                                        {
+                                        <p>@Resource.NoReview...</p> }
+                                                    }
+                                                    else
+                                                    {
+                                        <div class="need-be-user">
+                                            <p>@Resource.SignInToReviewMsg.</p>
+                                            <p><strong>@Resource.NotMember? </strong><a href="/Account/Register?returnUrl=/Products/Details/@Model.Product.ID"> @Resource.Register</a></p>
+                                            <p>@Resource.AlreadyMember? <a href="/Account/Login?returnUrl=/Products/Details/@Model.Product.ID">@Resource.Login</a></p>
+                                        </div> } }
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg6 flex-c-m flex-w size-302 m-t-73 p-tb-15">
+        <span class="stext-107 cl6 p-lr-25">
+            @Model.Product.Code
+        </span>
+
+        <span class="stext-107 cl6 p-lr-25">
+            @Resource.Categories:
+            @if (lang == "ar-EG")
+            {
+<span>@Model.Product.FWYCategory.ARName</span> if (Model.Product.FWYCategory.CategoryID != null)
+                {
+<span>, @Model.Product.FWYCategory.FWYCategory2.ARName</span> }
+            }
+            else
+            {
+<span>@Model.Product.FWYCategory.Name</span> if (Model.Product.FWYCategory.CategoryID != null)
+                {
+<span>, @Model.Product.FWYCategory.FWYCategory2.Name</span>                }
+            }
+
+        </span>
+    </div>
+</section>
+
+
+<!-- Related Products -->
+<section class="sec-relate-product bg0 p-t-45 p-b-105">
+    <div class="container">
+        <div class="p-b-45">
+            <h3 class="ltext-106 cl5 txt-center">
+                @Resource.RelatedProducts
+            </h3>
+        </div>
+
+        <!-- Slide2 -->
+        <div class="wrap-slick2">
+            <div class="slick2">
+                @foreach (var item in Model.RelatedProductList)
+                {
+                    if (item.ID != Model.Product.ID)
+                    {
+                        var img = "";
+                        if (item.FWYProductImage.ToList().Count > 0)
+                        {
+                            img = item.FWYProductImage.First().Image;
+                        }
+    <div class="item-slick2 p-l-15 p-r-15 p-t-15 p-b-15">
+        <!-- Block2 -->
+        <div class="block2">
+            <div class="block2-pic hov-img0">
+                <img src="~/Images/Products/@img" alt="IMG-PRODUCT" height="250">
+            </div>
+
+            <div class="block2-txt flex-w flex-t p-t-14">
+                <div class="block2-txt-child1 flex-col-l ">
+                    @if (lang == "ar-EG")
+                    {
+<a href="/Products/Details/@item.ID" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+    @item.ARName
+</a> }
+                    else
+                    {
+<a href="/Products/Details/@item.ID" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+    @item.Name
+</a>}
+
+                    @if (item.FWYProductPriceRange.Count > 0)
+                    {
+                        var min = item.FWYProductPriceRange.Min(c => c.Price);
+                        var max = item.FWYProductPriceRange.Max(c => c.Price);
+<span class="stext-105 cl3">
+    @Resource.Price: @Resource.From @min @Resource.To @max
+</span> }
+                    else
+                    {
+<span class="stext-105 cl3">
+    @Resource.Price: @Resource.From @item.FinalPrice @Resource.To @item.FinalPrice
+</span>}
+
+                    @if (item.LessQuantityGomla != null)
+                    {
+<span class="stext-105 cl3">
+    @Resource.LessQuanGomla: @item.LessQuantityGomla
+</span>}
+                </div>
+
+                <div class="block2-txt-child2 flex-r p-t-3">
+                    @if (BagGomla.Helper.TagHelper.IsProductInMyFav(item.ID, User.Identity.GetUserId()) == true)
+                    {
+<a href="#" class="btn-addwish-b2 dis-block pos-relative js-addedwish-b2" onclick="RemoveFav(@item.ID)">
+    <img class="icon-heart2 dis-block trans-04 ab-t-l" src="~/Images/icons/icon-heart-02.png" alt="ICON">
+</a> }
+                    else
+                    {
+<a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2" onclick="AddFav(@item.ID)">
+    <img class="icon-heart1 dis-block trans-04" src="~/Images/icons/icon-heart-01.png" alt="ICON">
+    <img class="icon-heart2 dis-block trans-04 ab-t-l" src="~/Images/icons/icon-heart-02.png" alt="ICON">
+</a>}
+                </div>
+            </div>
+        </div>
+    </div>}
+                }
+
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+@if (lang.Contains("ar"))
+{
+<script>
+
+    function slickDotsClk() {
+
+        var elements = document.getElementsByClassName("slick-active");
+        var element = null;
+        if (elements.length > 0) {
+            element = elements[0];
+        }
+        for (var i = 0; i < elements.length; i++) {
+            if (elements[i].className == "item-slick3 slick-slide slick-current slick-active") {
+                element = elements[i];
+            }
+        }
+        var leftVal = getComputedStyle(element).getPropertyValue('left');
+        element.style.setProperty('left', 'inherit !important');
+        element.style.setProperty('right', leftVal);
+    }
+</script>
+}
+
+@*<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>*@
+<script src="~/Scripts/js/BindingList.js"></script>
+<script>
+
+
+    $("#btnSubmitReview").click(function () {
+        var form = $('#reviewForm')[0]; // Get form
+        var data = new FormData(form); // Create an FormData object
+        $.ajax({
+            url: "/Products/AddReview/",
+            type: "Post",
+            data: data,
+            processData: false,
+            contentType: false,
+            cache: false,
+            timeout: 600000,
+            success: function (data) {
+                swal("Done", "Data Saved Successfully", "success");
+                window.location.href = "";
+            },
+            error: function (e) {
+                swal("Error", "Data Not Saved", "error");
+                window.location.href = "";
+            }
+        });
+    });
+
+
+    function GetColors(e, productID) {
+        var sizeID = e.value;
+        if ($("#ProductColorID").length) {
+            $.ajax({
+                url: '@Url.Action("GetSizeColorList", "Products")',
+                type: 'GET',
+                cache: false,
+                data: { ProductID: productID, SizeID: sizeID },
+                datatype: "json",
+                contenttype: "application/json",
+            }).done(function (result) {
+                $("#ProductColorID").empty();
+                BindCombo("ProductColorID", result, "Select Option", false);
+                document.getElementById('ProductColorID').onchange = null;
+            });
+        }
+    }
+
+    function GetSizes(e, productID) {
+        var colorID = e.value;
+        if ($("#ProductSizeID").length) {
+            $.ajax({
+                url: '@Url.Action("GetColorSizeList", "Products")',
+                type: 'GET',
+                cache: false,
+                data: { ProductID: productID, ColorID: colorID },
+                datatype: "json",
+                contenttype: "application/json",
+            }).done(function (result) {
+                $("#ProductSizeID").empty();
+                BindCombo("ProductSizeID", result, "Select Option", false);
+                document.getElementById('ProductSizeID').onchange = null;
+                //$('#ProductColorID').change(function () { foo_2(); });
+                //$("#ProductColorID").setAttribute("onchange", "");
+            });
+        }
+    }
+
+
+    function CheckQuantity(operation){
+        var currentVal = document.getElementById("QV_Qty").value;
+        var newVal = 0;
+        //alert(newVal);
+        if(operation == 'minus'){
+            newVal = Number(currentVal) - 1;
+        }
+        else{
+            newVal = Number(currentVal) + 1;
+        }
+        //alert(newVal);
+        //&& newVal <= max
+        if(newVal > 0 ){
+            document.getElementById("QV_Qty").value = Number(newVal);
+        }
+    }
+
+</script>
+
+<script>
+    function incrementValue(e) {
+        e.preventDefault();
+        var fieldName = $(e.target).data('field');
+        var parent = $(e.target).closest('div');
+        var currentVal = parseInt(parent.find('input[name=' + fieldName + ']').val(), 10);
+
+        if (!isNaN(currentVal)) {
+            parent.find('input[name=' + fieldName + ']').val(currentVal + 1);
+        } else {
+            parent.find('input[name=' + fieldName + ']').val(0);
+        }
+    }
+
+    function decrementValue(e) {
+        e.preventDefault();
+        debugger
+        var fieldName = $(e.target).data('field');
+        var parent = $(e.target).closest('div');
+        var currentVal = parseInt(parent.find('input[name=' + fieldName + ']').val(), 10);
+        if (!isNaN(currentVal) && currentVal == 1) {
+            parent.find('input[name=' + fieldName + ']').val(1);
+        }
+        else if (!isNaN(currentVal) && currentVal > 0) {
+            parent.find('input[name=' + fieldName + ']').val(currentVal - 1);
+        } else {
+            parent.find('input[name=' + fieldName + ']').val(1);
+        }
+    }
+
+    $('.input-group').on('click', '.button-plus', function (e) {
+        incrementValue(e);
+    });
+
+    $('.input-group').on('click', '.button-minus', function (e) {
+        decrementValue(e);
+    });
+</script>
+
+<script>
+    $(".prev-slick2").click(function () {
+        var slickTrack = document.getElementsByClassName("slick-track")[1];
+        alert(slickTrack.style.transform);
+    });
+</script>

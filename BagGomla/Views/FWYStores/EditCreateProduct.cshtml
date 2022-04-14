@@ -1,0 +1,442 @@
+﻿@using BagGomla.Models;
+@model StoreProduct
+@using BagGomla.LocalResource
+@{
+    ViewBag.Title = Resource.EditCreate + " " + Resource.Product;
+    if (User.Identity.IsAuthenticated)
+    {
+        if (User.IsInRole("1"))
+        {
+            Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+        }
+        else
+        {
+            Layout = "~/Views/Shared/_Layout.cshtml";
+        }
+
+    }
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+}
+
+<style>
+    #divpro {
+        -webkit-border-radius: 10px 10px 10px 10px;
+        border-radius: 10px 10px 10px 10px;
+        background: #fff;
+        padding: 10px;
+        width: 90%;
+        max-width: 750px;
+        position: relative;
+        -webkit-box-shadow: 0 30px 60px 0 rgba(0,0,0,0.3);
+        box-shadow: 0 30px 60px 0 rgba(0,0,0,0.3);
+    }
+</style>
+
+@using (Html.BeginForm("EditCreateProduct", "FWYStores", FormMethod.Post, new { @class = "form-horizontal", role = "form", enctype = "multipart/form-data" }))
+{
+    @Html.HiddenFor(model => model.Product.ID)
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.StoreID)
+    @Html.HiddenFor(model => model.Product.IsAvailable)
+    @Html.HiddenFor(model => model.Product.IsFeatured)
+    <section class="p-t-10 p-b-10">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 mx-auto" id="divpro">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="mb-5 form-title pl-3 font-weight-bold text-capitalize">
+                                <i class="fa fa-product-hunt" aria-hidden="true"></i>
+                                @Resource.EditCreate @Resource.Product
+                            </h3>
+                            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="Product_CategoryID" class="font-weight-bold text-capitalize"> @Resource.Category</label>
+                                    <div class="input-group">
+                                        <select class="form-control" id="CateID1" name="CateID1">
+                                            <option selected disabled>@Resource.Select @Resource.Category</option>
+                                            @foreach (var item in Model.CategoryList)
+                                            {
+                                                if (ViewBag.MainCategory != null && item.Value == ((int)ViewBag.MainCategory).ToString())
+                                                {
+                                                    <option selected value="@item.Value">@item.Text</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@item.Value">@item.Text</option>
+                                                }
+                                            }
+                                        </select>
+                                        @*@Html.DropDownList("CateID1", Model.CategoryList, Resource.Select + " " + Resource.Category, htmlAttributes: new { @class = "form-control" })*@
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="Product_CategoryID" class="font-weight-bold text-capitalize"> @Resource.SubCategory</label>
+                                    <div class="input-group">
+                                        @Html.DropDownListFor(model => model.CateID, Model.CategoryList2, Resource.Select + " " + Resource.SubCategory, htmlAttributes: new { @class = "form-control" })
+                                    </div>
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="CateID" data-valmsg-replace="true" id="msgCateID"></span>
+                                    @Html.ValidationMessageFor(model => model.CateID, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="Product_ARName" class="font-weight-bold text-capitalize"> @Resource.ProductName </label>
+                                    @Html.EditorFor(model => model.Product.ARName, new { htmlAttributes = new { @class = "form-control", maxlength = "100" } })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="Product_ARName" data-valmsg-replace="true" id="msgProduct_ARName"></span>
+                                    @Html.ValidationMessageFor(model => model.Product.ARName, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="Product_LessQuantityGomla"
+                                           class="font-weight-bold text-capitalize">
+                                        @Resource.LessQuanGomla
+                                    </label>
+                                    @Html.EditorFor(model => model.Product.LessQuantityGomla, new { htmlAttributes = new { @class = "form-control", value = 1, min = "1" } })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="Product_LessQuantityGomla" data-valmsg-replace="true" id="msgProduct_LessQuantityGomla"></span>
+                                    @Html.ValidationMessageFor(model => model.Product.LessQuantityGomla, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="Product_WholesalePrice" class="font-weight-bold text-capitalize"> @Resource.WholesalePrice</label>
+                                    @Html.EditorFor(model => model.Product.WholesalePrice, new { htmlAttributes = new { @class = "form-control", type = "number", @step = "any" } })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="Product_WholesalePrice" data-valmsg-replace="true" id="msgProduct_WholesalePrice"></span>
+                                    @Html.ValidationMessageFor(model => model.Product.WholesalePrice, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="Product_Price" class="font-weight-bold text-capitalize"> @Resource.ConsumerPrice </label>
+                                    @Html.EditorFor(model => model.Product.Price, new { htmlAttributes = new { @class = "form-control", type = "number", @step = "any" } })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="Product_Price" data-valmsg-replace="true" id="msgProduct_Price"></span>
+                                    @Html.ValidationMessageFor(model => model.Product.Price, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="Product_UnitID" class="font-weight-bold text-capitalize"> @Resource.Unit </label>
+                                    <div class="input-group">
+                                        @Html.DropDownListFor(model => model.Product.UnitID, Model.UnitList, Resource.Select + " " + Resource.Unit, htmlAttributes: new { @class = "form-control" })
+                                    </div>
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="Product_UnitID" data-valmsg-replace="true" id="msgProduct_UnitID"></span>
+                                    @Html.ValidationMessageFor(model => model.Product.UnitID, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="Product_Country" class="font-weight-bold text-capitalize">
+                                        @Resource.Country
+                                    </label>
+                                    @Html.DropDownListFor(model => model.Product.CountryID, Model.CountryList, new { @class = "form-control", @id = "Product_Country" })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="Product_Country" data-valmsg-replace="true" id="msgProduct_Country"></span>
+                                    @Html.ValidationMessageFor(model => model.Product.CountryID, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="Product_ARDescription" class="font-weight-bold text-capitalize">@Resource.ArDescription</label>
+                                    @Html.TextAreaFor(model => model.Product.ARDescription, new { @class = "form-control", rows = "5" })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="Product_ARDescription" data-valmsg-replace="true" id="msgProduct_ARDescription"></span>
+                                    @Html.ValidationMessageFor(model => model.Product.Description, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="Images" class="font-weight-bold text-capitalize">
+                                        @Resource.Images
+                                    </label>
+                                    <input type="file" name="Images" id="Images" multiple class="form-control-file" accept="image/*" />
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="Images" data-valmsg-replace="true" id="msgImages"></span>
+                                </div>
+                                <div class="col-md-6" hidden>
+                                    <label for="Product_TypeID" class="font-weight-bold text-capitalize"> <i class="fa fa-procedures" aria-hidden="true"></i> @Resource.Type  </label>
+                                    @Html.DropDownListFor(c => c.Product.TypeID, Model.ProductTypeList, new { @class = "form-control" })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="Product_TypeID" data-valmsg-replace="true" id="msgProduct_TypeID"></span>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <a href="/FWYStores/StoreProducts/@Model.StoreID">@Resource.BackToList</a>
+                                </div>
+                                <div class="col-md-2 mx-auto">
+                                    <input type="button" id="btnSubmit" class="btn btn-success" value="@Resource.Save" />
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+
+@*/// add new in lists////*@
+<div class="wrap-modal1 js-modal1 p-t-60 p-b-20">
+    <div class="overlay-modal1 js-hide-modal1"></div>
+
+    <div class="container">
+        <div class="bg0 p-t-60 p-b-30 p-lr-15-lg how-pos3-parent">
+            <button class="how-pos3 hov3 trans-04 js-hide-modal1">
+                <img src="~/Images/icons/icon-close.png" alt="CLOSE">
+            </button>
+            <div id="dvNewPopup">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+<script src="~/Scripts/js/BindingList.js"></script>
+
+<script>
+    $('select#Product_Country').change(function () {
+        var districtId = $(this).val();
+        var districtVal = $("#Product_Country").children("option").filter(":selected").text();
+        if (districtVal == "مصر" || districtVal=="Egypt") {
+            $('select#Product_TypeID').val("1");
+        }
+        else {
+            $('select#Product_TypeID').val("2");
+        }
+    });
+
+    $("#CateID1").change(function () {
+        debugger;
+        CateID = $(this).val();
+            $.ajax({
+                url:'@Url.Action("GetCatList", "FWYStores")',
+                type: "Get",
+                cache: false,
+                data: {CatID:CateID},
+                datatype: "json",
+                contenttype: "application/json",
+            }).done(function (result) {
+                console.log(result)
+                $("#CateID").empty();
+                BindCombo("CateID", result, "@Resource.Select @Resource.SubCategory", false);
+            });
+    });
+
+    $(document).ready(function () {
+        if ($("#Product_Country").children("option").filter(":selected").text() == "مصر" || $("#Product_Country").children("option").filter(":selected").text() == "Egypt") {
+            $('select#Product_TypeID').val("1");
+        }
+        else {
+            $('select#Product_TypeID').val("2");
+        }
+    });
+
+
+
+
+
+    function AddNew(method) {
+        $.ajax({
+            url: '/FWYStores/' + method,
+            type: 'GET',
+            cache: false,
+        }).done(function (result) {
+            $('#dvNewPopup').empty();
+            $('#dvNewPopup').html(result);
+        });
+        $('.js-modal1').addClass('show-modal1');
+    }
+</script>
+
+<script>
+    $("#btnSubmit").click(function () {
+             var CateID = $("#CateID").val();
+             Product_Name = $("#Product_ARName").val(),
+             Product_LessQuantityGomla = $("#Product_LessQuantityGomla").val(),
+             Product_WholesalePrice = $("#Product_WholesalePrice").val(),
+             Product_Price = $("#Product_Price").val(),
+             Product_UnitID = $("#Product_UnitID").val(),
+             Product_Country = $("#Product_Country").val(),
+             Product_TypeID = $("#Product_TypeID").val(),
+             ARDescription = $("#Product_ARDescription").val(),
+             Product_ID = $("#Product_ID").val();
+            var Images = document.getElementById("Images").files;
+            var counter = 0;
+            for (var i = 0; i < Images.length; i++) {
+                if (ValidateImage(Images[i].name) == true) {
+                    counter = counter + 1;
+                }
+            }
+        var ValidImage = false;
+        if (Images.length > 0) {
+            if (Images.length == counter) {
+                ValidImage = true;
+            }
+        }
+
+        if (Product_ID > 0) {
+            ValidImage = true;
+        }
+
+        if (Product_Name != "" && Product_Name != null && Product_Price != "" && Product_Price != null && Product_Price != 0
+            && Product_WholesalePrice != "" && Product_WholesalePrice != null && Product_WholesalePrice != 0
+            && CateID != "" && CateID != null && CateID != 0 && ValidImage == true && Product_LessQuantityGomla != ""
+            && Product_LessQuantityGomla != null && Product_Country != "" && Product_Country != null
+            && Product_TypeID != "" && Product_TypeID != null && Number(Product_LessQuantityGomla) > 0
+            && Number(Product_Price) > 0 && Number(Product_WholesalePrice) > 0
+            && Number(Product_Price) >= Number(Product_WholesalePrice)
+            && Product_UnitID != "" && Product_UnitID != null
+            && ARDescription != "" && ARDescription != null) {
+            document.getElementById("btnSubmit").setAttribute("type", "submit");
+        }
+        else {
+            if (Product_Name == "" || Product_Name == null) {
+                $("#msgProduct_ARName").removeClass("dis-none");
+                $("#msgProduct_ARName").html("@Resource.Name @Resource.IsRequired");
+            }
+            else {
+                $("#msgProduct_ARName").html("");
+            }
+            //
+            if (Product_UnitID == "" || Product_UnitID == null) {
+                $("#msgProduct_UnitID").removeClass("dis-none");
+                $("#msgProduct_UnitID").html("@Resource.Unit @Resource.IsRequired");
+            }
+            else {
+                $("#msgProduct_UnitID").html("");
+            }
+            //
+            if (ARDescription == "" || ARDescription == null) {
+                $("#msgProduct_ARDescription").removeClass("dis-none");
+                $("#msgProduct_ARDescription").html("@Resource.ArDescription @Resource.IsRequired");
+            }
+            else {
+                $("#msgProduct_ARDescription").html("");
+            }
+            //
+            if (Product_Price == "" || Product_Price == null) {
+                $("#msgProduct_Price").removeClass("dis-none");
+                $("#msgProduct_Price").html("@Resource.Price @Resource.IsRequired");
+            }
+            else if (Number(Product_Price) <= 0) {
+                $("#msgProduct_Price").removeClass("dis-none");
+                $("#msgProduct_Price").html("@Resource.Price @Resource.MoreZero");
+            }
+            else {
+                $("#msgProduct_Price").html("");
+            }
+
+            if (Product_WholesalePrice == "" || Product_WholesalePrice == null) {
+                $("#msgProduct_WholesalePrice").removeClass("dis-none");
+                $("#msgProduct_WholesalePrice").html("@Resource.Price @Resource.IsRequired");
+            }
+            else if (Number(Product_WholesalePrice) <= 0) {
+                $("#msgProduct_WholesalePrice").removeClass("dis-none");
+                $("#msgProduct_WholesalePrice").html("@Resource.Price @Resource.MoreZero");
+            }
+            else {
+                $("#msgProduct_WholesalePrice").html("");
+            }
+
+            if (CateID == "" || CateID == null) {
+                $("#msgCateID").removeClass("dis-none");
+                $("#msgCateID").html("@Resource.Category @Resource.IsRequired");
+            }
+            else {
+                $("#msgCateID").html("");
+            }
+            //
+            if (Images.length > 0) {
+                if (ValidImage == false) {
+                    $("#msgImages").removeClass("dis-none");
+                    $("#msgImages").html("@Resource.Image @Resource.IsNotValid");
+                }
+                else {
+
+                }
+            }
+            else {
+                if (Product_ID == 0) {
+                    $("#msgImages").removeClass("dis-none");
+                    $("#msgImages").html("@Resource.Image @Resource.IsRequired");
+                }
+                else {
+                    $("#msgImages").html("");
+                }
+
+            }
+
+            //
+            if (Product_LessQuantityGomla == "" || Product_LessQuantityGomla == null) {
+                $("#msgProduct_LessQuantityGomla").removeClass("dis-none");
+                $("#msgProduct_LessQuantityGomla").html("@Resource.LessQuanGomla @Resource.IsRequired");
+            }
+            else if (Number(Product_LessQuantityGomla) <= 0) {
+                $("#msgProduct_LessQuantityGomla").removeClass("dis-none");
+                $("#msgProduct_LessQuantityGomla").html("@Resource.LessQuanGomla @Resource.MoreZero");
+            }
+            else {
+                $("#msgProduct_LessQuantityGomla").html("");
+            }
+            //
+            if (Product_Country == "" || Product_Country == null) {
+                $("#msgProduct_Country").removeClass("dis-none");
+                $("#msgProduct_Country").html("@Resource.Country @Resource.IsRequired");
+            }
+            else {
+                $("#msgProduct_Country").html("");
+            }
+            //
+            if (Product_TypeID == "" || Product_TypeID == null) {
+                $("#msgProduct_TypeID").removeClass("dis-none");
+                $("#msgProduct_TypeID").html("@Resource.Type @Resource.IsRequired");
+            }
+            else {
+                $("#msgProduct_TypeID").html("");
+            }
+
+            if (Number(Product_Price) < Number(Product_WholesalePrice)) {
+                $("#msgProduct_Price").removeClass("dis-none");
+                $("#msgProduct_Price").html("سعر المستهلك يجب ان يكون اكبر من او يساوي سعر الجملة");
+                $("#msgProduct_WholesalePrice").removeClass("dis-none");
+                $("#msgProduct_WholesalePrice").html("سعر الجملة يجب ان يكون اقل من او يساوي سعر المستهلك");
+            }
+            else {
+                $("#msgProduct_Price").html("");
+                $("#msgProduct_WholesalePrice").html("");
+            }
+        }
+    });
+
+    function ValidateEmail(email) {
+        //alert(email);
+        if (email != "" && email != null) {
+            const re = /^(([^<>()\[\]\\.,;:\s@@"]+(\.[^<>()\[\]\\.,;:\s@@"]+)*)|(".+"))@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            var x = re.test(String(email).toLowerCase());
+            if (x == false) {
+                return -1;
+            }
+            else {
+                return 1;
+            }
+        }
+        else {
+            return 0;
+        }
+
+    }
+    function ValidateImage(file) {
+        if (file == null || file == "") {
+            return true;
+        }
+        var FileArr = file.split(".");
+        var extension = FileArr[FileArr.length - 1];
+        //alert(extension);
+        if (extension == "jpg" || extension == "png" || extension == "jpeg" || extension == "gif") {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+</script>
+
+

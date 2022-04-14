@@ -1,0 +1,140 @@
+﻿@model IEnumerable<IdentityLibrary.DataModel.FWYBrand>
+@using BagGomla.LocalResource
+@{
+    ViewBag.Title = Resource.Brands;
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+
+}
+
+<div>
+    <br />
+    <div class="card">
+        <div class="card-body">
+            <button onclick="AddBrand('0')" class="btn btn-primary">@Resource.Add @Resource.NewBrands</button>
+            <br /><br />
+            <div class="table-responsive">
+                <table id="InvoiceTabel" class="table m-0 table-colored-bordered table-bordered-info table-bordered table-hover">
+                    <thead class="thead-default">
+                        <tr>
+                            <th data-breakpoints="xs">
+                                @Resource.Name
+                            </th>
+                            <th data-breakpoints="xs">
+                                @Resource.Description
+                            </th>
+                           
+                            <th>
+                                @Resource.Action
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                @if (lang == "ar-EG")
+                                {
+                                    <td>@item.ARName</td>
+                                    <td>@item.ARDesciption</td>
+                                }
+                                else
+                                {
+                                    <td>@item.Name</td>
+                                    <td>@item.Description</td>
+                                }
+                                
+                                <td>
+                                    <button onclick="AddBrand(@item.ID)" class="btn btn-success">@Resource.Edit</button>
+                                    <a href="#" class="btn btn-danger" onclick="ConfirmDelete(@item.ID)">@Resource.Delete</a>                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*/// pop up for assign product////*@
+<div class="wrap-modal1 js-modal1 p-t-60 p-b-20">
+        <div class="overlay-modal1 js-hide-modal1"></div>
+        <div class="container">
+            <div class="bg0 p-t-60 p-b-30 p-lr-15-lg how-pos3-parent">
+                <button class="how-pos3 hov3 trans-04 js-hide-modal1">
+                    <img src="~/Images/icons/icon-close.png" alt="CLOSE">
+                </button>
+                <h4 style="text-align:center;"></h4>
+                <div id="DivBrands" style="margin:30px;">
+                    
+                </div>
+            </div>
+       </div>
+</div>
+
+@*/// pop up for Delete////*@
+<div class="wrap-modal1 js-modal2 p-t-60 p-b-20" style="width:1000px;height:1000px;">
+    <div class="overlay-modal1 js-hide-modal2"></div>
+    <div class="container">
+        <div class="bg0 p-t-60 p-b-30 p-lr-15-lg how-pos3-parent">
+            <button class="how-pos3 hov3 trans-04 js-hide-modal2" id="DevClose">
+                <img src="~/Images/icons/icon-close.png" alt="CLOSE">
+            </button>
+            <h4 style="text-align:center;"></h4>
+            <div id="DivCoupons" style="margin:30px;">
+                <div class="modal-header">
+                    <h3 class="modal-title">Delete?</h3>
+                </div>
+                <div class="modal-body">
+                    <h4>Are you sure you want to Remove this Row?</h4>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-success" onclick="Delete()">Confirm</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<input id="IDHidden" type="hidden" />
+
+<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+@*<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>*@
+
+<script type="text/javascript">
+    function AddBrand(ID) {
+        $.ajax({
+            url: '@Url.Action("EditCreate", "FWYBrands")',
+            type: 'GET',
+            cache: false,
+            data: { ID: ID }
+        }).done(function (result) {
+            $('#DivBrands').empty();
+            $('#DivBrands').html(result);
+        });
+        $('.js-modal1').addClass('show-modal1');
+    }
+
+    var ConfirmDelete = function (ID) {
+        $("#IDHidden").val(ID);
+        $('.js-modal2').addClass('show-modal1');
+    }
+
+    var Delete = function () {
+        var ID = $("#IDHidden").val();
+        $.ajax({
+            type: "POST",
+            url: "/FWYBrands/Delete",
+            data: { ID: ID },
+            success: function (result) {
+                $('.js-modal2').removeClass('show-modal1');
+                window.location.href = " ";
+            }
+        })
+    }
+
+    $(document).on("click", "#DevClose", function () {
+        $('.js-modal2').removeClass('show-modal1');
+    });
+</script>

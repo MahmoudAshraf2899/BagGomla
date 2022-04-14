@@ -1,0 +1,61 @@
+﻿@model IEnumerable<FWYCategory>
+@using BagGomla.Models;
+@using System.Web.UI.WebControls
+@using IdentityLibrary.DataModel;
+
+@{
+    ViewBag.Title = "Tree View";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>TreeView</h2>
+<link href="~/Content/jsTree/themes/default/style.min.css" rel="stylesheet" />
+<div class="form-body">
+    <div id="jstree">
+        @(Html.TreeView(Model)
+                          .EmptyContent("Categories")
+                          .Children(m => m.FWYCategory1)
+                          .HtmlAttributes(new { id = "tree" })
+                      .ChildrenHtmlAttributes(new { @class = "subItem" })
+                          .ItemText(m => m.Name)
+                          .ItemTemplate(
+        @<text>
+            <a href="@item.Description" desc="@item.Description">@item.Name</a>
+        </text>)
+        )
+    </div>
+</div>
+<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+@*<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>*@
+<script src="~/Scripts/jsTree3/jstree.min.js"></script>
+<script>
+
+    jQuery(function ($) {
+        var selectedData;
+        $('#jstree').jstree({
+            "core": {
+                "multiple": true,
+                "check_callback": true,
+                'themes': {
+                    "responsive": true,
+                    'variant': 'larg',
+                    'stripes': false,
+                    'dots': false
+                }
+            }
+            ,
+            "types": {
+                "default": {
+                    "icon": "fa fa-list-alt icon-state-warning icon-lg"
+                },
+                "file": {
+                    "icon": "fa fa-list-alt icon-state-warning icon-lg"
+                }
+            }
+            ,"plugins": ["dnd", "state", "types", "sort", "none"]
+        }).bind("ready.jstree", function (event, data) {
+            $(this).jstree("open_all");
+        });
+    });
+
+</script>

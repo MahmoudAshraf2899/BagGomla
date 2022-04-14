@@ -1,0 +1,110 @@
+﻿@using IdentityLibrary.DataModel
+@model FWYInvoiceOrderProduct
+@using BagGomla.LocalResource
+@{ 
+    var db = new DatabaseContext();
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+
+}
+<div>
+    @if (lang == "ar-EG")
+    {
+        <h4 class="mtext-105 cl2 js-name-detail p-b-14">
+            @Model.FWYProduct.ARName
+        </h4>
+    }
+    else
+    {
+        <h4 class="mtext-105 cl2 js-name-detail p-b-14">
+            @Model.FWYProduct.Name
+        </h4>
+    }
+    
+
+    <span class="mtext-106 cl2">
+        EGP @Model.FWYProduct.FinalPrice
+    </span>
+
+    <br />
+
+    <span class="mtext-101 cl2">
+        <span>@Resource.Quantity:  </span>
+        <span>@Model.Quantity</span>
+    </span>
+    <br />
+    @if (Model.FWYProduct.FinalPrice != Model.UnitPrice)
+    {
+        <span class="mtext-101 cl2">
+            <span>@Resource.PriceGomla: </span>
+            <span>EGP @Model.UnitPrice</span>
+        </span>
+    }
+
+    <br />
+
+    @if (lang == "ar-EG")
+    {
+        <p class="stext-102 cl3 p-t-23">
+            @Model.FWYProduct.ARDescription
+        </p>
+    }
+    else
+    {
+        <p class="stext-102 cl3 p-t-23">
+            @Model.FWYProduct.Description
+        </p>
+    }
+    
+
+    <div class="p-t-33">
+        @if (Model.ProductSizeID != null && Model.ProductSizeID != 0)
+        {
+            <div class="flex-w flex-r-m p-b-10">
+                <div class="size-203 flex-c-m respon6">
+                    @Resource.Size
+                </div>
+
+                <div class="size-204 respon6-next">
+                    @if (lang == "ar-EG")
+                    {
+                        <div class="rs1-select2  bg0">
+                            @db.FWYSize.SingleOrDefault(c => c.ID == Model.ProductSizeID).ARName
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="rs1-select2  bg0">
+                            @db.FWYSize.SingleOrDefault(c => c.ID == Model.ProductSizeID).Name
+                        </div>
+                    }
+                    
+                </div>
+            </div>
+        }
+        
+        @if (Model.ProductColorID != null && Model.ProductColorID != 0)
+        {
+            <div class="flex-w flex-r-m p-b-10">
+                <div class="size-203 flex-c-m respon6">
+                    @Resource.Color
+                </div>
+
+                <div class="size-204 respon6-next">
+                    @if (lang == "ar-EG")
+                    {
+                        <div class="rs1-select2  bg0">
+                            @db.FWYColor.SingleOrDefault(c => c.ID == Model.ProductColorID).ARName
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="rs1-select2  bg0">
+                            @db.FWYColor.SingleOrDefault(c => c.ID == Model.ProductColorID).Name
+                        </div>
+                    }
+                    
+                </div>
+            </div>
+        }
+    </div>
+</div>

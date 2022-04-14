@@ -1,0 +1,367 @@
+﻿@using BagGomla.Models;
+@model StoreProduct
+
+@{
+    ViewBag.Title = "CreateProduct";
+    if (User.Identity.IsAuthenticated)
+    {
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_DefualtLayout.cshtml";
+    }
+
+}
+
+
+@using (Html.BeginForm("EditCreateProduct", "FWYStores", FormMethod.Post, new { @class = "form-horizontal", role = "form", enctype = "multipart/form-data" }))
+{
+    @Html.HiddenFor(model => model.Product.ID)
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.StoreID)
+    <section class="p-t-10 p-b-10">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-10 mx-auto">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="mb-5 form-title pl-3 font-weight-bold text-capitalize">
+                                <i class="fa fa-product-hunt" aria-hidden="true"></i>
+                                Create a New Product in Store "@Model.StoreName"
+                            </h3>
+                            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="Product_Name"
+                                           class="font-weight-bold text-capitalize">
+                                        @*<i class="fa fa-user"
+                                           aria-hidden="true"></i>*@
+                                        English Name:
+                                    </label>
+                                    @Html.EditorFor(model => model.Product.Name, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.Product.Name, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="Product_ARName"
+                                           class="font-weight-bold text-capitalize">
+                                        @*<i class="fa fa-user"
+                                           aria-hidden="true"></i>*@
+                                        Arabic Name:
+                                    </label>
+                                    @Html.EditorFor(model => model.Product.ARName, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.Product.Name, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="Product_Number"
+                                           class="font-weight-bold text-capitalize">
+                                        @*<i class="fa fa-user"
+                                           aria-hidden="true"></i>*@
+                                        Number:
+                                    </label>
+                                    @Html.EditorFor(model => model.Product.Number, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.Product.Number, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="Product_Code"
+                                           class="font-weight-bold text-capitalize">
+                                        @*<i class="fa fa-user"
+                                           aria-hidden="true"></i>*@
+                                        Code:
+                                    </label>
+                                    @Html.EditorFor(model => model.Product.Code, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.Product.Code, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="Product_Price"
+                                           class="font-weight-bold text-capitalize">
+                                        @*<i class="fa fa-user"
+                                           aria-hidden="true"></i>*@
+                                        Price:
+                                    </label>
+                                    @Html.EditorFor(model => model.Product.Price, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.Product.Price, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="Product_TotalQuantity"
+                                           class="font-weight-bold text-capitalize">
+                                        @*<i class="fa fa-user"
+                                           aria-hidden="true"></i>*@
+                                        Total Quantity:
+                                    </label>
+                                    @Html.EditorFor(model => model.Product.TotalQuantity, new { htmlAttributes = new { @class = "form-control", value = 0 } })
+                                    @Html.ValidationMessageFor(model => model.Product.TotalQuantity, "", new { @class = "text-danger" })
+                                </div>
+
+
+
+                                <div class="col-md-6">
+                                    <label for="Product_BrandID"
+                                           class="font-weight-bold text-capitalize">
+                                        @*<i class="fa fa-user"
+                                           aria-hidden="true"></i>*@
+                                        Brand:
+                                    </label>
+                                    @Html.DropDownListFor(model => model.Product.BrandID, Model.BrandList, "Select Brand", htmlAttributes: new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.Product.BrandID, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="Product_CategoryID"
+                                           class="font-weight-bold text-capitalize">
+                                        @*<i class="fa fa-user"
+                                           aria-hidden="true"></i>*@
+                                        Category:
+                                    </label>
+                                    @Html.DropDownListFor(model => model.Product.CategoryID, Model.CategoryList, "Select Category", htmlAttributes: new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.Product.CategoryID, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="Product_UnitID"
+                                           class="font-weight-bold text-capitalize">
+                                        @*<i class="fa fa-user"
+                                           aria-hidden="true"></i>*@
+                                        Unit:
+                                    </label>
+                                    @Html.DropDownListFor(model => model.Product.UnitID, Model.UnitList, "Select Unit", htmlAttributes: new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.Product.UnitID, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-6"></div>
+
+                                <div class="col-md-6">
+                                    <label for="Product_Description"
+                                           class="font-weight-bold text-capitalize">
+                                        @*<i class="fa fa-user"
+                                           aria-hidden="true"></i>*@
+                                        English Description:
+                                    </label>
+                                    @Html.TextAreaFor(model => model.Product.Description, new { @class = "form-control", rows = "5" })
+                                    @Html.ValidationMessageFor(model => model.Product.Description, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="Product_ARDescription"
+                                           class="font-weight-bold text-capitalize">
+                                        @*<i class="fa fa-user"
+                                           aria-hidden="true"></i>*@
+                                        Arabic Description:
+                                    </label>
+                                    @Html.TextAreaFor(model => model.Product.ARDescription, new { @class = "form-control", rows = "5" })
+                                    @Html.ValidationMessageFor(model => model.Product.Description, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group form-check">
+                                        <div class="col-md-6">
+                                            @Html.CheckBoxFor(m => m.Product.IsFeatured, new { @class = "form-check-input ml-0", id = "exampleCheck1" })
+                                            @Html.ValidationMessageFor(model => model.Product.IsFeatured, "", new { @class = "text-danger" })
+                                            <label class="form-check-label" for="exampleCheck1">Is Featured Product? </label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            @if (Model.Product != null)
+                                            {
+                                                if (Model.Product.FWYStoreProduct.Count > 0)
+                                                {
+                                                    <input type="checkbox" class="form-check-input ml-0" id="HasColorsOrSizes" value="true" checked/>
+                                                }
+                                                else
+                                                {
+                                                    <input type="checkbox" class="form-check-input ml-0" id="HasColorsOrSizes" value="false" />
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox" class="form-check-input ml-0" id="HasColorsOrSizes" value="false" />
+                                            }
+                                            <label class="form-check-label" for="HasColorsOrSizes">Has Colors Or Sizes? </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="Images"
+                                           class="font-weight-bold text-capitalize">
+                                        @*<i class="fa fa-user"
+                                           aria-hidden="true"></i>*@
+                                        Images:
+                                    </label>
+                                    <input type="file" name="Images"id="Images" multiple class="form-control-file"/>
+                                </div>
+
+                            </div>
+
+
+                            @if(Model.Product != null)
+                            {
+                                <input type="hidden" id="checkAction" value="1"/>
+                            }
+                            else
+                            {
+                                <input type="hidden" id="checkAction" value="0" />
+                            }
+
+
+                            <div class="dis-none col-md-12" id="dvProductDetails">
+                                <table class="table m-0 table-colored-bordered table-bordered-info table-bordered table-hover">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Color</th>
+                                            <th>Size</th>
+                                            <th>Quantity</th>
+                                        </tr>
+                                    </thead>
+                                    @if (Model.Product != null)
+                                    {
+                                        <tbody id="TBodyProductDetails">
+                                            @foreach (var item in Model.Product.FWYStoreProduct)
+                                            {
+                                                <tr id="Row_@item.ID">
+                                                    <td>
+                                                        <button type="button" class="btn btn-danger" onclick="RemoveRow('@item.ID');"><i class="fa fa-trash"></i></button>
+                                                    </td>
+                                                    <td>
+                                                        @if (item.ColorID != null)
+                                                        {
+                                                            <span>@item.FWYColor.Name</span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        @if (item.SizeID != null)
+                                                        {
+                                                            <span>@item.FWYSize.Name</span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        @item.Quantity
+                                                    </td>
+                                                </tr>
+                                            }
+                                            
+                                        </tbody>
+                                    }
+                                    else
+                                    {
+                                        <tbody id="TBodyProductDetails">
+                                            <tr>
+                                                <td>#</td>
+                                                <td>
+                                                    <select class="form-control" name="ColorIDs" id="MainColorList">
+                                                        <option value="0" selected>Select Color</option>
+                                                        @foreach (var item in Model.ColorList)
+                                                        {
+                                                            <option value="@item.ID">@item.Name</option>
+                                                        }
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select class="form-control" name="SizeIDs" id="MainSizeList">
+                                                        <option value="0" selected>Select Size</option>
+                                                        @foreach (var item in Model.SizeList)
+                                                        {
+                                                            <option value="@item.ID">@item.Name</option>
+                                                        }
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input type="number" class="form-control" name="Quantities" onkeyup="CalaTotal(this);" />
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    }
+                                   
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="4">
+                                                <button type="button" class="btn btn-success" id="newProductDetails"><i class="fa fa-plus"></i></button>
+                                            </td>
+
+                                        </tr>
+                                    </tfoot>
+
+                                </table>
+                            </div>
+
+                            <div class="form-group">
+                                <br /><br />
+                                <div class="col-md-2 mx-auto">
+                                    <input type="submit" class="btn btn-warning font-weight-bold" value="Save" />
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+@*<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>*@
+<script>
+    $(document).ready(function () {
+        $("#HasColorsOrSizes").click(function () {
+            var isChecked = $(this).val();
+            //alert(isChecked);
+            if (isChecked == "false") {
+                $("#dvProductDetails").show();
+                $("#HasColorsOrSizes").val("true");
+            }
+            else {
+                $("#dvProductDetails").hide();
+                $("#HasColorsOrSizes").val("false");
+            }
+        });
+
+        $("#newProductDetails").click(function () {
+            var trOpen = "<tr>",
+                trClose = "</tr>",
+                td0 = "<td>#</td>",
+                td1 = "<td><select class='form-control' name='ColorIDs' id='MainColorList'><option value='0'  selected>Select Color</option>@foreach(var item in Model.ColorList){<option value='@item.ID'>@item.Name</option>}</select></td>",
+                td2 = "<td><select class='form-control' name='SizeIDs' id='MainSizeList'><option value='0'  selected>Select Size</option>@foreach(var item in Model.SizeList){<option value='@item.ID'>@item.Name</option>}</select></td>",
+                td3 = "<td><input type='number' class='form-control' name='Quantities' onkeyup='CalaTotal(this);'/></td>";
+            var tr = trOpen + td0 + td1 + td2 + td3 + trClose;
+            $("#TBodyProductDetails").append(tr);
+        });
+        var checkAction = $("#checkAction").val();
+        if(checkAction == 1){
+            $("#dvProductDetails").show();
+        }
+    });
+
+    function CalaTotal(e) {
+        var elements = document.getElementsByName("Quantities");
+        var total = 0;
+        for (var i = 0; i < elements.length; i++) {
+            var myval = elements[i].value;
+            total = total + Number(myval);
+        }
+        //var Product_TotalQuantity = $("#Product_TotalQuantity").val();
+        //var x = Number(Product_TotalQuantity) + Number(e.value);
+        $("#Product_TotalQuantity").val(total);
+    }
+
+    function RemoveRow(rowID) {
+        $.ajax({
+            url: '@Url.Action("RemoveProductStoreRow", "FWYStores")',
+            type: 'GET',
+            cache: false,
+            data: { ID: rowID },
+            datatype: "json",
+            contenttype: "application/json",
+        }).done(function (result) {
+            $("#Row_" + rowID).remove();
+        });
+        
+    }
+
+</script>

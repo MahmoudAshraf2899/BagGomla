@@ -1,0 +1,86 @@
+﻿@model IEnumerable<IdentityLibrary.DataModel.LatestNews>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var i = 1;
+}
+<br />
+<div class="input-group" style="width:80%;margin:auto">
+    @*<span class="input-group-append">
+        <button class="btn btn-outline-secondary border-left-0 border" type="button" id="btnSearch">
+            <i class="fa fa-search"></i>
+        </button>
+        <button class="btn btn-outline-secondary border-left-0 border" type="button" id="btnRemoveSearch">
+            <i class="fa fa-times"></i>
+        </button>
+    </span>*@
+    <input id="Search" class="form-control py-2 border-right-0 border" placeholder="البحث" style="text-align:right!important;">
+</div>
+<br />
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h3 class="text-center">الاخبار</h3>
+            <a href="#" data-toggle="modal" data-target="#bookingmodal" onclick="LoadPopup('/LatestNews/EditCreateLatestNews/0')" class="btn btn-success">اضافه</a>
+            <br />
+            <div class="table-responsive">
+                <table id="InvoiceTabel" class="table m-0 table-colored-bordered table-bordered-info table-bordered table-hover">
+                    <thead class="thead-default">
+                        <tr>
+                            <th>#</th>
+                            <th data-breakpoints="xs">
+                                الاسم باللغه العربيه
+                            </th>
+                            <th data-breakpoints="xs">
+                                الاسم باللغه الانجليزيه
+                            </th>
+                            <th>
+                                الاجراءات
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr class="Search">
+                                <td>@i</td>
+                                <td>@item.ArName</td>
+                                <td>@item.Name</td>
+
+                                <td>
+                                    <a href="#" data-toggle="modal" data-target="#bookingmodal" onclick="LoadPopup('/LatestNews/EditCreateLatestNews/@item.ID')" class="btn btn-info">تعديل</a>
+                                    <button class="btn btn-danger" data-toggle="modal" data-target="#bookingmodal" onclick="LoadPopup('/LatestNews/DeleteLatestNews/@item.ID')">حذف</button>
+                                </td>
+                            </tr>
+                            i++;
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="bookingmodal" tabindex="-1" role="dialog" aria-labelledby="bookingmodalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0"><span class="fas fa-times close-x" aria-hidden="true" data-dismiss="modal" aria-label="Close"> </span></div>
+            <div class="modal-body" id="dvPopup">
+
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+<script>
+    function LoadPopup(MyView) {
+        $("#overlayer").show();
+        $(".loader").show();
+        $("#dvPopup").load(MyView, function () {
+            $("#overlayer").hide();
+            $(".loader").hide();
+        });
+    }
+</script>
+

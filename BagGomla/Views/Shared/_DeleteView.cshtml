@@ -1,0 +1,56 @@
+﻿@model BagGomla.Models.ConfirmDeleteModel
+@using BagGomla.LocalResource
+@using (Html.BeginForm(Model.ActionName, Model.ControllerName, FormMethod.Post))
+{
+    
+    if (Model.IntID == null)
+    {
+        <input value="@Model.StringID" id="ID" hidden />
+    }
+    else
+    {
+        <input value="@Model.IntID" id="ID" hidden />
+    }
+
+    <div class="row">
+        <div class="col-md-12">
+            <h4 class="text-center">تأكيد الحذف؟</h4>
+        </div>
+        <br /><br /><br />
+        <div class="col-md-5 mx-auto">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">اغلاق</button>
+            <button type="button" class="btn btn-danger" id="btnDelete">حذف</button>
+        </div>
+    </div>
+
+}
+
+<script>
+    $("#btnDelete").click(function () {
+        var ID = document.getElementById("ID").value;
+        $.ajax({
+            url: "/@Model.ControllerName/@Model.ActionName/" +ID,
+            type: "Post",
+            processData: false,
+            contentType: false,
+            cache: false,
+            timeout: 600000,
+            success: function (data) {
+                $(".modal").css("display", "none");
+                $("div").removeClass("modal-backdrop");
+                swal(data[0], data[1], data[2]).then(function () {
+                    //if (data[2] != "error") {
+                    window.location.href = data[3];
+                    //}
+                });
+            },
+            error: function (e) {
+                swal("Error", "Data Not Deleted", "error");
+                window.location.href = "";
+            }
+        });
+    });
+</script>
+
+
+

@@ -1,0 +1,192 @@
+﻿@using IdentityLibrary.DataModel
+@model FWYSupplierCooperation
+@using BagGomla.Models;
+@using System.Web.UI.WebControls
+@using IdentityLibrary.DataModel;
+@using Microsoft.AspNet.Identity;
+@{
+    ViewBag.Title = "Supplier Corporation Profile";
+    if (User.Identity.IsAuthenticated)
+    {
+        DatabaseContext db = new DatabaseContext();
+        var userId = User.Identity.GetUserId();
+        var user = db.AspNetUsers.SingleOrDefault(c => c.Id == userId);
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_DefualtLayout.cshtml";
+    }
+}
+
+<!-- ======================== Profile ========================== -->
+<!-- ======================== Profile Cover ========================== -->
+<div class="profile-cover border-bottom">
+    <img src="@ViewBag.ProfilePicture" height="400" width="100%" alt="">
+</div>
+<!-- ======================== navbar and logo ========================== -->
+<!-- ======================== navbar and logo  End========================== -->
+<!-- ======================== Profile Cover  End========================== -->
+
+<section class="mx-auto">
+    <div class="container">
+        <div class="row no-gutters">
+            <div class="col-md-3">
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        Company Logo
+                    </div>
+                    <div class="card-body">
+                        <img src="@Model.Logo" class="img-fluid rounded-circle img-thumbnail" alt="">
+                    </div>
+                </div>
+                <div class="card mt-4">
+                    <div class="card-header">
+                        Social Networks
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled d-flex">
+                            <li class="mx-2"><a href="@Model.Facebook"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+                            <li class="mx-2"><a href="@Model.Instagram"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+                            <li class="mx-2"><a href="@Model.Linkedin"><i class="fa fa-telegram" aria-hidden="true"></i></a></li>
+                        </ul>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 pl-17 pr-17">
+
+
+
+
+
+                <!-- ======================== About Company ========================== -->
+
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        About
+                    </div>
+                    <div class="card-body">
+
+                        <p>
+                            @Model.About
+                        </p>
+
+                    </div>
+                </div>
+
+
+                <!-- ======================== About Company  End========================== -->
+
+
+
+
+
+            </div>
+
+            <div class="col-md-3">
+                <div class="card mt-4">
+                    <div class="card-header">
+                        Member Status
+                    </div>
+                    <div class="card-body">
+                        @if (Model.IsVerified == true)
+                        {
+                            <p class="text-success font-weight-bold">Verified <i class="fa fa-check-circle text-success" aria-hidden="true"></i></p>
+                        }
+                        else if (Model.IsAccepted == false || Model.IsAgreedTerms == true && Model.Phone != "" && Model.Phone != null
+                            && Model.NationalCopyID != "" && Model.NationalCopyID != null && Model.CommericialRegister != "" && Model.CommericialRegister != null)
+                        {
+                            <p class="text-warning font-weight-bold">Waiting List <i class="fa fa-spinner text-warning" aria-hidden="true"></i></p>
+                        }
+                        else
+                        {
+                            <p class="text-danger font-weight-bold">Unverified <i class="fa fa-times-circle text-danger" aria-hidden="true"></i></p>
+                            if (User.Identity.IsAuthenticated)
+                            {
+                                if (User.Identity.GetUserId() == Model.SupplierID)
+                                {
+                                    <a href="/SupplierCorporation/CompanyVerify/@Model.ID" class="btn btn-warning font-weight-bold"> Verify Now </a>
+                                }
+                            }
+                        }
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <ul class="nav d-flex justify-content-between">
+                            <li>Latest Products</li>
+                            <li><a href="/SupplierCorporation/CompanyProducts/@Model.ID">View All</a> </li>
+                        </ul>
+
+                    </div>
+                    <div class="card-body">
+
+                        <!-- products -->
+                        <div class="sec-blog bg0 ">
+                            <div class="container">
+                                <div class="row">
+                                    @{
+                                        var ProductList = new List<FWYProduct>();
+                                        foreach (var item in Model.AspNetUsers.FWYStore)
+                                        {
+                                            foreach (var item1 in item.FWYStoreProduct)
+                                            {
+                                                if (ProductList.Find(c => c.ID == item1.FWYProduct.ID) == null)
+                                                {
+                                                    ProductList.Add(item1.FWYProduct);
+                                                }
+                                            }
+
+                                        }
+                                        ProductList.Reverse();
+                                        foreach (var item in ProductList)
+                                        {
+                                            var img = "";
+                                            if (item.FWYProductImage.Where(c => c.IsMain == true).ToList().Count > 0)
+                                            {
+                                                img = item.FWYProductImage.Where(c => c.IsMain == true).ToList().First().Image;
+                                            }
+                                            <div class="col-sm-6 col-md-3 p-b-40">
+                                                <div class="blog-item">
+                                                    <div class="hov-img0">
+                                                        <a href="/Products/Details/@item.ID">
+                                                            <img src="@img" alt="IMG-BLOG">
+                                                        </a>
+                                                    </div>
+
+                                                    <div class="p-t-15">
+
+                                                        <p class="stext-108 cl6">
+                                                            @item.Name
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- end products -->
+
+                    </div>
+                </div>
+
+            </div>
+
+
+        </div>
+    </div>
+</section>
+
+<!-- ======================== Profile  End========================== -->

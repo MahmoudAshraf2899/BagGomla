@@ -1,0 +1,138 @@
+﻿@model IdentityLibrary.DataModel.FWYAbout
+
+@{
+    ViewBag.Title = "تعديل بيانات الموقع";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<br /><br />
+<div class="container" dir="rtl">
+
+    <div class="card">
+        <div class="card-body">
+            <div class="card-header">
+                <h3 class="text-center">تعديل نبذة  عن الموقع</h3>
+            </div><br />
+            @using (Html.BeginForm("About", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                @Html.HiddenFor(c => c.ID);
+                @Html.HiddenFor(c => c.TypeID);
+                @Html.HiddenFor(c => c.Image);
+                @Html.HiddenFor(c => c.ImageExtension);
+                @Html.AntiForgeryToken();
+
+                <div class="form-group row">
+                    <label for="Title" class="control-label col-md-2">العنوان بالانجليزى</label>
+                    <div class="col-md-4">
+                        @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
+                        <span class="dis-none field-validation-error text-danger" data-valmsg-for="Title" data-valmsg-replace="true" id="msgTitle"></span>
+                        @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+                    </div>
+                    <label for="Title" class="control-label col-md-2">العنوان بالعربى </label>
+                    <div class="col-md-4">
+                        @Html.EditorFor(model => model.ArTitle, new { htmlAttributes = new { @class = "form-control" } })
+                        <span class="dis-none field-validation-error text-danger" data-valmsg-for="ArTitle" data-valmsg-replace="true" id="msgArTitle"></span>
+                        @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="Title" class="control-label col-md-2"> الوصف بالعربى</label>
+                    <div class="col-md-10">
+                        @Html.TextAreaFor(model => model.ArDescription, new { @class = "form-control", rows = "5" })
+                        <span class="dis-none field-validation-error text-danger" data-valmsg-for="ArDescription" data-valmsg-replace="true" id="msgArDescription"></span>
+                        @Html.ValidationMessageFor(model => model.ArDescription, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="Title" class="control-label col-md-2"> الوصف بالانجليزى</label>
+                    <div class="col-md-10">
+                        @Html.TextAreaFor(model => model.Description, new { @class = "form-control", rows = "5" })
+                        <span class="dis-none field-validation-error text-danger" data-valmsg-for="Description" data-valmsg-replace="true" id="msgDescription"></span>
+                        @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+               
+
+                <div class="form-group row">
+                    <label for="Title" class="control-label col-md-2">الصورة</label>
+                    <div class="col-md-10">
+                        <input type="file" name="Images" id="Images" class="form-control-file" accept="image/*" />
+                        <span class="dis-none field-validation-error text-danger" data-valmsg-for="Images" data-valmsg-replace="true" id="msgImage"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="button" value="حفظ" class="btn btn-success" id="btnSubmit" />
+                    </div>
+                </div>
+        }
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+<script>
+    $("#btnSubmit").click(function () {
+        var Title = $("#Title").val(),
+            ArTitle = $("#ArTitle").val(),
+            ArDescription = $("#ArDescription").val(),
+            ImgID = $("#Images").val();
+        var ValidImage = ValidateImage(ImgID);
+
+        if (Title != "" && Title != null && ValidImage == true && ArTitle != "" && ArTitle != null
+            && ArDescription != "" && ArDescription != null) {
+            document.getElementById("btnSubmit").setAttribute("type", "submit");
+        }
+        else {
+            if (Title == "" || Title == null) {
+                $("#msgTitle").removeClass("dis-none");
+                $("#msgTitle").html("العنوان بالانجليزية مطلوب ادخاله");
+            }
+            else {
+                $("#msgTitle").html("");
+            }
+            //
+            if (ArTitle == "" || ArTitle == null) {
+                $("#msgArTitle").removeClass("dis-none");
+                $("#msgArTitle").html("العنوان بالعربية مطلوب ادخاله");
+            }
+            else {
+                $("#msgArTitle").html("");
+            }
+           
+            //
+           
+            //
+            if (ArDescription == "" || ArDescription == null) {
+                $("#msgArDescription").removeClass("dis-none");
+                $("#msgArDescription").html("الوصف بالعربية مطلوب ادخاله");
+            }
+            else {
+                $("#msgArDescription").html("");
+            }
+            //
+            if (ValidImage == false) {
+                $("#msgImage").removeClass("dis-none");
+                $("#msgImage").html("الصورة غير صالحة");
+            }
+            else {
+                $("#msgImage").html("");
+            }
+        }
+    });
+
+    function ValidateImage(file) {
+        if (file == null || file == "") {
+            return true;
+        }
+        var FileArr = file.split(".");
+        var extension = FileArr[FileArr.length - 1];
+        //alert(extension);
+        if (extension == "jpg" || extension == "png" || extension == "jpeg" || extension == "gif") {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+</script>
+

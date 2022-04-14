@@ -1,0 +1,91 @@
+﻿@model PagedList.IPagedList<IdentityLibrary.DataModel.City>
+@using PagedList.Mvc;
+@{ ViewBag.Title = "المدن";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var i = ((Model.PageNumber - 1) * 10) + 1;
+    }
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+
+<div class="card" dir="rtl" style="text-align:right">
+    <div class="card-header">
+        <h3 class="text-center">المدن</h3>
+        <div class="row">
+            <div class="col-lg-7 float-left">
+                <a href="#" data-toggle="modal" data-target="#bookingmodal" onclick="LoadPopup('/City/Create')" class="btn btn-success">اضافه مدينة</a>
+            </div>
+            <div class="col-lg-5 float-right">
+                <input type="text" id="inpSearch" class="form-control" placeholder="اكتب هنا للبحث" value="@ViewBag.SearchStr"/>
+            </div>
+        </div>
+
+    </div>
+    <div class="card-body">
+        <table class="table m-0 table-colored-bordered table-bordered-info table-bordered table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th>#</th>
+                    <th>الاسم بالعربية</th>
+                    <th>الاسم بالانجليزية</th>
+                    <th>الدولة</th>
+                    <th>اجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+    <tr>
+                <td>@i</td>
+        <td>@item.ArName</td>
+        <td>@item.EnName</td>
+        <td>@item.Country.ArName - @item.Country.Name</td>
+        <td>
+            <a href="#" data-toggle="modal" data-target="#bookingmodal" onclick="LoadPopup('/City/Edit/@item.Id')" class="btn btn-info">تعديل</a>
+            <a href="#" data-toggle="modal" data-target="#bookingmodal" onclick="LoadPopup('/City/Delete/@item.Id')" class="btn btn-danger">حذف</a>
+        </td>
+    </tr>
+                    i++;
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div style="text-align:center!important">
+        <h5>
+            Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+        </h5>
+        <p>
+            @Html.PagedListPager(Model, page => "/City/Index?searchStr="+ViewBag.SearchStr+"&countryId="+ViewBag.CountryId+"&page="+page)
+        </p>
+    </div>
+</div>
+
+<div class="modal" id="bookingmodal" tabindex="-1" role="dialog" aria-labelledby="bookingmodalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0"><span class="fas fa-times close-x" aria-hidden="true" data-dismiss="modal" aria-label="Close"> </span></div>
+            <div class="modal-body" id="dvPopup">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+<script>
+    function LoadPopup(MyView) {
+        debugger;
+        $("#overlayer").show();
+        $(".loader").show();
+        $("#dvPopup").load(MyView, function () {
+            $("#overlayer").hide();
+            $(".loader").hide();
+        });
+    }
+
+    $("#inpSearch").keyup(function (event) {
+        if (event.key === 'Enter') {
+            var searchStr = $("#inpSearch").val();
+            window.location.href = "/City/Index?searchStr=" + searchStr + "&countryId=@ViewBag.CountryId";
+        }
+    });
+</script>

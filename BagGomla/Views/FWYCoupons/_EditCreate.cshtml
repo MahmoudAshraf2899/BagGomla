@@ -1,0 +1,69 @@
+﻿@model IdentityLibrary.DataModel.FWYCoupon
+@using BagGomla.LocalResource
+@{
+    ViewBag.Title = Resource.EditCreate + Resource.Coupon;
+}
+
+
+
+<div class="card">
+    <div class="card-body">
+        <h2>@Resource.EditCreate @Resource.Coupon</h2>
+        <hr />
+@using (Html.BeginForm("EditCreate", "FWYCoupons", FormMethod.Post, new { }))
+{
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(c => c.SupplierID);
+            @Html.HiddenFor(c => c.ID);
+
+
+            <div class="form-horizontal">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group">
+                    <label for="CouponCode" class="control-label col-md-2">@Resource.Code</label>
+                    <div class="col-md-12">
+                        @Html.EditorFor(model => model.CouponCode, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.CouponCode, "", new { @class = "text-danger" })
+                        <span class="dis-none field-validation-error text-danger" data-valmsg-for="CouponCode" data-valmsg-replace="true" id="copCode">@Resource.Coupon @Resource.IsRequired</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="Discount" class="control-label col-md-2">@Resource.Discount.</label>
+                    <div class="col-md-12">
+                        @Html.EditorFor(model => model.Discount, new { htmlAttributes = new { @class = "form-control",type="number" } })
+                        @Html.ValidationMessageFor(model => model.Discount, "", new { @class = "text-danger" })
+                        <span class="dis-none field-validation-error text-danger" data-valmsg-for="Discount" data-valmsg-replace="true" id="copDiscount">@Resource.Discount @Resource.IsRequired</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="button" value="@Resource.Save" class="btn btn-success" id="btnSubmit"/>
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+</div>
+
+
+<script>
+    $("#btnSubmit").click(function () {
+        var x = $("#CouponCode").val();
+        var y = $("#Discount").val();
+        if (x != "" && x != null && y != "" && y != null) {
+            document.getElementById("btnSubmit").setAttribute("type", "submit");
+        }
+        else {
+            if (x == "" || x == null) {
+                $("#copCode").removeClass("dis-none");
+            }
+            if (y == "" || y == null) {
+                $("#copDiscount").removeClass("dis-none");
+            }
+            //alert("error");
+        }
+    });
+</script>

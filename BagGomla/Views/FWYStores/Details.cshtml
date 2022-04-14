@@ -1,0 +1,128 @@
+﻿@model IdentityLibrary.DataModel.FWYStore
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<div style="background-color:gainsboro">
+    <br /><br /><br />
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <h3> Store Information</h3>
+                <table class="table m-0 table-colored-bordered table-bordered-info table-bordered table-hover">
+                    <thead class="thead-default">
+                        <tr>
+                            <th data-breakpoints="xs">
+                                @Html.DisplayNameFor(model => model.Name)
+                            </th>
+                            <th data-breakpoints="xs">
+                                @Html.DisplayNameFor(model => model.Location)
+                            </th>
+                            <th data-breakpoints="xs">
+                                @Html.DisplayNameFor(model => model.ARName)
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>@Model.Name</td>
+                            <td>@Model.Location</td>
+                            <td>@Model.ARName</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <br /><br /><br />
+    <div class="card">
+        <div class="card-body">
+            <button id="btnShowModal" class="btn btn-primary">Assign Product </button>
+            <br /><br />
+            <div class="table-responsive">
+                <h3>Products in Store</h3>
+
+                <table id="InvoiceTabel" class="table m-0 table-colored-bordered table-bordered-info table-bordered table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th data-breakpoints="xs">
+                                Product Name
+                            </th>
+                            <th data-breakpoints="xs">
+                                Product Number
+                            </th>
+                            <th data-breakpoints="xs">
+                                Quantity
+                            </th>
+                            <th data-breakpoints="xs">
+                                Sales Num
+                            </th>
+                            <th data-breakpoints="xs">
+                                Favourites Num
+                            </th>
+                            <th data-breakpoints="xs">
+                                Price
+                            </th>
+                            <th>
+                                Action
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.FWYStoreProduct)
+                    {
+                            <tr>
+                                <td>@item.FWYProduct.Name</td>
+                                <td>@item.FWYProduct.Number</td>
+                                <td>@item.Quantity</td>
+                                <td>@item.FWYProduct.SalesNum</td>
+                                <td>@item.FWYProduct.FavouritesNum</td>
+                                <td>@item.FWYProduct.Price</td>
+
+                                <td>
+                                    @Html.ActionLink("Edit", "EditCreate", new { id = item.ID }, htmlAttributes: new { @class = "btn btn-success" })
+                                    @Html.ActionLink("Details", "Details", new { id = item.ID }, htmlAttributes: new { @class = "btn btn-info" })
+                                    @Html.ActionLink("Delete", "Delete", new { id = item.ID }, htmlAttributes: new { @class = "btn btn-danger" })
+                                </td>
+                            </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <br /><br /><br />
+  
+    <p>
+        @Html.ActionLink("Back to List", "Index")
+    </p>
+
+</div>
+
+@*/// pop up for assign product////*@
+<div class="wrap-modal1 js-modal1 p-t-60 p-b-20">
+    <div class="overlay-modal1 js-hide-modal1"></div>
+    <div class="container">
+        <div class="bg0 p-t-60 p-b-30 p-lr-15-lg how-pos3-parent">
+            <button class="how-pos3 hov3 trans-04 js-hide-modal1">
+                <img src="~/Images/icons/icon-close.png" alt="CLOSE">
+            </button>
+            <h4 style="text-align:center;">Assign Product To Store</h4>
+            <div id="dvGalleryPicture" style="margin:30px;">
+               
+            </div>
+        </div>
+    </div>
+</div>
+
+   <script>
+       $("#btnShowModal").click(function () {
+        $('.js-modal1').addClass('show-modal1');
+    });
+   
+</script>

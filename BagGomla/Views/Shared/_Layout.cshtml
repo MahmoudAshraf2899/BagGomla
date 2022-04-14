@@ -1,0 +1,1485 @@
+﻿@using BagGomla.Helper;
+@using BagGomla.LocalResource;
+@using IdentityLibrary.DataModel;
+@using Microsoft.AspNet.Identity;
+@{
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+
+    DatabaseContext db = new DatabaseContext();
+    var LatestNews = db.LatestNews.OrderByDescending(c => c.ID).ToList();
+    if (LatestNews.Count > 10)
+    {
+        LatestNews = LatestNews.Take(10).ToList();
+    }
+    List<string> ShoppingCartCollection = TagHelper.GetCookiesCollection(Request.Cookies["Cart"]).ToList();
+    var ProductCollection = db.FWYProduct.Where(c => c.IsDeleted == false).ToList();
+    var ProductList = new List<BagGomla.Models.ShoppingCartStruct>();
+    foreach (var item in ShoppingCartCollection)
+    {
+        var SplitShopCart = item.Split('-');
+
+        foreach (var item2 in ProductCollection)
+        {
+            if (SplitShopCart[0] == (item2.ID).ToString())
+            {
+                if (SplitShopCart.Length > 0)
+                {
+                    if (!SplitShopCart[1].Equals("") && !SplitShopCart[2].Equals(""))
+                    {
+                        int sizeid = int.Parse(SplitShopCart[1]);
+                        int colorid = int.Parse(SplitShopCart[2]);
+                        var Colors = db.FWYColor.FirstOrDefault(c => c.ID == colorid);
+                        var Sizes = db.FWYSize.FirstOrDefault(c => c.ID == sizeid);
+                        ProductList.Add(new BagGomla.Models.ShoppingCartStruct(item2, sizeid, colorid, Colors, Sizes));
+                    }
+                    else
+                    {
+                        ProductList.Add(new BagGomla.Models.ShoppingCartStruct(item2, 0, 0, null, null));
+                    }
+                }
+            }
+        }
+    }
+
+
+    var SupplierID = "";
+    var SupplierCompanyID = 0;
+    int? StoreID = null;
+    var IsAccepted = false;
+    var user = new AspNetUsers();
+    var Notifications = new List<FWYNotification>();
+    if (User.Identity.IsAuthenticated)
+    {
+        var userID = User.Identity.GetUserId();
+        user = db.AspNetUsers.SingleOrDefault(c => c.Id == userID);
+        if (user != null)
+        {
+            if (user.IsSupplier == true)
+            {
+                SupplierID = userID;
+                if (user.FWYSupplierCooperation.Count > 0)
+                {
+                    SupplierCompanyID = user.FWYSupplierCooperation.First().ID;
+                    IsAccepted = user.FWYSupplierCooperation.First().IsAccepted;
+                }
+                if (IsAccepted == true)
+                {
+                    if (user.FWYStore.Count > 0)
+                    {
+                        StoreID = user.FWYStore.First().ID;
+                    }
+                    else
+                    {
+                        var store = new FWYStore()
+                        {
+                            Name = "My store",
+                            ARName = "المخزن",
+                            SupplierID = user.Id
+                        };
+                        db.FWYStore.Add(store);
+                        db.SaveChanges();
+                        StoreID = store.ID;
+                    }
+                }
+
+            }
+        }
+        else
+        {
+            if (userID == "1cc2ede9-5bc0-41e2-be52-801a844f1819")
+            {
+                SupplierID = "0";
+            }
+        }
+        Notifications = db.FWYNotification.Where(c => c.SendTo == userID && c.IsManual == false).ToList();
+        Notifications.Reverse();
+    }
+    var Counter = 0;
+}
+
+
+
+@* dir="@(System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.IsRightToLeft? "rtl" : "ltr")" *@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    @*@Styles.Render("~/Content/css")
+        @Scripts.Render("~/bundles/modernizr")*@
+    <link href="~/Content/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-5.0.0-beta1-dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="icon" href="~/Images/BIG LOGO@100x.png" type="image/x-icon">
+    <link href="~/Scripts/fonts/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Scripts/fonts/iconic/css/material-design-iconic-font.min.css" rel="stylesheet" />
+    <link href="~/Scripts/fonts/linearicons-v1.0.0/icon-font.min.css" rel="stylesheet" />
+    <link href="~/Content/vendor/animate/animate.css" rel="stylesheet" />
+    <link href="~/Content/vendor/css-hamburgers/hamburgers.min.css" rel="stylesheet" />
+    <link href="~/Content/vendor/animsition/css/animsition.min.css" rel="stylesheet" />
+    <link href="~/Content/vendor/select2/select2.min.css" rel="stylesheet" />
+    <link href="~/Content/vendor/daterangepicker/daterangepicker.css" rel="stylesheet" />
+    <link href="~/Content/vendor/slick/slick.css" rel="stylesheet" />
+    <link href="~/Content/vendor/MagnificPopup/magnific-popup.css" rel="stylesheet" />
+    <link href="~/Content/vendor/perfect-scrollbar/perfect-scrollbar.css" rel="stylesheet" />
+    <link href="~/Content/css/util.css" rel="stylesheet" />
+    <link href="~/Content/css/main.css" rel="stylesheet" />
+    <link href="~/Content/css/ayman.css" rel="stylesheet" />
+    <link href="~/Content/css/ayman2.css" rel="stylesheet" />
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.1.0/css/flag-icon.min.css" rel="stylesheet">
+    <link href="~/Content/AdminDashboard/plugins/flag-icon-css/css/flag-icon.css" rel="stylesheet" />
+    <link href="~/Content/AdminDashboard/plugins/flag-icon-css/css/flag-icon.min.css" rel="stylesheet" />
+    @if (lang == "ar-EG")
+    {
+        <link href="~/Content/bootstrap-5.0.0-beta1-dist/css/bootstrap.rtl.min.css" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600&display=swap" rel="stylesheet">
+        <style>
+            html {
+                direction: rtl;
+            }
+
+            .slick-slider {
+                direction: rtl;
+                text-align: right;
+            }
+
+            .slick-slide {
+                float: right !important;
+            }
+
+            #navMenu {
+                direction: rtl;
+                text-align: right;
+            }
+
+            *:not(i):not(.fa):not(.fab):not(.fas) {
+                font-family: 'Cairo', sans-serif !important;
+                font-size: inherit;
+            }
+
+            .js-addwish-b2:hover, .js-addedwish-b2:hover{
+                cursor: pointer;
+            }
+            
+        </style>
+    }
+    <link href="~/Content/css/looder.css" rel="stylesheet" />
+
+</head>
+<body>
+    <div class="loader11"></div>
+
+    <!-- Header -->
+    <header class="header-v4">
+        <!-- Header desktop -->
+        <div class="container-menu-desktop">
+            <!-- Topbar -->
+            <div class="top-bar" style="background-color:#dcc198;">
+                <div class="content-topbar flex-sb-m h-full container">
+                    <div class="left-top-bar" style="color:#404553;font-weight:bold; font-size:15px;">
+                        @{
+                            foreach (var i in LanguageMang.AvailableLanguages)
+                            {
+                                var lan = "";
+                                if (i.LanguageFullName.Equals("English"))
+                                {
+                                    lan = "English";
+                                    <span class="flag-icon flag-icon-us mx-2"></span>
+                                }
+                                else
+                                {
+                                    lan = Resource.ArabicLan;
+                                    <span class="flag-icon flag-icon-eg mx-2"></span>
+                                }
+                                @Html.ActionLink(lan, "ChangeLanguage", "Home", new { lang = i.LanguageCultureName, returnUrl = @Request.Url.AbsoluteUri }, new { @style = "color:black" })
+                            }
+                        }
+                    </div>
+
+                    <div class="right-top-bar flex-w h-full">
+                        @if (User.IsInRole("2"))
+                        {
+                            <div class="flex-c-m h-full p-l-26">
+                                <div class="icon-header-item cl2 hov-cl1 trans-04 p-lr-11 " id="SearchIcon">
+                                    @using (Html.BeginForm("Index", "Products", FormMethod.Get, new { id = "SearchProductForm1" }))
+                                    {
+                                        <input class="form-control" type="text" name="ProductName" id="proName1" placeholder="@Resource.Search....." style="border-radius:40px!important;margin-top:2px!important;height:30px!important;width:250px!important">
+                                        <input name="longitude" type="hidden" id="long1" value="0" />
+                                        <input name="latitude" type="hidden" id="lat1" value="0" />
+                                        <input name="location" type="hidden" id="location1" value="0" />
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        <div class="dropdown">
+                            @if (User.IsInRole("2"))
+                            {
+                                <a class="flex-c-m trans-04 p-lr-25"  data-toggle="dropdown" href="/Customer/EditCustomerProfile" style="color:black !important; top:30px !important">
+                                    <i class="fa fa-user notify-icon" style="font-size:17px;"></i>@Resource.Welcome @user.Name
+                                </a>
+                            }
+                            else if (User.IsInRole("2"))
+                            {
+                                <a class="flex-c-m trans-04 p-lr-25"  data-toggle="dropdown" href="/SupplierCorporation/CompanyProfile/@SupplierCompanyID" style="color:black !important; top:30px !important">
+                                    <i class="fa fa-user notify-icon" style="font-size:17px;"></i>@Resource.Welcome @user.Name
+                                </a>
+                            }
+                            <div class="dropdown-menu dropdown-menu-right dropdown-lg" style="z-index:2000;">
+                                <!-- item-->
+                                <div class="dropdown-item noti-title">
+                                    <h5 class="m-0">
+                                        <span class="float-right">
+                                            <a href="" class="text-dark">
+                                            </a>
+                                        </span>@Resource.UserInformation
+                                    </h5>
+                                </div>
+
+                                <div class="slimscroll noti-scroll" style="height:280px;overflow-y:auto">
+                                    <div class="dropdown-item notify-item">
+                                        <div class="notify-icon">
+                                            <i class="fa fa-envelope-open-text text-black-50"></i>
+                                        </div>
+                                        @if(user != null)
+                                        {
+                                            if (lang == "ar-EG")
+                                            {
+                                            <h6 style="color:blue;">@Resource.Name</h6>
+                                            <p class="notify-details">@user.ARName</p>
+                                            <br />
+                                            <h6 style="color:blue">@Resource.Phone</h6>
+                                            <p class="notify-details">
+                                                @user.PhoneNumber
+                                            </p>
+                                            <br />
+                                            <h6 style="color:blue">@Resource.Email</h6>
+                                            <p class="notify-details">
+                                                @user.Email
+                                            </p>
+                                        }
+                                        else
+                                        {
+                                            <h6 tyle="color:blue;">@Resource.Name</h6>
+                                            <p class="notify-details">@user.Name</p>
+                                            <br />
+                                            <h6 tyle="color:blue;">@Resource.Phone</h6>
+                                            <p class="notify-details">
+                                                @user.PhoneNumber
+                                            </p>
+                                            <br />
+                                            <h6 tyle="color:blue;">@Resource.Email</h6>
+                                            <p class="notify-details">
+                                                @user.Email
+                                            </p>
+                                        }
+                                        }
+                                        <div class="dropdown-divider"></div>
+                                        <a style="color:black;font-size:15px;" class="nav-link" href="/Account/ChangePassword?ID=@User.Identity.GetUserId()&&returnUrl=@Request.Url.AbsoluteUri">@Resource.Change @Resource.Password</a>
+                                        <a href="#" class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti" id="display-Fav" data-notify="@TagHelper.GetMyFavCount(User.Identity.GetUserId())">
+                                            <i class="zmdi zmdi-favorite-outline"></i>
+                                        </a>
+                                        <a style="color:black;font-size:15px;" href="/Account/LogOff" class="nav-link" role="button"><i class="fa fa-unlock"></i> @Resource.Logout</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wrap-menu-desktop how-shadow1" style="background-color:#75bfe2;height:80px; color:white">
+                <nav class="limiter-menu-desktop container" style="max-width:100%">
+
+                    
+
+
+                    <!-- Menu desktop -->
+                    <div class="menu-desktop">
+                        <ul class="main-menu">
+
+                            @if (User.IsInRole("2") || User.IsInRole("1"))
+                            {
+                                <li>
+                                    <a href="/Home/Index">@Resource.Home</a>
+                                </li>
+                                @*<li class="label1" data-label1="@Resource.hot">
+                                    <a href="/Products/Discounts">@Resource.Offers</a>
+                                </li>*@
+
+                                <li>
+                                    <a href="/About/About">@Resource.About</a>
+                                </li>
+
+                                <li>
+                                    <a href="/About/ContentPage">@Resource.Contact</a>
+                                </li>
+                                if (User.IsInRole("2"))
+                                {
+                                    if (IsAccepted)
+                                    {
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownForProd" role="button"
+                                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                @Resource.Products <span class="product-num shadow-none text-primary">
+                                                </span>
+                                            </a>
+                                            <div class="dropdown-menu" aria-labelledby="navbarDropdownForProd">
+                                                <a class="dropdown-item" href="/FWYStores/EditCreateProduct/0?StoreID=@StoreID">
+                                                    @Resource.Add  @Resource.Product
+                                                </a>
+                                                @*<a class="dropdown-item" href="/Products/Index">@Resource.AllProducts</a>*@
+                                                <a class="dropdown-item" href="/SupplierCorporation/CompanyProducts/@SupplierCompanyID">
+                                                    @Resource.MyProducts
+                                                </a>
+                                            </div>
+
+                                        </li>                                       
+                                    }
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            @Resource.Settings <span class="product-num shadow-none text-primary">
+                                                @*<i class="fa fa-exclamation-circle" aria-hidden="true"></i>*@
+                                            </span>
+                                        </a>
+                                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                            <a class="dropdown-item" href="/SupplierCorporation/CompanyProfile/@SupplierCompanyID">@Resource.MyAccount</a>
+                                            <a class="dropdown-item" href="/SupplierCorporation/EditSupProfile">@Resource.EditProfile</a>
+                                            <a class="dropdown-item" href="/Account/ChangePassword?ID=@User.Identity.GetUserId()&&returnUrl=@Request.Url.AbsoluteUri">@Resource.Change @Resource.Password</a>
+                                        </div>
+                                    </li>
+                                }
+
+                                if (User.IsInRole("1"))
+                                {
+                                    <li>
+                                        <a href="/Admin/AdminProfile">@Resource.Dashboard</a>
+                                    </li>
+                                }
+
+                            }
+
+
+                        </ul>
+                    </div>
+
+                    <!-- Logo desktop -->
+                    @if (lang == "ar-EG")
+                    {
+                        <a href="/Home/Index" style="margin:0px 30px 0px 30px;">
+                            <img src="/Images/BIG LOGO@100x.png" id="test" alt="IMG-LOGO" width="150a" height="70" style="position:absolute; top:9px;margin-right:-70px;">
+                        </a>
+                    }
+                    else
+                    {
+                        <a href="/Home/Index">
+                            <img src="/Images/BIG LOGO@100x.png" id="test" alt="IMG-LOGO" width="150" height="70" style="position:absolute; top:9px;margin-left:-70px;">
+                        </a>
+                    }
+
+                    <!-- Icon header -->
+                    <div class="wrap-icon-header flex-w flex-r-m" id="RefreshDiv">
+                        @if (User.IsInRole("1") || User.IsInRole("2"))
+                        {
+                            if (User.IsInRole("1"))
+                            {
+                                <div class="flex-c-m h-full p-r-24">
+                                    <div class="icon-header-item cl2 hov-cl1 trans-04 p-lr-11 " id="SearchIcon">
+                                        @using (Html.BeginForm("Index", "Products", FormMethod.Get, new { id = "SearchProductForm1" }))
+                                        {
+                                            <input class="form-control" type="text" name="ProductName" id="proName1" placeholder="@Resource.Search....." style="border-radius:40px!important">
+                                            <input name="longitude" type="hidden" id="long1" value="0" />
+                                            <input name="latitude" type="hidden" id="lat1" value="0" />
+                                            <input name="location" type="hidden" id="location1" value="0" />
+                                        }
+                                    </div>
+                                </div>
+                            }
+
+                        }
+                        <div class="dropdown">
+                            <a class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false" data-notify="@Notifications.Where(c => c.IsRead == false).ToList().Count">
+                                <i class="fa fa-bell notify-icon" style="color:black;font-size:15px;"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right dropdown-lg">
+                                <!-- item-->
+                                <div class="dropdown-item noti-title">
+                                    <h5 class="m-0">
+                                        <span class="float-right">
+                                            <a href="" class="text-dark">
+                                            </a>
+                                        </span>@Resource.Notifications
+                                    </h5>
+                                </div>
+
+                                <div class="slimscroll noti-scroll" style="height:300px;overflow-y:auto">
+
+                                    @foreach (var item in Notifications)
+                                    {
+                                        if (item.IsRead == true)
+                                        {
+                                            <a class="dropdown-item notify-item" href="@item.DetailsURL">
+                                                <div class="notify-icon">
+                                                    <i class="fa fa-envelope-open-text text-black-50"></i>
+                                                </div>
+                                                @if (lang == "ar-EG")
+                                                {
+                                                    <p class="notify-details">@item.ArTitle</p>
+                                                    <p class="text-muted mb-0 user-msg">
+                                                        @item.ArDetails
+                                                    </p>
+                                                }
+                                                else
+                                                {
+                                                    <p class="notify-details">@item.Title</p>
+                                                    <p class="text-muted mb-0 user-msg">
+                                                        @item.Details
+                                                    </p>
+                                                }
+
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a class="dropdown-item notify-item active-pagination1" onclick="SeeNotify('@item.Id', '@item.DetailsURL');">
+                                                <div class="notify-icon">
+                                                    <i class="fa fa-envelope-open-text text-black-50"></i>
+                                                </div>
+                                                @if (lang == "ar-EG")
+                                                {
+                                                    <p class="notify-details">@item.ArTitle</p>
+                                                    <p class="text-muted mb-0 user-msg">
+                                                        @item.ArDetails
+                                                    </p>
+                                                }
+                                                else
+                                                {
+                                                    <p class="notify-details">@item.Title</p>
+                                                    <p class="text-muted mb-0 user-msg">
+                                                        @item.Details
+                                                    </p>
+                                                }
+                                            </a>
+
+                                        }
+
+                                    }
+
+                                </div>
+                                <!-- item-->
+                                <div class="dropdown-item noti-title">
+                                    <h5 class="m-0" style="text-align:center;">
+                                        <span class="mx-auto">
+                                            <a href="/Notification/UserNotifications" class="text-dark">
+                                                @Resource.DisplayAllNotifications
+                                            </a>
+                                        </span>
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="nav-item">
+                            <a href="#" class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti" id="display-Fav" data-notify="@TagHelper.GetMyFavCount(User.Identity.GetUserId())">
+                                <i class="zmdi zmdi-favorite-outline"></i>
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a style="color:black;font-size:17px;" href="/Account/LogOff" class="nav-link" role="button"><i class="fa fa-unlock"></i> @Resource.Logout</a>
+                        </div>
+                        
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Header Mobile -->
+
+        @if (lang == "ar-EG")
+        {
+            <div class="wrap-header-mobile" style="background-color: #dcc198">
+                <!-- Button show menu -->
+                <div class="btn-show-menu-mobile hamburger hamburger--squeeze">
+                    <span class="hamburger-box">
+                        <span class="hamburger-inner" style="background-color:white !important;"></span>
+                    </span>
+                </div>
+                <!-- Logo moblie -->
+                <div class="logo-mobile" style="margin-right:60px;">
+                    <a href="/Home/Index"><img src="/Images/BIG LOGO@100x.png" alt="IMG-LOGO" width="100" height="120"></a>
+                </div>
+
+
+                <!-- Icon header -->
+                @if (User.IsInRole("2"))
+                {
+                   @* <div class="wrap-icon-header flex-w flex-r-m h-full m-r-70">
+                        <div class="icon-header-item cl2 hov-cl1 trans-04 p-lr-11 icon-header-noti" id="display-cart" data-notify="@TagHelper.CountCookiesCollection(Request.Cookies["Cart"]).Count">
+                            <i class="zmdi zmdi-shopping-cart text-dark"></i>
+                        </div>
+                    </div>*@
+                    ////////////////////////////////////////////
+                    <div class="dropdown wrap-icon-header flex-w flex-r-m h-full m-r-15">
+                        <a class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-6 icon-header-noti" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false" data-notify="@Notifications.Where(c => c.IsRead == false).ToList().Count">
+                            <i class="fa fa-bell notify-icon" style="color:black;font-size:17px;"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right dropdown-lg">
+
+                            <!-- item-->
+                            <div class="dropdown-item noti-title">
+                                <h5 class="m-0">
+                                    <span class="float-right">
+                                        <a href="" class="text-dark">
+                                        </a>
+                                    </span>@Resource.Notifications
+                                </h5>
+                            </div>
+
+                            <div class="slimscroll noti-scroll" style="height:300px;overflow-y:auto">
+
+                                @foreach (var item in Notifications)
+                                {
+                                    if (item.IsRead == true)
+                                    {
+                                        <a class="dropdown-item notify-item" href="@item.DetailsURL">
+                                            <div class="notify-icon">
+                                                <i class="fa fa-envelope-open-text text-black-50"></i>
+                                            </div>
+                                            @if (lang == "ar-EG")
+                                            {
+                                                <p class="notify-details">@item.ArTitle</p>
+                                                <p class="text-muted mb-0 user-msg">
+                                                    @item.ArDetails
+                                                </p>
+                                            }
+                                            else
+                                            {
+                                                <p class="notify-details">@item.Title</p>
+                                                <p class="text-muted mb-0 user-msg">
+                                                    @item.Details
+                                                </p>
+                                            }
+
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a class="dropdown-item notify-item active-pagination1" onclick="SeeNotify('@item.Id', '@item.DetailsURL');">
+                                            <div class="notify-icon">
+                                                <i class="fa fa-envelope-open-text text-black-50"></i>
+                                            </div>
+                                            @if (lang == "ar-EG")
+                                            {
+                                                <p class="notify-details">@item.ArTitle</p>
+                                                <p class="text-muted mb-0 user-msg">
+                                                    @item.ArDetails
+                                                </p>
+                                            }
+                                            else
+                                            {
+                                                <p class="notify-details">@item.Title</p>
+                                                <p class="text-muted mb-0 user-msg">
+                                                    @item.Details
+                                                </p>
+                                            }
+                                        </a>
+
+                                    }
+
+                                }
+
+                            </div>
+                            <!-- item-->
+                            <div class="dropdown-item noti-title">
+                                <h5 class="m-0" style="text-align:center;">
+                                    <span class="mx-auto">
+                                        <a href="/Notification/UserNotifications" class="text-dark">
+                                            @Resource.DisplayAllNotifications
+                                        </a>
+                                    </span>
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        }
+        else
+        {
+            <div class="wrap-header-mobile" style="background-color: #dcc198">
+                <!-- Button show menu -->
+                <div class="btn-show-menu-mobile hamburger hamburger--squeeze">
+                    <span class="hamburger-box">
+                        <span class="hamburger-inner" style="background-color:white !important;"></span>
+                    </span>
+                </div>
+                <!-- Logo moblie -->
+                <div class="logo-mobile" style="margin-left:20px;">
+                    <a href="/Home/Index"><img src="/Images/BIG LOGO@100x.png" alt="IMG-LOGO" width="100" height="120"></a>
+                </div>
+                <!-- Icon header -->
+                @if (User.IsInRole("2"))
+                {
+                    <div class="wrap-icon-header flex-w flex-r-m h-full m-l-70">
+                        <div class="icon-header-item cl2 hov-cl1 trans-04 p-lr-11 icon-header-noti" id="display-cart" data-notify="@TagHelper.CountCookiesCollection(Request.Cookies["Cart"]).Count">
+                            <i class="zmdi zmdi-shopping-cart text-dark"></i>
+                        </div>
+                    </div>
+                    ////////////////////////////////////////////
+                    <div class="dropdown wrap-icon-header flex-w flex-r-m h-full m-r-15">
+                        <a class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-6 icon-header-noti" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false" data-notify="@Notifications.Where(c => c.IsRead == false).ToList().Count">
+                            <i class="fa fa-bell notify-icon" style="color:black;font-size:17px;"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right dropdown-lg">
+
+                            <!-- item-->
+                            <div class="dropdown-item noti-title">
+                                <h5 class="m-0">
+                                    <span class="float-right">
+                                        <a href="" class="text-dark">
+                                        </a>
+                                    </span>@Resource.Notifications
+                                </h5>
+                            </div>
+
+                            <div class="slimscroll noti-scroll" style="height:300px;overflow-y:auto">
+
+                                @foreach (var item in Notifications)
+                                {
+                                    if (item.IsRead == true)
+                                    {
+                                        <a class="dropdown-item notify-item" href="@item.DetailsURL">
+                                            <div class="notify-icon">
+                                                <i class="fa fa-envelope-open-text text-black-50"></i>
+                                            </div>
+                                            @if (lang == "ar-EG")
+                                            {
+                                                <p class="notify-details">@item.ArTitle</p>
+                                                <p class="text-muted mb-0 user-msg">
+                                                    @item.ArDetails
+                                                </p>
+                                            }
+                                            else
+                                            {
+                                                <p class="notify-details">@item.Title</p>
+                                                <p class="text-muted mb-0 user-msg">
+                                                    @item.Details
+                                                </p>
+                                            }
+
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a class="dropdown-item notify-item active-pagination1" onclick="SeeNotify('@item.Id', '@item.DetailsURL');">
+                                            <div class="notify-icon">
+                                                <i class="fa fa-envelope-open-text text-black-50"></i>
+                                            </div>
+                                            @if (lang == "ar-EG")
+                                            {
+                                                <p class="notify-details">@item.ArTitle</p>
+                                                <p class="text-muted mb-0 user-msg">
+                                                    @item.ArDetails
+                                                </p>
+                                            }
+                                            else
+                                            {
+                                                <p class="notify-details">@item.Title</p>
+                                                <p class="text-muted mb-0 user-msg">
+                                                    @item.Details
+                                                </p>
+                                            }
+                                        </a>
+
+                                    }
+
+                                }
+
+                            </div>
+                            <!-- item-->
+                            <div class="dropdown-item noti-title">
+                                <h5 class="m-0" style="text-align:center;">
+                                    <span class="mx-auto">
+                                        <a href="/Notification/UserNotifications" class="text-dark">
+                                            @Resource.DisplayAllNotifications
+                                        </a>
+                                    </span>
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        }
+
+        <div class="wrap-header-mobile" style="background-color: #f7f8fa; height: 50px;">
+            <div class="wrap-icon-header">
+                @if (User.IsInRole("1") || User.IsInRole("2"))
+                {
+                    <div class="icon-header-item cl2 hov-cl1 trans-04" id="SearchIcon">
+                        @using (Html.BeginForm("Index", "Products", FormMethod.Get, new { id = "SearchProductForm2" }))
+                        {
+                            <input class="form-control" type="text" name="ProductName" id="proName2" placeholder="@Resource.Search.....">
+                            <input name="longitude" type="hidden" id="long2" value="0" />
+                            <input name="latitude" type="hidden" id="lat2" value="0" />
+                            <input name="location" type="hidden" id="location2" value="0" />
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        @if (user != null)
+        {
+            <div class="wrap-header-cart js-panel-Menu">
+            <div class="s-full js-hide-Menu"></div>
+            <div class="header-cart flex-col-l p-l-65 p-r-25" style="overflow:scroll">
+                <div class="header-cart-title flex-w flex-sb-m p-b-8">
+                    <span class="mtext-102 cl2" style="font-weight:bold!important;">
+                        <i class="fa fa-user-circle"></i><span><a href="/SupplierCorporation/CompanyProfile/@SupplierCompanyID">@Resource.Welcome @user.Name</a></span><br />
+                        <span>
+                            @user.PhoneNumber<br />
+                        </span>
+                    </span>
+
+                    <div class="fs-30 lh-10 cl2 p-lr-5 pointer hov-cl1 trans-04 js-hide-Menu">
+                        <i class="zmdi zmdi-close"></i>
+                    </div>
+                </div>
+                <!-- Menu Mobile -->
+                <ul class="dropdown-menu" style="display:block;top:80px;width:100%;border:none;" role="menu" aria-labelledby="dropdownMenu" id="navMenu">
+                    <li class="dropdown-divider"></li>
+                    @if (User.IsInRole("1") || User.IsInRole("2"))
+                    {
+
+                        <li class="dropdown-divider"></li>
+                        if (User.IsInRole("2"))
+                        {
+                            if (IsAccepted)
+                            {
+                                <li class="dropdown-item" style="margin:10px!important;font-size:16px!important;">
+                                    <a style="color:black !important;cursor:pointer;" href="/FWYStores/EditCreateProduct/0?StoreID=@StoreID">
+                                        <i class="fa fa-stop-circle"> </i> @Resource.Add @Resource.Product
+                                    </a>
+                                </li>
+                            }
+                            @*<li class="dropdown-item" style="margin:10px!important;font-size:16px!important;">
+                                <a href="/Products/Index" style="color:black !important">
+                                    <i class="fa fa-stop-circle"></i>
+                                    @Resource.AllProducts
+                                </a>
+                            </li>*@
+                            if (IsAccepted)
+                            {
+                                <li class="dropdown-item" style="margin:10px!important;font-size:16px!important;">
+                                    <a style="color:black !important" href="/SupplierCorporation/CompanyProducts/@SupplierCompanyID">
+                                        <i class="fa fa-stop-circle"></i> @Resource.MyProducts
+                                    </a>
+                                </li>
+                            }
+                            <li class="dropdown-item" style="margin:10px!important;font-size:16px!important;">
+                                <a style="color:black !important" href="/SupplierCorporation/CompanyProfile/@SupplierCompanyID"> <i class="fa fa-stop-circle"></i>@Resource.MyAccount</a>
+                            </li>
+
+                            <li class="dropdown-item" style="margin:10px!important;font-size:16px!important;">
+                                <a style="color:black !important" href="/SupplierCorporation/EditSupProfile">
+                                    <i class="fa fa-stop-circle"> </i>@Resource.EditProfile
+                                </a>
+                            </li>
+                            <li class="dropdown-item" style="margin:10px!important;font-size:16px!important;">
+                                <a style="color:black !important" href="/Account/ChangePassword?ID=@User.Identity.GetUserId()&&returnUrl=@Request.Url.AbsoluteUri">
+                                    <i class="fa fa-stop-circle"></i>@Resource.Change @Resource.Password
+                                </a>
+                            </li>
+
+                        }
+                    }
+
+                    <li class="dropdown-divider"></li>
+
+
+                    <li class="dropdown-item" style="margin:10px!important;font-size:16px!important;">
+                        <a href="/Home/Index" style="color:black !important;"><i class="fa fa-home"> </i> @Resource.Home</a>
+                    </li>
+                    @*<li class="dropdown-item" style="margin:10px!important;font-size:16px!important;">
+
+                        <a href="/Products/Discounts" style="color:black !important"><i class="fa fa-percent"> </i> @Resource.Offers</a>
+                    </li>*@
+                    <li class="dropdown-item" style="margin:10px!important;font-size:16px!important;">
+
+                        <a href="/About/About" style="color:black !important"><i class="fa fa-stop-circle"></i> @Resource.About</a>
+                    </li>
+                    <li class="dropdown-item" style="margin:10px!important;font-size:16px!important;">
+
+                        <a href="/About/ContentPage" style="color:black !important"><i class="fa fa-stop-circle"></i> @Resource.Contact</a>
+                    </li>
+                    <li class="dropdown-divider"></li>
+                    @if (User.IsInRole("1"))
+                    {
+                        <li class="dropdown-item" style="margin:10px!important;font-size:16px!important;">
+                            <a href="/Admin/AdminProfile" style="color:black !important"><i class="fa fa-area-chart"></i> @Resource.Dashboard</a>
+                        </li>
+                    }
+                    <li class="dropdown-item">
+                        <a href="#" class="" style="color:black !important;" id="display-Fav">
+                            <i class="zmdi zmdi-favorite-outline"></i> @Resource.YourFavourit (@TagHelper.GetMyFavCount(User.Identity.GetUserId()))
+                        </a>
+                    </li>
+                    <li class="dropdown-item" style="margin:10px!important;font-size:16px!important;">
+                        <a style="color:black!important;" href="/Account/LogOff"><i class="fa fa-unlock"></i> @Resource.Logout</a>
+                    </li>
+
+                    <li class="dropdown-divider"></li>
+                    <li class="dropdown-item-title" style="margin:10px!important;font-size:16px!important;padding:10px;">
+                        <h5>@Resource.Language</h5>
+                    </li>
+                    @{
+                        foreach (var i in LanguageMang.AvailableLanguages)
+                        {
+                            <li class="dropdown-item" style="margin:10px!important;font-size:16px!important;">
+                                @if (i.LanguageFullName.Equals("English"))
+                                {
+                                    <a href="/Home/ChangeLanguage?lang=@i.LanguageCultureName&&returnUrl=@Request.Url.AbsoluteUri">
+                                        <span class="flag-icon flag-icon-us mx-2"></span> English
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a href="/Home/ChangeLanguage?lang=@i.LanguageCultureName&&returnUrl=@Request.Url.AbsoluteUri">
+                                        <span class="flag-icon flag-icon-eg mx-2"></span> @Resource.AR
+                                    </a>
+                                }
+                            </li>
+                        }
+                    }
+                </ul>
+            </div>
+        </div>
+        }
+        <!-- Modal Search -->
+        <div class="modal-search-header flex-c-m trans-04 js-hide-modal-search">
+            <div class="container-search-header">
+                <button class="flex-c-m btn-hide-modal-search trans-04 js-hide-modal-search">
+                    <img src="~/Images/icons/icon-close2.png" alt="CLOSE">
+                </button>
+                @using (Html.BeginForm("Index", "Products", FormMethod.Get, new { @class = "wrap-search-header flex-w p-l-15" }))
+                {
+                    <input class="plh3" type="text" name="ProductName" id="proName3" placeholder="@Resource.Search.....">
+                    <input name="longitude" type="hidden" id="long3" value="0" />
+                    <input name="latitude" type="hidden" id="lat3" value="0" />
+                    <input name="location" type="hidden" id="location3" value="0" />
+                }
+
+            </div>
+        </div>
+    </header>
+    <br />
+    @if (User.IsInRole("2") || User.IsInRole("1"))
+    {
+        <div class="top-bar" style="height:unset;">
+            <div class="simple-marquee-container">
+                <div class="marquee-sibling" style="width:120px;">
+                    @Resource.LatestNews
+                </div>
+                <div class="marquee">
+                    <ul class="marquee-content-items">
+
+                        @foreach (var item in LatestNews)
+                        {
+                            if (lang == "ar-EG")
+                            {
+                                <li>@item.ArName</li>
+                            }
+                            else
+                            {
+                                <li>@item.Name</li>
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Cart -->
+    <div class="wrap-header-cart js-panel-cart">
+        <div class="s-full js-hide-cart"></div>
+
+        <div class="header-cart flex-col-l p-l-65 p-r-25" style="height:700px;overflow:auto;">
+            <div class="header-cart-title flex-w flex-sb-m p-b-8">
+                <span class="mtext-103 cl2">
+                    @Resource.YourCart
+                </span>
+
+                <div class="fs-35 lh-10 cl2 p-lr-5 pointer hov-cl1 trans-04 js-hide-cart">
+                    <i class="zmdi zmdi-close"></i>
+                </div>
+            </div>
+        @*    <div id="dvSideShoppingCart">
+                @Html.Partial("_SideShoppingCart")
+            </div>*@
+        </div>
+    </div>
+
+    <!-- Fav -->
+    <div class="wrap-header-cart js-panel-Fav">
+        <div class="s-full js-hide-Fav"></div>
+
+        <div class="header-cart flex-col-l p-l-65 p-r-25" style="height:700px;overflow:auto;">
+            <div class="header-cart-title flex-w flex-sb-m p-b-8">
+                <span class="mtext-103 cl2">
+                   @Resource.YourFavourit
+                </span>
+
+                <div class="fs-35 lh-10 cl2 p-lr-5 pointer hov-cl1 trans-04 js-hide-Fav">
+                    <i class="zmdi zmdi-close"></i>
+                </div>
+            </div>
+            <div id="dvSideFavourit">
+                @Html.Partial("_SideFavourit")
+            </div>
+        </div>
+    </div>
+
+    @*/// Quick View////*@
+    <div class="wrap-modal1 js-modal1 p-t-60 p-b-20">
+        <div class="overlay-modal1 js-hide-modal1"></div>
+
+        <div class="container">
+            <div class="bg0 p-t-60 p-b-30 p-lr-15-lg how-pos3-parent">
+                <button class="how-pos3 hov3 trans-04 js-hide-modal1">
+                    <img src="~/Images/icons/icon-close.png" alt="CLOSE">
+                </button>
+                <div id="dvProductDetails">
+                    @* @Html.Partial("_ProductQuickView")*@
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @RenderBody()
+    <hr />
+    @if (User.IsInRole("2"))
+    {
+        <!-- Footer -->
+        <footer class="bg3 @*p-t-75*@ p-b-32" style="background-color:#dcc198;color:black!important;">
+            <div class="container">
+                @if (SupplierID == "")
+                {
+                    <div class="row">
+                        <div class="col-sm-6 col-lg-3 p-b-50">
+                            <h4 class="stext-301 cl0 p-b-30">
+                                @Resource.Categories
+                            </h4>
+                            @{
+                                //admin contect
+                                FWYContect FWYContect = new FWYContect();
+                                if (db.FWYContect.ToList().Count != 0)
+                                {
+                                    FWYContect = db.FWYContect.FirstOrDefault();
+                                }
+
+                                //gat
+                                List<FWYCategory> Category = new List<FWYCategory>();
+                                if (db.FWYCategory.Where(c => c.CategoryID == null && c.IsDeleted == false).GroupBy(c => c.Name).Select(c => c.FirstOrDefault()).Count() != 0)
+                                {
+                                    if (db.FWYCategory.Where(c => c.CategoryID == null && c.IsDeleted == false).GroupBy(c => c.Name).Select(c => c.FirstOrDefault()).Count() >= 5)
+                                    {
+                                        Category = db.FWYCategory.Where(c => c.CategoryID == null && c.IsDeleted == false).GroupBy(c => c.Name).Select(c => c.FirstOrDefault()).Take(5).ToList();
+                                    }
+                                    else
+                                    {
+                                        Category = db.FWYCategory.Where(c => c.CategoryID == null && c.IsDeleted == false).GroupBy(c => c.Name).Select(c => c.FirstOrDefault()).ToList();
+                                    }
+                                }
+                                if (Category.Count != 0)
+                                {
+                                    foreach (var item in Category)
+                                    {
+                                        <ul>
+                                            <li class="p-b-10">
+                                                <a href="/Products/Index" class="stext-107 cl7 hov-cl1 trans-04">
+                                                    @item.ARName
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    }
+                                }
+                            }
+
+                        </div>
+
+                        <div class="col-sm-6 col-lg-3 p-b-50">
+                            <h4 class="stext-301 cl0 p-b-30">
+                                @Resource.GetInTouch
+                            </h4>
+
+                            <p class="stext-107 cl7 size-201">
+                                @Resource.Anyquestions :
+                                <a href="https://www.google.com/maps/place/@FWYContect.Address" target="_blank">@FWYContect.Address</a> <br />
+                                @Resource.CallUs : <strong>@FWYContect.Phone</strong>
+                            </p>
+
+                            <div class="p-t-27">
+                                @if (FWYContect.Facebook != null)
+                                {
+                                    <a href="@FWYContect.Facebook" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
+                                        <i class="fa fa-facebook"></i>
+                                    </a>
+                                }
+                                @if (FWYContect.Instagram != null)
+                                {
+                                    <a href="@FWYContect.Instagram" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
+                                        <i class="fa fa-instagram"></i>
+                                    </a>
+                                }
+                                @if (FWYContect.Linkedin != null)
+                                {
+                                    <a href="@FWYContect.Linkedin" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
+                                        <i class="fa fa-telegram"></i>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <div class="p-t-40">
+                    <p class="stext-107 cl6 txt-center">
+                        <!-- Link back to BagGomla can't be removed. Template is licensed under CC BY 3.0. -->
+                        @Resource.Copyright &copy;
+                        <script>document.write(new Date().getFullYear());</script> @Resource.Rights <i class="fa fa-heart-o" aria-hidden="true"></i> @Resource.by <a href="https://project-egy.com/" target="_blank">Project Egy</a>
+                        <!-- Link back to BagGomla can't be removed. Template is licensed under CC BY 3.0. -->
+
+                    </p>
+                </div>
+            </div>
+        </footer>
+
+    }
+
+    <!-- Back to top -->
+    <div class="btn-back-to-top" id="myBtn">
+        <span class="symbol-btn-back-to-top">
+            <i class="zmdi zmdi-chevron-up"></i>
+        </span>
+    </div>
+
+    @RenderSection("scripts", required: false)
+    <!--===============================================================================================-->
+    <script src="~/Content/vendor/jquery/jquery-3.2.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            setTimeout(function () {
+                $(".loader11").fadeOut("slow");
+            }, 1000);
+        });
+    </script>
+    <!--===============================================================================================-->
+    <script src="~/Content/vendor/animsition/js/animsition.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/Content/vendor/bootstrap/js/popper.js"></script>
+
+    <script src="~/Content/vendor/bootstrap/js/bootstrap.min.js"></script>
+
+    <!--===============================================================================================-->
+    <script src="~/Content/vendor/select2/select2.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/Content/vendor/daterangepicker/moment.min.js"></script>
+    <script src="~/Content/vendor/daterangepicker/daterangepicker.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/Content/vendor/slick/slick.min.js"></script>
+    <script src="~/Scripts/js/slick-custom.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/Content/vendor/parallax100/parallax100.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/Content/vendor/MagnificPopup/jquery.magnific-popup.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/Content/vendor/isotope/isotope.pkgd.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/Content/vendor/sweetalert/sweetalert.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/Content/vendor/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/Scripts/js/main.js"></script>
+
+    <script src="~/Scripts/js/marquee.en.js"></script>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-179505919-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'UA-179505919-1');
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            function Contains(text_one, text_two) {
+                if (text_one.indexOf(text_two) != -1)
+                    return true;
+            }
+            $("#Search").keyup(function () {
+                var searchText = $("#Search").val().toLowerCase();
+                $(".Search").each(function () {
+                    if (!Contains($(this).text().toLowerCase(), searchText)) {
+                        $(this).hide();
+                    }
+                    else {
+                        $(this).show();
+                    }
+                });
+            });
+        });
+    </script>
+    <script>
+        $(".js-select2").each(function () {
+            $(this).select2({
+                minimumResultsForSearch: 20,
+                dropdownParent: $(this).next('.dropDownSelect2')
+            });
+        })
+
+        $(function () {
+            $('.simple-marquee-container').SimpleMarquee({
+                duration: 99000
+            });
+        });
+
+        $(document).on("click", ".btn-show-menu-mobile", function () {
+            $('.js-panel-Menu').addClass('show-header-cart');
+            $('.js-panel-Fav').removeClass('show-header-cart');
+            $('.js-panel-cart').removeClass('show-header-cart');
+            $('.btn-show-menu-mobile').removeClass('is-active');
+        });
+        $(document).on("click", ".js-hide-Menu", function () {
+            $('.js-panel-Menu').removeClass('show-header-cart');
+        });
+
+    </script>
+
+    <script>
+        $('.parallax100').parallax100();
+    </script>
+
+    <script>
+        $('.gallery-lb').each(function () { // the containers for all your galleries
+            $(this).magnificPopup({
+                delegate: 'a', // the selector for gallery item
+                type: 'image',
+                gallery: {
+                    enabled: true
+                },
+                mainClass: 'mfp-fade'
+            });
+        });
+    </script>
+
+    <script>
+        $('.js-addwish-b2, .js-addwish-detail').on('click', function (e) {
+            e.preventDefault();
+        });
+
+
+        $('.js-addwish-b2').each(function () {
+            var nameProduct = $(this).parent().parent().find('.js-name-b2').html();
+            $(this).on('click', function () {
+                //swal(nameProduct, "is added to wishlist !", "success");
+
+                $(this).addClass('js-addedwish-b2');
+                $(this).off('click');
+            });
+        });
+
+        //$('.js-addedwish-b2').each(function () {
+        //    var nameProduct = $(this).parent().parent().find('.js-name-b2').html();
+        //    $(this).on('click', function () {
+        //        swal(nameProduct, "is Removed to wishlist !", "success");
+        //        $(this).removeClass('js-addedwish-b2');
+        //        $(this).addClass('js-addwish-b2');
+        //        $(this).off('click');
+        //    });
+        //});
+
+
+        $('.js-addwish-detail').each(function () {
+            var nameProduct = $(this).parent().parent().parent().find('.js-name-detail').html();
+
+            $(this).on('click', function () {
+                //swal(nameProduct, "is added to wishlist !", "success");
+
+                $(this).addClass('js-addedwish-detail');
+                $(this).off('click');
+            });
+        });
+
+
+        /*---------------------------------------------*/
+
+        $('.js-addcart-detail').each(function () {
+            var nameProduct = $(this).parent().parent().parent().parent().find('.js-name-detail').html();
+            //$(this).on('click', function () {
+            //    swal(nameProduct, "is added to cart !", "success");
+            //});
+        });
+
+    </script>
+
+
+    <script>
+        $('.js-pscroll').each(function () {
+            $(this).css('position', 'relative');
+            $(this).css('overflow', 'hidden');
+            var ps = new PerfectScrollbar(this, {
+                wheelSpeed: 1,
+                scrollingThreshold: 1000,
+                wheelPropagation: false,
+            });
+
+            $(window).on('resize', function () {
+                ps.update();
+            })
+        });
+    </script>
+
+
+    <script>
+
+        function AddFav(ProductID) {
+            $.ajax({
+                url: '@Url.Action("AddFavorite", "Products")',
+                type: 'GET',
+                data: { ProductID: ProductID, quantity: 1 }
+            }).done(function (result) {
+                if (result == "True") {
+                    @*swal("@Resource.ProductAddedToWish", "", "success").then(function () {
+                        window.location.href = "";
+                    });*@
+                    swal({
+                        text: "@Resource.ProductAddedToWish",
+                        type: "success",
+                        icon: "success",
+                        timer: 2000,
+                        buttons:["تم بنجاح"]
+                    }).then(function () {
+                        window.location.href = "";
+                    });
+                    //var count = Number($("#display-Fav").attr("data-notify")) + 1;
+                    //$("#display-Fav").attr("data-notify", count.toString());
+                }
+                else {
+                    window.location.href = "/Account/Login?returnUrl=@Request.Url"
+                }
+            });
+        }
+
+    function RemoveFav(ProductID) {
+        $.ajax({
+            url: '@Url.Action("RemoveFavorite", "Products")',
+            type: 'GET',
+            data: { ProductID: ProductID }
+        }).done(function (result) {
+            if (result == "True") {
+                @*swal("@Resource.ProductRemovedFromWish", "", "success").then(function () {
+                    window.location.href = "";
+                });*@
+                swal({
+                    text: "@Resource.ProductRemovedFromWish",
+                    type: "success",
+                    icon: "success",
+                    timer: 2000,
+                    buttons:["تم بنجاح"]
+                }).then(function () {
+                    window.location.href = "";
+                });
+                //var count = Number($("#display-Fav").attr("data-notify")) - 1;
+                //$("#display-Fav").attr("data-notify", count);
+            }
+            else {
+                window.location.href = "/Account/Login?returnUrl=@Request.Url"
+            }
+        });
+    }
+
+    function AddCart(ProductID) {
+        var ProductSizeID = document.getElementById("ProductSizeID");
+        var ProductColorID = document.getElementById("ProductColorID");
+        var ColorID = -1;
+        var SizeID = -1;
+        if (ProductSizeID != null) {
+            SizeID = ProductSizeID.options[ProductSizeID.selectedIndex].value;
+        }
+        if (ProductColorID != null) {
+            ColorID = ProductColorID.options[ProductColorID.selectedIndex].value
+        }
+
+        var QTY = document.getElementById("QV_Qty").value;
+        if (ColorID == 0 || SizeID == 0) {
+            if (ColorID == 0) {
+                $("#msgProductColorID").show();
+            }
+            else {
+                $("#msgProductColorID").hide();
+            }
+            if (SizeID == 0) {
+                $("#msgProductSizeID").show();
+            }
+            else {
+                $("#msgProductSizeID").hide();
+            }
+        }
+        else {
+            if (ColorID == -1)
+                ColorID = 0;
+            if (SizeID == -1)
+                SizeID = 0
+            $.ajax({
+                url: '@Url.Action("AddCart", "Products")',
+                type: 'GET',
+                data: { ProductID: ProductID, quantity: QTY, SizeID: SizeID, colorID: ColorID }
+            }).done(function (result) {
+                $("#RefreshDiv").load(window.location.href + " #RefreshDiv");
+                $("#dvSideShoppingCart").load(window.location.href + " #dvSideShoppingCart");
+                swal("Successed", "Data Saved Successfully", "success");
+                $('.js-modal1').removeClass('show-modal1');
+            });
+        }
+
+    }
+
+    function RemoveCart(ProductID) {
+        $.ajax({
+            url: '@Url.Action("RemoveCart", "Products")',
+            type: 'GET',
+            data: { ProductID: ProductID }
+        }).done(function (result) {
+            $("#RefreshDiv").load(window.location.href + " #RefreshDiv");
+        });
+    }
+
+    $(document).on("click", "#display-cart", function () {
+        $('.js-panel-cart').addClass('show-header-cart');
+    });
+
+    $(document).on("click", "#display-Fav", function () {
+        $('.js-panel-Fav').addClass('show-header-cart');
+    });
+
+    //$(document).on("click", "#display-quick-view", function () {
+    //    $('.js-modal1').addClass('show-modal1');
+    //});
+    function ViewProduct(ProductID) {
+        $.ajax({
+            url: '@Url.Action("ProductQuickView", "Products")',
+            type: 'GET',
+            cache: false,
+            data: { ID: ProductID }
+        }).done(function (result) {
+            $('#dvProductDetails').empty();
+            $('#dvProductDetails').html(result);
+            $('.wrap-slick3').each(function () {
+                $(this).find('.slick3').slick({
+                    slidesToShow: 1,
+                    slidesToScroll: 1,
+                    fade: true,
+                    infinite: true,
+                    autoplay: false,
+                    autoplaySpeed: 6000,
+
+                    arrows: true,
+                    appendArrows: $(this).find('.wrap-slick3-arrows'),
+                    prevArrow: '<button class="arrow-slick3 prev-slick3"><i class="fa fa-angle-left" aria-hidden="true"></i></button>',
+                    nextArrow: '<button class="arrow-slick3 next-slick3"><i class="fa fa-angle-right" aria-hidden="true"></i></button>',
+
+                    dots: true,
+                    appendDots: $(this).find('.wrap-slick3-dots'),
+                    dotsClass: 'slick3-dots',
+                    customPaging: function (slick, index) {
+                        var portrait = $(slick.$slides[index]).data('thumb');
+                        return '<img src=" ' + portrait + ' "/><div class="slick3-dot-overlay"></div>';
+                    },
+                });
+            });
+        });
+        $('.js-modal1').addClass('show-modal1');
+    }
+    </script>
+
+    <script>
+    function SeeNotify(ID, returnUrl) {
+        $.ajax({
+            url: '@Url.Action("SeeNotify", "Home")',
+            type: 'GET',
+            cache: false,
+            data: { ID: ID },
+            datatype: "json",
+            contenttype: "application/json",
+        }).done(function (result) {
+            window.location.href = returnUrl;
+        });
+    }
+    </script>
+
+
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=AIzaSyAPFGkzEre1YIwcyejsVgRrl8T1DWJZouU"></script>
+    <script>
+        $("#proName1, #proName2, #proName3").keyup(function () {
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(showPosition);
+            }
+        });
+
+        function showPosition(position) {
+            var lat = position.coords.latitude;
+            var long = position.coords.longitude;
+
+            document.getElementById("long1").value = long;
+            document.getElementById("lat1").value = lat;
+            document.getElementById("long2").value = long;
+            document.getElementById("lat2").value = lat;
+            document.getElementById("long3").value = long;
+            document.getElementById("lat3").value = lat;
+            GetAddress(lat, long);
+            //alert(lat);
+            //alert(long);
+        }
+
+        function GetAddress(lat, lng) {
+            var latlng = new google.maps.LatLng(lat, lng);
+            var geocoder = geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ 'latLng': latlng }, function (results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    if (results[1]) {
+                        document.getElementById("location1").value = results[1].formatted_address;
+                        document.getElementById("location2").value = results[1].formatted_address;
+                        document.getElementById("location3").value = results[1].formatted_address;
+                    }
+                }
+            });
+        }
+
+    </script>
+
+    <script>
+
+        @*$('a[data-toggle="dropdown"]').click(function (e) {
+            var lan = "@lang";
+            if (lan == "ar-EG") {
+                e.preventDefault();
+                var parent = $(this).parent();
+                var myEle = parent[0].children[1];
+                myEle.style.backColor = "red";
+                alert("done");
+            }
+            
+        });*@
+
+    </script>
+
+</body>
+</html>

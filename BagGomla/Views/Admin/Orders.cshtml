@@ -1,0 +1,128 @@
+﻿@model PagedList.IPagedList<IdentityLibrary.DataModel.FWYInvoiceOrder>
+@using PagedList.Mvc;
+@{
+    ViewBag.Title = "الطلبات";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var i = 0;
+}
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+
+<br />
+<div class="input-group" style="width:80%;margin:auto">
+    <span class="input-group-append">
+        <button class="btn btn-outline-secondary border-left-0 border" type="button" id="btnSearch">
+            <i class="fa fa-search"></i>
+        </button>
+        <button class="btn btn-outline-secondary border-left-0 border" type="button" id="btnRemoveSearch">
+            <i class="fa fa-times"></i>
+        </button>
+    </span>
+    <input id="Search" class="form-control py-2 border-right-0 border" placeholder="البحث" style="text-align:right!important;">
+</div>
+
+<br />
+<div class="card" dir="rtl" style="text-align:right" id="RefreshOrder">
+    <div class="card-header">
+        <h3 class="text-center">الطلبات</h3>
+    </div>
+    <div class="card-body">
+        <table class="table m-0 table-colored-bordered table-bordered-info table-bordered table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th>البائع</th>
+                    <th>المشتري</th>
+                    <th>قيمة الفاتورة</th>
+                    <th>حالة الطلب</th>
+                    <th>اجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var item in Model)
+                {
+                    <tr class="Search">
+                        <td>@item.AspNetUsers1.ARName</td>
+                        <td>@item.AspNetUsers.ARName</td>
+                        <td>@item.TotalPrice</td>
+                        @if (item.OrderTypeID == 1)
+                        {
+                            <td>قيد الانتظار</td>
+                        }
+                        else if (item.OrderTypeID == 2)
+                        {
+                            <td>موافق عليه</td>
+                        }
+                        else if (item.OrderTypeID == 3)
+                        {
+                            <td>سلم لشركة الشحن</td>
+                        }
+                        else if (item.OrderTypeID == 4)
+                        {
+                            <td>مرفوض</td>
+                        }
+                        else if (item.OrderTypeID == 5)
+                        {
+                            <td>سلم للعميل</td>
+                        }
+                        else if (item.OrderTypeID == 6)
+                        {
+                            <td>ملغي</td>
+                        }
+                        <td>
+                            <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                                <div class="btn-group" role="group">
+                                    <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        الاجراءات
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                        <a class="dropdown-item" href="/SupplierCorporation/CustomerOrder/@item.ID">عرض</a>
+                                        @if (item.OrderTypeID == 1)
+                                        {
+                                            <a class="dropdown-item" href="/SupplierCorporation/CustomerOrder/@item.ID">
+                                                <i class="fa fa-check-circle" aria-hidden="true"></i> موافقة
+                                            </a>
+
+                                            <a href="/SupplierCorporation/ChangeOrderType/@item.ID?TypeID=4" class="dropdown-item">
+                                                <i class="fa fa-times-circle" aria-hidden="true"></i> رفض
+                                            </a>
+                                        }
+                                        else if (item.OrderTypeID == 2)
+                                        {
+                                            <a href="/SupplierCorporation/ChangeOrderType/@item.ID?TypeID=3" class="dropdown-item">
+                                                <i class="fa fa-car" aria-hidden="true"></i> سلم لشركة الشحن <i class="fa fa-question-circle"></i>
+                                            </a>
+                                            <a href="/SupplierCorporation/ChangeOrderType/@item.ID?TypeID=5" class="dropdown-item">
+                                                <i class="fa fa-user-circle" aria-hidden="true"></i> سلم للعميل <i class="fa fa-question-circle"></i>
+                                            </a>
+                                            <a href="/SupplierCorporation/ChangeOrderType/@item.ID?TypeID=4" class="dropdown-item">
+                                                <i class="fa fa-times-circle" aria-hidden="true"></i> رفض
+                                            </a>
+                                        }
+                                        else if (item.OrderTypeID == 3)
+                                        {
+                                            <a href="/SupplierCorporation/ChangeOrderType/@item.ID?TypeID=5" class="dropdown-item">
+                                                <i class="fa fa-user-circle" aria-hidden="true"></i> سلم للعميل <i class="fa fa-question-circle"></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    i++;
+                }
+
+            </tbody>
+        </table>
+    </div>
+
+    <div style="text-align:center!important">
+        <h5>
+            Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+        </h5>
+        <p>
+            @Html.PagedListPager(Model, page => Url.Action("Orders",
+                   new { page }))
+        </p>
+    </div>
+</div>

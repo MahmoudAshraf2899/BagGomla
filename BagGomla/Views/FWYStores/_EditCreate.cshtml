@@ -1,0 +1,64 @@
+﻿@model BagGomla.Models.StoreModel
+
+@using BagGomla.LocalResource
+<div class="card">
+    <div class="card-body">
+        <h2>@Resource.EditCreate @Resource.Store</h2>
+        <hr />
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(c => c.fWYStore.SupplierID);
+            @Html.HiddenFor(c => c.fWYStore.ID);
+            <div class="form-horizontal">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                <div class="form-group">
+                    <label for="fWYStore_Name" class="control-label col-md-2">@Resource.EnName</label>
+                    <div class="col-md-12">
+                        @Html.EditorFor(model => model.fWYStore.Name, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.fWYStore.Name, "", new { @class = "text-danger" })
+                        <span class="dis-none field-validation-error text-danger" data-valmsg-for="fWYStore_Name" data-valmsg-replace="true" id="storeName">@Resource.EnName @Resource.IsRequired</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="fWYStore_ARName" class="control-label col-md-2">@Resource.ArName</label>
+                    <div class="col-md-12">
+                        @Html.EditorFor(model => model.fWYStore.ARName, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.fWYStore.ARName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="fWYStore_Location" class="control-label col-md-2">@Resource.Address</label>
+                    <div class="col-md-12">
+                        @Html.TextBoxFor(m => m.fWYStore.Latitude, new { @class = "form-control", @id = "txtLatitude", style = "display: none;" })
+                        @Html.TextBoxFor(m => m.fWYStore.Longitude, new { @class = "form-control", @id = "txtLongitude", style = "display: none;" })
+                        @Html.EditorFor(model => model.fWYStore.Location, new { htmlAttributes = new { @class = "form-control" ,@id= "txtAddress" } })
+                        @Html.ValidationMessageFor(model => model.fWYStore.Location, "", new { @class = "text-danger" })
+                    </div>
+                </div>             
+            </div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-2">
+                    <input type="button" value="@Resource.Save" class="btn btn-success" id="btnSubmit" />
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+    
+
+
+<script>
+    $("#btnSubmit").click(function () {
+        var name = $("#fWYStore_Name").val();
+        if (name != "" && name != null) {
+            document.getElementById("btnSubmit").setAttribute("type", "submit");
+        }
+        else {
+            $("#storeName").removeClass("dis-none");
+            //alert("error");
+        }
+    });
+</script>

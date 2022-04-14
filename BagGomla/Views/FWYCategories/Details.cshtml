@@ -1,0 +1,138 @@
+﻿@model IEnumerable<IdentityLibrary.DataModel.FWYCategory>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<div class="container" dir="rtl">
+    <br />
+    <div class="card">
+        <div class="card-body">
+            <button onclick="AddCat('0')" class="btn btn-primary">اضافه فئه جديده</button>
+            <br /><br />
+            <div class="table-responsive">
+                <table id="InvoiceTabel" class="table m-0 table-colored-bordered table-bordered-info table-bordered table-hover">
+                    <thead class="thead-default">
+                        <tr>
+                            <th> الصورة</th>
+                            <th> الاسم </th>
+                            <th> الرقم </th>
+                            <th> الكود</th>
+                            <th> الوصف </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    @foreach (var item in Model)
+                    {
+                    <tr>
+                        <td>
+                            <img src="@item.Image" width="100" height="100" />
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Number)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Code)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Description)
+                        </td>
+                        <td>
+                            <button onclick="AddCat(@item.ID)" class="btn btn-success">تعديل</button>
+                            @Html.ActionLink("تفاصيل ", "Details", new { id = item.ID }, htmlAttributes: new { @class = "btn btn-info" })
+                            <a href="#" class="btn btn-danger" onclick="ConfirmDelete(@item.ID)">حذف</a>
+                        </td>
+                    </tr>
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*/// pop up for assign product////*@
+<div class="wrap-modal1 js-modal1 p-t-60 p-b-20">
+    <div class="overlay-modal1 js-hide-modal1"></div>
+    <div class="container">
+        <div class="bg0 p-t-60 p-b-30 p-lr-15-lg how-pos3-parent">
+            <button class="how-pos3 hov3 trans-04 js-hide-modal1">
+                <img src="~/Images/icons/icon-close.png" alt="CLOSE">
+            </button>
+            <h4 style="text-align:center;"></h4>
+            <div id="DivSupCats" style="margin:30px;">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@*/// pop up for Delete////*@
+<div class="wrap-modal1 js-modal2 p-t-60 p-b-20" style="width:1000px;height:1000px;">
+    <div class="overlay-modal1 js-hide-modal2"></div>
+    <div class="container">
+        <div class="bg0 p-t-60 p-b-30 p-lr-15-lg how-pos3-parent">
+            <button class="how-pos3 hov3 trans-04 js-hide-modal2" id="DevClose">
+                <img src="~/Images/icons/icon-close.png" alt="CLOSE">
+            </button>
+            <h4 style="text-align:center;"></h4>
+            <div id="DivCoupons" style="margin:30px;">
+                <div class="modal-header">
+                    <h3 class="modal-title">حذف؟</h3>
+                </div>
+                <div class="modal-body">
+                    <h4>هل متاكد من حذف هذا الحقل ؟</h4>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-success" onclick="Delete()">تأكيدالحذف</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<input id="IDHidden" type="hidden" />
+
+<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+@*<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>*@
+
+<script type="text/javascript">
+    function AddSupCat(ID) {
+        $.ajax({
+            url: '@Url.Action("EditCreateSupCat", "FWYCategories")',
+            type: 'GET',
+            cache: false,
+            data: {ID: ID }
+        }).done(function (result) {
+            $('#DivSupCats').empty();
+            $('#DivSupCats').html(result);
+        });
+        $('.js-modal1').addClass('show-modal1');
+    }
+
+    var ConfirmDelete = function (ID) {
+        $("#IDHidden").val(ID);
+        $('.js-modal2').addClass('show-modal1');
+    }
+
+    var Delete = function () {
+        var ID = $("#IDHidden").val();
+        $.ajax({
+            type: "POST",
+            url: "/FWYCategories/Delete",
+            data: { ID: ID },
+            success: function (result) {
+                $('.js-modal2').removeClass('show-modal1');
+                window.location.href = " ";
+            }
+        })
+    }
+
+    $(document).on("click", "#DevClose", function () {
+        $('.js-modal2').removeClass('show-modal1');
+    });
+</script>

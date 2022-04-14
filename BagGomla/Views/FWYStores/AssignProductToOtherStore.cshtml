@@ -1,0 +1,129 @@
+﻿@using BagGomla.Models
+@model StoreProduct
+
+<form id="AssignProductToStoreForm" action="AssignProductToOtherStore">
+    <input type="hidden" name="ProductID" value="@Model.Product.ID" />
+    <input type="hidden" name="CurrentStore" value="@Model.StoreID" />
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="text-center">Assign Product "@Model.Product.Name" To Other Stores</h3>
+                    <br />
+                    <div class="col-md-12" id="AssdvProductDetails">
+                        <table class="table m-0 table-colored-bordered table-bordered-info table-bordered table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Store</th>
+                                    <th>Color</th>
+                                    <th>Size</th>
+                                    <th>Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody id="AssTBodyProductDetails">
+                                <tr>
+                                    <td>
+                                        <select class="form-control" name="AssStoreIDs">
+                                            <option value="0" selected>Select Store</option>
+                                            @foreach (var item in Model.StoreList)
+                                            {
+                                                <option value="@item.ID">@item.Name</option>
+                                            }
+                                        </select>
+
+                                    </td>
+                                    <td>
+                                        <select class="form-control" name="AssColorIDs">
+                                            <option value="0" selected>Select Color</option>
+                                            @foreach (var item in Model.ColorList)
+                                            {
+                                                <option value="@item.ID">@item.Name</option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select class="form-control" name="AssSizeIDs">
+                                            <option value="0" selected>Select Size</option>
+                                            @foreach (var item in Model.SizeList)
+                                            {
+                                                <option value="@item.ID">@item.Name</option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control" name="AssQuantities" />
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4">
+                                        <button type="button" class="btn btn-success" id="AssnewProductDetails"><i class="fa fa-plus"></i></button>
+                                    </td>
+
+                                </tr>
+                            </tfoot>
+
+                        </table>
+                    </div>
+
+                    <div class="form-group">
+                        <br /><br />
+                        <div class="col-md-2 mx-auto">
+                            <input type="submit" id="btnsubmit" class="btn btn-warning font-weight-bold" value="Save" />
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+@*<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>*@
+<script>
+    $(document).ready(function () {
+        $("#AssnewProductDetails").click(function () {
+            var trOpen = "<tr>",
+                trClose = "</tr>",
+                td1 = "<td><select class='form-control' name='AssStoreIDs'><option value='0'  selected>Select Color</option>@foreach(var item in Model.StoreList){<option value='@item.ID'>@item.Name</option>}</select></td>",
+                td2 = "<td><select class='form-control' name='AssColorIDs'><option value='0'  selected>Select Color</option>@foreach(var item in Model.ColorList){<option value='@item.ID'>@item.Name</option>}</select></td>",
+                td3 = "<td><select class='form-control' name='AssSizeIDs' ><option value='0'  selected>Select Size</option>@foreach(var item in Model.SizeList){<option value='@item.ID'>@item.Name</option>}</select></td>",
+                td4 = "<td><input type='number' class='form-control' name='AssQuantities'/></td>";
+            var tr = trOpen + td1 + td2 + td3 + td4 + trClose;
+            $("#AssTBodyProductDetails").append(tr);
+        });
+    });
+
+</script>
+<script>
+    $(document).ready(function () {
+        $("#AssignProductToStoreForm").submit(function (event) {
+            var dataString;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            var action = "/FWYStores/AssignProductToOtherStore";
+            // Setting.  
+            dataString = new FormData($("#AssignProductToStoreForm").get(0));
+            contentType = false;
+            processData = false;
+            $.ajax({
+                type: "POST",
+                url: action,
+                data: dataString,
+                dataType: "json",
+                contentType: contentType,
+                processData: processData,
+                success: function (result) {
+                    swal("Done","Data saved successfully","success");
+                    window.location.href = "/FWYStores/StoreProducts/@Model.StoreID"
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    //alert("FAIL");
+                }
+            });
+        }); //end .submit()  
+    });
+</script> 

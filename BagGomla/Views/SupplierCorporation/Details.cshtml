@@ -1,0 +1,378 @@
+﻿@using IdentityLibrary.DataModel
+@model FWYSupplierCooperation
+@using BagGomla.Models;
+@using System.Web.UI.WebControls
+@using IdentityLibrary.DataModel;
+@{
+    ViewBag.Title = "Supplier Corporation Profile";
+    if (User.Identity.IsAuthenticated)
+    {
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_DefualtLayout.cshtml";
+    }
+}
+
+<!-- ======================== Profile ========================== -->
+
+<section class="vendor-profile mx-auto">
+
+
+    <div class="container">
+        <div class="row no-gutters">
+            <div class="col-md-12">
+
+
+                <!-- ======================== Profile Cover ========================== -->
+
+                <div class="profile-cover border-bottom">
+                    <img src="~/Images/@Model.Logo" height="300" width="100%" alt="">
+                </div>
+
+                <!-- ======================== Profile Cover  End========================== -->
+                <!-- ======================== navbar and logo ========================== -->
+                <div class="row align-items-md-center bg-white no-gutters">
+
+                        <div class="col-md-3">
+                            <span class="px-3">Logo</span>
+
+                        </div>
+
+                        <div class="col-md-9">
+
+                            <ul class="nav justify-content-md-end ">
+                                <li class="nav-item">
+                                    <a class="nav-link active" href="#">Home</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">Profile</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">Products <span class="product-num">6</span></a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">Products <span class="product-num">6</span></a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">Photos <span class="product-num">0</span></a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">Contact </a>
+                                </li>
+                                <li class="nav-item">
+
+
+                                    <div class="dropdown  nav-link">
+                                        <button class="dropleft" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fa fa-search" aria-hidden="true"></i>
+                                        </button>
+                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                            <a class="dropdown-item" href="#">Action</a>
+                                            <a class="dropdown-item" href="#">Another action</a>
+                                            <a class="dropdown-item" href="#">Something else here</a>
+                                        </div>
+                                    </div>
+
+                                </li>
+
+                            </ul>
+                        </div>
+
+                    </div>
+
+
+                <!-- ======================== navbar and logo  End========================== -->
+
+            </div>
+
+
+            <div class="col-md-3">
+                <div class="card mt-4">
+                    <div class="card-header">
+                        Company
+                    </div>
+                    <div class="card-body">
+
+                        <span class="stext-102 cl3 size-205">
+                            Name:
+                        </span>
+                        <br />
+                        <span class="stext-102 cl6 size-206">
+                            @Model.Name
+                        </span>
+                        <br />
+                        <span class="stext-102 cl3 size-205">
+                            Owner Name:
+                        </span>
+                        <br />
+                        <span class="stext-102 cl6 size-206">
+                            @Model.AspNetUsers.Name
+                        </span>
+                        <br />
+                        <span class="stext-102 cl3 size-205">
+                            Addresses:
+                        </span>
+                        <br />
+
+                    </div>
+                </div>
+                <div class="card mt-4">
+                    <div class="card-header">
+                        Member Status
+                    </div>
+                    <div class="card-body">
+
+                        @if (Model.IsVerified == true)
+                        {
+                            <span class="text-success"><i class="fa fa-check btn btn-success"></i> Verified</span>
+                        }
+                        else
+                        {
+                            <span class="text-danger"><i class="fa fa-ban btn btn-danger"></i> Not Verified</span>
+                        }
+
+                    </div>
+                </div>
+                <div class="card mt-4">
+                    <div class="card-header">
+                        Social Media Links
+                    </div>
+                    <div class="card-body">
+                    </div>
+                </div>
+                <div class="card mt-4">
+                    <div class="card-header">
+                        Product Categories
+                    </div>
+                    <div class="card-body">
+                        <ul>
+                            @{
+                                var CategoryList = new List<FWYCategory>();
+
+                                foreach (var item in Model.AspNetUsers.FWYStore)
+                                {
+                                    foreach (var item1 in item.FWYStoreProduct)
+                                    {
+                                        if (item1.FWYProduct.FWYCategory.CategoryID == null)
+                                        {
+                                            if (CategoryList.Find(c => c.ID == item1.FWYProduct.FWYCategory.ID) == null)
+                                            {
+                                                CategoryList.Add(item1.FWYProduct.FWYCategory);
+                                                <li>@item1.FWYProduct.FWYCategory.Name</li>
+                                                foreach (var i in item1.FWYProduct.FWYCategory.FWYCategory1)
+                                                {
+                                                    if (CategoryList.Find(c => c.ID == i.ID) == null)
+                                                    {
+                                                        CategoryList.Add(i);
+                                                        <li>@i.Name</li>
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                }
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <div class="col-md-9 pl-17">
+
+
+                <!-- ========================Contact========================== -->
+
+
+
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        Contact information
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Phones</h5>
+ 
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Emails</h5>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========================Contact End========================== -->
+                <!-- ======================== Member Sign in Messsage ========================== -->
+
+
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        Send Message
+                    </div>
+                    <div class="card-body">
+
+                        <div class="need-be-user">
+                            <p>You must be signed in to contact this supplier.</p>
+                            <p><strong>Not a member? </strong><a href="/Account/Register"> Join Now FREE</a></p>
+                            <p>Already a member? <a href="/Account/Login">Sign In</a></p>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <!-- ======================== Member Sign in Messsage  End========================== -->
+                <!-- ======================== Products ========================== -->
+
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        Products information
+                    </div>
+                    <div class="card-body">
+
+                        <!-- products -->
+                        <div class="sec-blog bg0 p-b-90">
+                            <div class="container">
+                                <div class="row">
+                                    @{
+                                        var ProductList = new List<FWYProduct>();
+                                        foreach (var item in Model.AspNetUsers.FWYStore)
+                                        {
+                                            foreach (var item1 in item.FWYStoreProduct)
+                                            {
+                                                if (ProductList.Find(c => c.ID == item1.FWYProduct.ID) == null)
+                                                {
+                                                    ProductList.Add(item1.FWYProduct);
+                                                    var img = "";
+                                                    if (item1.FWYProduct.FWYProductImage.Where(c => c.IsMain == true).ToList().Count > 0)
+                                                    {
+                                                        img = item1.FWYProduct.FWYProductImage.Where(c => c.IsMain == true).ToList().First().Image;
+                                                    }
+                                                    <div class="col-sm-6 col-md-3 p-b-40">
+                                                        <div class="blog-item">
+                                                            <div class="hov-img0">
+                                                                <a href="blog-detail.html">
+                                                                    <img src="@img" alt="IMG-BLOG">
+                                                                </a>
+                                                            </div>
+
+                                                            <div class="p-t-15">
+
+                                                                <p class="stext-108 cl6">
+                                                                    @item1.FWYProduct.Name
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- end products -->
+
+
+                    </div>
+                </div>
+
+
+                <!-- ======================== Products  End========================== -->
+                <!-- ======================== About Company ========================== -->
+
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        About
+                    </div>
+                    <div class="card-body">
+
+                        @Model.About
+
+                    </div>
+                </div>
+
+                <!-- -------------------------------------------------------------------- -->
+
+                <div class="card mt-4 ">
+                    <div class="card-header">
+                        Basic Information
+                    </div>
+                    <div class="card-body">
+
+
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="col-md-12">
+                <!-- ======================== Member Sign in Messsage ========================== -->
+
+
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        Latest Products
+                    </div>
+                    <div class="card-body">
+                        <div class="sec-blog bg0 p-b-90">
+                            <div class="container">
+                                <div class="row">
+                                    @{
+                                        ProductList.Reverse();
+                                        foreach (var item in ProductList)
+                                        {
+                                            var img = "";
+                                            if (item.FWYProductImage.Where(c => c.IsMain == true).ToList().Count > 0)
+                                            {
+                                                img = item.FWYProductImage.Where(c => c.IsMain == true).ToList().First().Image;
+                                            }
+                                            <div class="col-sm-6 col-md-3 p-b-40">
+                                                <div class="blog-item">
+                                                    <div class="hov-img0">
+                                                        <a href="blog-detail.html">
+                                                            <img src="@img" alt="IMG-BLOG">
+                                                        </a>
+                                                    </div>
+
+                                                    <div class="p-t-15">
+
+                                                        <p class="stext-108 cl6">
+                                                            @item.Name
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+
+
+</section>
+
+<!-- ======================== Profile  End========================== -->

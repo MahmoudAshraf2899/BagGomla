@@ -1,0 +1,70 @@
+﻿@model IEnumerable<IdentityLibrary.DataModel.FWYNotification>
+@using BagGomla.LocalResource
+@{
+    ViewBag.Title ="الاعلانات";
+    if (User.Identity.IsAuthenticated)
+    {
+        Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_DefualtLayout.cshtml";
+    }
+}
+<br />
+<br />
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-md-10">
+                    <h3>اعلانات</h3>
+                </div>
+                <div class="col-md-2" style="text-align:right">
+                    <a href="/Notification/Create" class="btn btn-success"><i class="fa fa-plus"></i> أضافه جديد</a>
+                </div>
+            </div> 
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                @foreach (var item in Model)
+                {
+                    var img = "no-image.jpg";
+                    if(item.Image != null && item.Image != "")
+                    {
+                        img = item.Image;
+                    }
+                    <div class="col-md-4 px-5 p-b-30 text-center">
+                        <div class="px-5">
+                            <h3>@item.ArTitle</h3>
+                            
+                            <img src="@img" class="mt-4" width="100%" height="200" alt=""/>
+                            <h4>@item.ArDetails</h4>
+                            <a href="/Notification/Edit/@item.Id" class="text-primary">
+                                <i class="fa fa-edit"></i> تعديل
+                            </a>
+                            <a href="/Notification/Delete/@item.Id" class="text-danger">
+                                <i class="fa fa-times-circle"></i> حذف
+                            </a>
+                            @if (item.IsRead == false)
+                            {
+                                <a href="/Notification/ActiveNotification/@item.Id" class="text-warning">
+                                    <i class=""></i> تفعيل الاشعار
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="#" class="text-success">
+                                    <i class=""></i> مفعل
+                                </a>
+                            }
+
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    
+</div>

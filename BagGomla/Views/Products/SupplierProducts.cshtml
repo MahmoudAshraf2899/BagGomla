@@ -1,0 +1,158 @@
+﻿@using IdentityLibrary.DataModel
+@model FWYSupplierCooperation
+@using BagGomla.Models;
+@using System.Web.UI.WebControls
+@using IdentityLibrary.DataModel;
+@using Microsoft.AspNet.Identity;
+@using BagGomla.Helper;
+@using BagGomla.LocalResource
+@{
+    Layout = null;
+    TagHelper helper = new TagHelper();
+    ViewBag.Title = Resource.Products + " " + Resource.Company;
+    var ProductDetailsLink = "/Products/ProductDetails/";
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+
+    var ProductList = new List<FWYProduct>();
+    
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>منتجاتي</title>
+    <link href="~/Content/bootstrap-5.0.0-beta1-dist/css/bootstrap.rtl.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600&display=swap" rel="stylesheet">
+    <style>
+        html {
+            direction: rtl;
+        }
+
+        .slick-slider {
+            direction: rtl;
+            text-align: right;
+        }
+
+        #navMenu {
+            direction: rtl;
+            text-align: right;
+        }
+
+        *:not(i):not(.fa):not(.fab):not(.fas) {
+            font-family: 'Cairo', sans-serif !important;
+            font-size: inherit;
+        }
+    </style>
+</head>
+<body>
+    @if (ViewBag.IsSupplier == false)
+    {
+        <p class="text-danger">انت لست مورد لا يوجد منتجات لك</p>
+    }
+    else
+    {
+        foreach (var item in Model.AspNetUsers.FWYStore)
+        {
+            foreach (var item1 in item.FWYStoreProduct)
+            {
+                if (ProductList.Find(c => c.ID == item1.FWYProduct.ID) == null)
+                {
+                    if (item1.FWYProduct.IsDeleted == false)
+                    {
+                        ProductList.Add(item1.FWYProduct);
+                    }
+                }
+            }
+        }
+        <section class="mx-auto">
+            <div class="container">
+                <div class="row no-gutters">
+                    <div class="col-md-12 pl-17">
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h2 class="text-center">منتجاتي</h2>
+                            </div>
+                            <div class="card-body">
+                                <!-- products -->
+                                <div class="sec-blog bg0 p-b-90">
+                                    <div class="container" id="dvProductList">
+
+                                        <div class="row">
+                                            @if(ProductList.Count() == 0)
+                                            {
+                                                <p class="text-danger text-center">لا يوجد منتجات مضافة لديك</p>
+                                            }
+                                            @{ foreach (var item in ProductList)
+                                                                {
+                                                                    var img = "";
+                                                                    if (item.FWYProductImage.Where(c => c.IsMain == true).ToList().Count > 0)
+                                                                    {
+                                                                        var proimage = item.FWYProductImage.Where(c => c.IsMain == true).ToList().First();
+                                                                        img = proimage.Image;
+                                                                    }
+                                                <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item women Search">
+                                                    <!-- Block2 -->
+                                                    <div class="block2">
+                                                        <div class="block2-pic hov-img0">
+                                                            <a href="@ProductDetailsLink@item.ID">
+                                                                <img src="/Images/Products/@img" alt="IMG-PRODUCT" height="250" style="width:90%;">
+                                                            </a>
+                                                        </div>
+
+                                                        <div class="block2-txt flex-w flex-t p-t-14">
+                                                            <div class="block2-txt-child1 flex-col-l ">
+                                                                @if (lang == "ar-EG")
+                                                                {
+                                            <a href="@ProductDetailsLink@item.ID" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6" style="color:blue;font-weight:bold;">
+                                                @item.ARName
+                                            </a> }
+                                                                else
+                                                                {
+                                            <a href="@ProductDetailsLink@item.ID" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6" style="color:blue;font-weight:bold;">
+                                                @item.Name
+                                            </a>}
+
+                                                                @if (item.FWYProductPriceRange.Count > 0)
+                                                                {
+                                                                    var min = item.FWYProductPriceRange.Min(c => c.Price);
+                                                                    var max = item.FWYProductPriceRange.Max(c => c.Price);
+                                            <span class="stext-105 cl3">
+                                                @Resource.Price: @Resource.From @min @Resource.To @max
+                                            </span> }
+                                                                else
+                                                                {
+                                            <span class="stext-105 cl3">
+                                                @Resource.Price: @Resource.From @item.FinalPrice @Resource.To @item.FinalPrice
+                                            </span>}
+
+                                                                @if (item.LessQuantityGomla != null)
+                                                                {
+                                            <span class="stext-105 cl3">
+                                                @Resource.LessQuanGomla: @item.LessQuantityGomla
+                                            </span>}
+                                                                <br />
+                                                                <a href="/Products/EditProduct/@item.ID" class="text-blue"> تعديل</a>
+                                                                <a href="/Products/DeleteProduct/@item.ID" class="text-danger"> حذف</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div> } }
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- end products -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    }
+
+    <script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+</body>
+</html>

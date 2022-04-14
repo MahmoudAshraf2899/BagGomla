@@ -1,0 +1,57 @@
+﻿@model IdentityLibrary.DataModel.FWYUnit
+@using BagGomla.LocalResource
+@{
+    ViewBag.Title = Resource.EditCreate + Resource.Unit;
+}
+
+
+
+<div class="card center_div">
+    <div class="card-body">
+        <h2 class="text-center">@Resource.EditCreate @Resource.Unit</h2>
+@using (Html.BeginForm("EditCreate", "FWYUnits", FormMethod.Post, new { }))
+{
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(c => c.ID);
+
+            <div class="form-horizontal">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group">
+                    <label for="Name" class="control-label float-right">@Resource.EnName</label>
+                    <div class="col-md-12">
+                        @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                        <span class="dis-none field-validation-error text-danger" data-valmsg-for="Name" data-valmsg-replace="true" id="unitName">@Resource.EnName @Resource.IsRequired</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="ARName" class="control-label float-right">@Resource.ArName</label>
+                    <div class="col-md-12">
+                        @Html.EditorFor(model => model.ARName, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.ARName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+              
+                <div class="form-group">
+                    <div class="col-md-2 mx-auto">
+                        <input type="button" value="@Resource.Save" class="btn btn-success"  id="btnSubmit"/>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    $("#btnSubmit").click(function () {
+        var name = $("#Name").val();
+        if (name != "" && name != null) {
+            document.getElementById("btnSubmit").setAttribute("type", "submit");
+        }
+        else {
+            $("#unitName").removeClass("dis-none");
+        }
+    });
+</script>

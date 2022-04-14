@@ -1,0 +1,150 @@
+﻿@model IEnumerable<IdentityLibrary.DataModel.FWYProduct>
+@using BagGomla.LocalResource
+@{
+    ViewBag.Title = Resource.Products + " " + Resource.Store;
+    if (User.Identity.IsAuthenticated)
+    {
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_DefualtLayout.cshtml";
+    }
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+
+}
+
+<div class="row">
+    <div class="col-md-11 mx-auto">
+        <div class="card">
+            <div class="card-body">
+                <a href="/FWYStores/EditCreateProduct/0?StoreID=@ViewBag.StoreID" class="btn btn-primary">@Resource.Add @Resource.NewProduct</a>
+                <br /><br />
+                <div class="table-responsive">
+                    <table id="InvoiceTabel" class="table m-0 table-colored-bordered table-bordered-info table-bordered table-hover">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>
+                                    @Resource.Name
+                                </th>
+                                <th>
+                                    @Resource.Number
+                                </th>
+                                <th>
+                                    @Resource.Code
+                                </th>
+                                <th>
+                                    @Resource.Price
+                                </th>
+                                @*<th>
+                                        @Resource.Store @Resource.Quantity
+                                    </th>
+                                    <th>
+                                        @Resource.TotalQuantity
+                                    </th>*@
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    @if (lang == "ar-EG")
+                                    {
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.ARName)
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Name)
+                                        </td>
+                                    }
+
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Number)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Code)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Price)
+                                    </td>
+                                    @*<td>
+                                            @item.FWYStoreProduct.Where(x => x.StoreID == ViewBag.StoreID).Sum(c => c.Quantity)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.TotalQuantity)
+                                        </td>*@
+                                    <td>
+                                        @Html.ActionLink(@Resource.Edit, "EditCreateProduct", new { ID = item.ID, StoreID = ViewBag.StoreID }, htmlAttributes: new { @class = "btn btn-success" })
+                                        @Html.ActionLink(@Resource.Details, "ProductDetails", new { id = item.ID }, htmlAttributes: new { @class = "btn btn-warning" })
+                                        @*@Html.ActionLink(@Resource.Delete, "DeleteProduct", new { id = item.ID, StoreID = ViewBag.StoreID }, htmlAttributes: new { @class = "btn btn-danger" })*@
+                                        <button type="button" onclick="DeleteProduct(@item.ID, @ViewBag.StoreID);" class="btn btn-danger">@Resource.Delete</button>
+                                        @*<button type="button" class="btn btn-info" onclick="AssignProductToStores(@item.ID,@ViewBag.StoreID);">Assign To Other Stores</button>*@
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+@*/// Assign Product To Other Stores////*@
+<div class="wrap-modal1 js-modal1 p-t-60 p-b-20">
+    <div class="overlay-modal1 js-hide-modal1"></div>
+
+    <div class="container">
+        <div class="bg0 p-t-60 p-b-30 p-lr-15-lg how-pos3-parent">
+            <button class="how-pos3 hov3 trans-04 js-hide-modal1">
+                <img src="~/Images/icons/icon-close.png" alt="CLOSE">
+            </button>
+            <div id="dvAssignProductToStores">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+@*<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>*@
+<script>
+    //function AssignProductToStores(ProductID, StoreID){
+    //    $("#dvAssignProductToStores").load("/FWYStores/AssignProductToOtherStore?ProductID=" + ProductID +
+    //        "&&CurrentStore=" + StoreID);
+    //    $('.js-modal1').addClass('show-modal1');
+    //}
+
+</script>
+
+<script>
+    function DeleteProduct(id, StoreID) {
+        if(confirm("@Resource.ConfirmDeleteMsg")){
+            $.ajax({
+                url: '@Url.Action("DeleteProduct", "FWYStores")',
+                type: 'GET',
+                cache: false,
+                data: { id: id, StoreID: StoreID }
+            }).done(function (result) {
+                if (result == 0) {
+                    swal("@Resource.Error", "@Resource.CannotDeleteProduct", "error");
+                }
+                else if (result == 1) {
+                    swal("@Resource.Done", "@Resource.DataDeleted", "success").then(function () {
+                        window.location.href = "/FWYStores/StoreProducts/" + StoreID;
+                    });
+                }
+                else {
+                    window.location.href = "/Account/AccessDenied";
+                }
+            });
+        }
+        
+    }
+</script>

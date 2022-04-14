@@ -1,0 +1,64 @@
+﻿@using BagGomla.Helper;
+@using IdentityLibrary.DataModel;
+@using BagGomla.LocalResource
+@using Microsoft.AspNet.Identity;
+@{
+    DatabaseContext db = new DatabaseContext();
+    //TagHelper helper = new TagHelper();
+    //List<string> ShoppingCartCollection = TagHelper.GetCookiesCollection(Request.Cookies["Fav"]).ToList();
+    //var ProductCollection = db.FWYProduct.Where(c => c.IsDeleted == false).ToList();
+    var ProductList = new List<FWYWishList>();
+    //foreach (var item in ShoppingCartCollection)
+    //{
+    //    foreach (var item2 in ProductCollection)
+    //    {
+    //        if (item == (item2.ID).ToString())
+    //        {
+    //            ProductList.Add(item2);
+    //        }
+    //    }
+    //}
+    var CurrentUserId = User.Identity.GetUserId();
+
+    if(CurrentUserId != null)
+    {
+        ProductList = db.FWYWishList.Where(c => c.UserID == CurrentUserId).ToList();
+    }
+}
+
+<div class="header-cart-content flex-w js-pscroll" id="FavDiv">
+    <a href="/Products/GetAllMyFav">@Resource.SeeAll</a>
+    <br /><br />
+    <ul class="header-cart-wrapitem w-full">
+        @foreach (var item in ProductList)
+        {
+            var img = "";
+            var proimg = item.Product.FWYProductImage.FirstOrDefault(c => c.IsMain == true);
+            if (proimg != null)
+            {
+                img = proimg.Image;
+            }
+            <li class="header-cart-item flex-w flex-t m-b-12">
+                <div class="header-cart-item-img">
+                    <img src="~/Images/Products/@img" alt="IMG">
+                </div>
+
+                <div class="header-cart-item-txt p-t-8" style="padding:10px;">
+                    <a href="/Products/Details/@item.Product.ID" class="header-cart-item-name m-b-18 hov-cl1 trans-04">
+                        @item.Product.Name
+                    </a>
+
+                    <span class="header-cart-item-info" style="padding:10px;">
+                        EGP @item.Product.Price
+                    </span>
+                    <a href="#" onclick="RemoveFav(@item.Product.ID)" style="color:red;">@Resource.Delete</a>
+                </div>
+            </li>
+        }
+
+    </ul>
+
+
+</div>
+
+

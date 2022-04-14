@@ -1,0 +1,93 @@
+﻿@using BagGomla.Models
+@using IdentityLibrary.DataModel
+@using BagGomla.LocalResource
+@using Microsoft.AspNet.Identity;
+@using BagGomla.Helper;
+<head>
+    <link href="~/Content/css/desk_and_mobile.css" rel="stylesheet" />
+</head>
+@model HomeModel
+@{
+    DatabaseContext db = new DatabaseContext();
+    TagHelper helper = new TagHelper();
+
+
+    ViewBag.Title = Resource.BigGomla;
+    if (User.Identity.IsAuthenticated)
+    {
+        var userId = User.Identity.GetUserId();
+        var user = db.AspNetUsers.SingleOrDefault(c => c.Id == userId);
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_DefualtLayout.cshtml";
+    }
+    <head>
+       <style>
+        footer{
+            display:none!important;
+        }
+       </style>
+    </head>
+    var Notification = new FWYNotification();
+    var Notifications = db.FWYNotification.Where(c => c.IsManual == true).ToList();
+
+    if (Notifications.Count > 0)
+    {
+        Random Not = new Random();
+        int y = Not.Next(0, Notifications.Count() - 1);
+        Notification = Notifications.ElementAtOrDefault(y);
+        Notification.Image = helper.ConnvertToImageSrc(Notification.Image, Notification.ImageExtension);
+    }
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;   
+}
+
+@if (Notifications.Count > 0)
+{
+    <div class="wrap-modal1 js-modal1 p-t-60 p-b-20 show-modal1">
+        <div class="overlay-modal1 js-hide-modal1"></div>
+        <div class="container ">
+            <div class="bg0 p-t-60 p-b-30 p-lr-15-lg how-pos3-parent rounded-30">
+                <button class="how-pos3 hov3 trans-04 js-hide-modal1">
+                    <img src="~/Images/icons/icon-close.png" alt="CLOSE">
+                </button>
+
+                <div class="row">
+                    <div class="col-md-12 px-5 p-b-30 text-center">
+                        <div class="px-5   ">
+                            @if (lang == "ar-EG")
+                            {
+                            <h4>@Notification.ArTitle</h4>
+                            <h3>@Notification.ArDetails</h3>
+                            }
+                            else
+                            {
+                            <h4>@Notification.Title</h4>
+                            <h3>@Notification.Details</h3>
+                            }
+                            <img src="@Notification.Image" class="mt-4" width="50%" height="30%" alt="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="sec-product bg0 p-t-40 p-b-50">
+    <div class="col-md-10 mx-auto">
+        <div class="card">
+            <div id="dvCategoryList">
+                @{
+                  var list = Model.CategoryList.Where(c => c.CategoryID == null).ToList();
+                }
+                @Html.Partial("_SubCategories", list)
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+

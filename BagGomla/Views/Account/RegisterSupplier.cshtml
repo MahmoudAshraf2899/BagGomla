@@ -1,0 +1,620 @@
+﻿@model BagGomla.Models.SupplierRegister
+@using BagGomla.LocalResource
+@{
+    ViewBag.Title = Resource.RegisterAsSupplier;
+    Layout = "~/Views/Shared/_DefualtLayout.cshtml";
+}
+
+
+@using (Html.BeginForm("RegisterSupplier", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form", enctype = "multipart/form-data" }))
+{
+    <input type="hidden" name="returnUrl" value="@ViewBag.returnUrl" />
+    @Html.HiddenFor(m => m.SupplierModel.IsSupplier)
+    @Html.AntiForgeryToken()
+
+    <section class="p-t-10 p-b-10">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-10 mx-auto">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="mb-5 form-title pl-3 font-weight-bold text-capitalize">
+                                <i class="fa fa-institution" aria-hidden="true"></i>
+                                @Resource.Create @Resource.ANew @Resource.Account
+                            </h3>
+                            @* User Data *@
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="SupplierModel_FullName"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-user"
+                                           aria-hidden="true"></i>
+                                        @Resource.EnName:
+                                    </label>
+                                    @Html.TextBoxFor(m => m.SupplierModel.FullName, new { @class = "form-control" })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="SupplierModel_FullName" data-valmsg-replace="true" id="msgSupplierModel_FullName"></span>
+                                    @Html.ValidationMessageFor(m => m.SupplierModel.FullName, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="SupplierModel_FullName"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-user"
+                                           aria-hidden="true"></i>
+                                        @Resource.ArName:
+                                    </label>
+                                    @Html.TextBoxFor(m => m.SupplierModel.ArFullName, new { @class = "form-control" })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="SupplierModel_ArFullName" data-valmsg-replace="true" id="msgSupplierModel_ArFullName"></span>
+                                    @Html.ValidationMessageFor(m => m.SupplierModel.ArFullName, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="SupplierModel_Phone"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-phone"
+                                           aria-hidden="true"></i>
+                                        @Resource.Phone:
+                                    </label>
+                                    @Html.TextBoxFor(m => m.SupplierModel.Phone, new { @class = "form-control", type="number" })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="SupplierModel_Phone" data-valmsg-replace="true" id="msgSupplierModel_Phone"></span>
+                                    @Html.ValidationMessageFor(m => m.SupplierModel.Phone, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="SupplierModel_Email"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-envelope"
+                                           aria-hidden="true"></i>
+                                        @Resource.Email:
+                                    </label>
+                                    @Html.TextBoxFor(m => m.SupplierModel.Email, new { @class = "form-control" })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="SupplierModel_Email" data-valmsg-replace="true" id="msgSupplierModel_Email"></span>
+                                    @Html.ValidationMessageFor(m => m.SupplierModel.Email, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="Address"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-map-marker"
+                                           aria-hidden="true"></i>
+                                        @Resource.Address:
+                                    </label>
+                                    @Html.TextBoxFor(m => m.SupplierModel.Latitude, new { @class = "form-control", @id = "txtLatitude", style = "display: none;" })
+                                    @Html.TextBoxFor(m => m.SupplierModel.Longitude, new { @class = "form-control", @id = "txtLongitude", style = "display: none;" })
+                                    @Html.TextBoxFor(m => m.SupplierModel.Address, new { @class = "form-control", @id = "txtAddress" })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="SupplierModel_Address" data-valmsg-replace="true" id="msgSupplierModel_Address"></span>
+                                    @Html.ValidationMessageFor(m => m.SupplierModel.Address, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group file-upload">
+                                        <label for="Image" class="font-weight-bold text-capitalize"><i class="fa fa-picture-o" aria-hidden="true"></i> @Resource.Image:</label>
+                                        <label class="form-control">
+                                            <input type="file" name="Image" id="Image" placeholder="" class="form-control-file" aria-describedby="fileHelpId" accept="image/*">
+                                            @*<span class="custom-file-control"></span>*@
+
+                                            <small id="fileHelpId" class="form-text  invalid-feedback">Please fill this field</small>
+
+                                        </label>
+                                        <div class="images-infos">
+
+                                        </div>
+                                        <span class="dis-none field-validation-error text-danger" data-valmsg-for="Image" data-valmsg-replace="true" id="msgImage"></span>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-md-6">
+                                    <label for="SupplierModel_Password"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-lock"
+                                           aria-hidden="true"></i>
+                                        @Resource.Password:
+                                    </label>
+                                    @Html.TextBoxFor(m => m.SupplierModel.Password, new { @class = "form-control", type = "password" })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="SupplierModel_Password" data-valmsg-replace="true" id="msgSupplierModel_Password"></span>
+                                    @Html.ValidationMessageFor(m => m.SupplierModel.Password, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="SupplierModel_ConfirmPassword"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-retweet"
+                                           aria-hidden="true"></i>
+                                        @Resource.Confirm @Resource.Password:
+                                    </label>
+                                    @Html.TextBoxFor(m => m.SupplierModel.ConfirmPassword, new { @class = "form-control", type = "password" })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="SupplierModel_ConfirmPassword" data-valmsg-replace="true" id="msgSupplierModel_ConfirmPassword"></span>
+                                    @Html.ValidationMessageFor(m => m.SupplierModel.ConfirmPassword, "", new { @class = "text-danger" })
+                                </div>
+
+                                
+
+
+                               
+
+                                <div class="col-md-6">
+                                    <label for="CompanyModel_Name"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-building"
+                                           aria-hidden="true"></i>
+                                        @Resource.Company @Resource.EnName:
+                                    </label>
+                                    @Html.TextBoxFor(m => m.CompanyModel.Name, new { @class = "form-control" })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="CompanyModel_Name" data-valmsg-replace="true" id="msgCompanyModel_Name"></span>
+                                    @Html.ValidationMessageFor(m => m.CompanyModel.Name, "", new { @class = "text-danger" })
+
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="CompanyModel_Name"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-building"
+                                           aria-hidden="true"></i>
+                                        @Resource.Company @Resource.ArName:
+                                    </label>
+                                    @Html.TextBoxFor(m => m.CompanyModel.ArName, new { @class = "form-control" })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="CompanyModel_ArName" data-valmsg-replace="true" id="msgCompanyModel_ArName"></span>
+                                    @Html.ValidationMessageFor(m => m.CompanyModel.ArName, "", new { @class = "text-danger" })
+
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="CompanyModel_ProfilePictureID"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-picture-o"
+                                           aria-hidden="true"></i>
+                                        @Resource.ProfilePicture:
+                                    </label>
+                                    @Html.TextBoxFor(m => m.CompanyModel.ProfilePictureID, new { @class = "form-control", @readonly = "", @placeholder = "Click here to select from gallery" })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="CompanyModel_ProfilePictureID" data-valmsg-replace="true" id="msgCompanyModel_ProfilePictureID"></span>
+                                    @Html.ValidationMessageFor(m => m.CompanyModel.ProfilePictureID, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group file-upload">
+                                        <label for="Logo" class="font-weight-bold text-capitalize"><i class="fa fa-picture-o" aria-hidden="true"></i> @Resource.Logo:</label>
+                                        <label class="form-control">
+                                            <input type="file" name="Logo" id="Logo" placeholder="" class="form-control-file" aria-describedby="fileHelpId" accept="image/*">
+                                            @*<span class="custom-file-control"></span>*@
+
+                                            <small id="fileHelpId" class="form-text  invalid-feedback">Please fill this field</small>
+
+                                        </label>
+                                        <div class="images-infos">
+
+                                        </div>
+                                        <span class="dis-none field-validation-error text-danger" data-valmsg-for="Logo" data-valmsg-replace="true" id="msgLogo"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group file-upload">
+                                        <label for="CommericialRegister" class="font-weight-bold text-capitalize"><i class="fa fa-file-image-o" aria-hidden="true"></i> @Resource.NationalCopyID:</label>
+                                        <label class="form-control">
+                                            <input type="file" name="CommericialRegister" id="CommericialRegister" placeholder="" class="form-control-file" aria-describedby="fileHelpId" accept="image/*">
+                                            @*<span class="custom-file-control"></span>*@
+
+                                            <small id="fileHelpId" class="form-text  invalid-feedback">Please fill this field</small>
+
+                                        </label>
+                                        <div class="images-infos">
+
+                                        </div>
+                                        <span class="dis-none field-validation-error text-danger" data-valmsg-for="CommericialRegister" data-valmsg-replace="true" id="msgCommericialRegister"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group file-upload">
+                                        <label for="NationalCopyID" class="font-weight-bold text-capitalize"><i class="fa fa-file-image-o" aria-hidden="true"></i> @Resource.CommercialRegister:</label>
+                                        <label class="form-control">
+                                            <input type="file" name="NationalCopyID" id="NationalCopyID" placeholder="" class="form-control-file" aria-describedby="fileHelpId" accept="image/*">
+                                            @*<span class="custom-file-control"></span>*@
+                                            <small id="fileHelpId" class="form-text  invalid-feedback">Please Fill This field</small>
+
+                                        </label>
+                                        <div class="images-infos">
+
+                                        </div>
+                                        <span class="dis-none field-validation-error text-danger" data-valmsg-for="NationalCopyID" data-valmsg-replace="true" id="msgNationalCopyID"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="CompanyModel_WebsiteUrl"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-linkedin-square"
+                                           aria-hidden="true"></i>
+                                        @Resource.WebsiteUrl:
+                                    </label>
+                                    @Html.TextBoxFor(m => m.CompanyModel.WebsiteUrl, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.CompanyModel.WebsiteUrl, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="CompanyModel_Facebook"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-facebook-square"
+                                           aria-hidden="true"></i>
+                                        @Resource.Facebook:
+                                    </label>
+                                    @Html.TextBoxFor(m => m.CompanyModel.Facebook, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.CompanyModel.Facebook, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="CompanyModel_Instagram"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-instagram"
+                                           aria-hidden="true"></i>
+                                        @Resource.Instagram:
+                                    </label>
+                                    @Html.TextBoxFor(m => m.CompanyModel.Instagram, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.CompanyModel.Instagram, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="CompanyModel_Linkedin"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-linkedin-square"
+                                           aria-hidden="true"></i>
+                                        @Resource.Linkedin:
+                                    </label>
+                                    @Html.TextBoxFor(m => m.CompanyModel.Linkedin, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.CompanyModel.Linkedin, "", new { @class = "text-danger" })
+                                </div>
+
+
+                                <div class="col-md-12">
+                                    <label for="CompanyModel_About"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-info-circle"
+                                           aria-hidden="true"></i>
+                                        @Resource.About:
+                                    </label>
+                                    @Html.TextAreaFor(m => m.CompanyModel.About, new { @class = "form-control", rows = "5" })
+                                    @Html.ValidationMessageFor(m => m.CompanyModel.About, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label for="CompanyModel_About"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-info-circle"
+                                           aria-hidden="true"></i>
+                                        @Resource.ArAbout:
+                                    </label>
+                                    @Html.TextAreaFor(m => m.CompanyModel.ArAbout, new { @class = "form-control", rows = "5" })
+                                    @Html.ValidationMessageFor(m => m.CompanyModel.ArAbout, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-group form-check">
+                                        @Html.CheckBoxFor(m => m.CompanyModel.IsAgreedTerms, new { @class = "form-check-input ml-0" })
+                                        @Html.ValidationMessageFor(m => m.CompanyModel.IsAgreedTerms, "", new { @class = "text-danger" })
+                                        @*<input type="checkbox" class="form-check-input ml-0" id="exampleCheck1">*@
+                                        <label class="form-check-label" for="CompanyModel_IsAgreedTerms">@Resource.ByCheckInput<a href="#">@Resource.Terms</a></label>
+                                        <small id="fileHelpId" class="form-text  invalid-feedback px-3">Please Fill This field</small>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="form-group">
+                                <br /><br />
+                                <div class="col-md-2 mx-auto">
+                                    <input type="button" id="btnSubmit" class="btn btn-warning font-weight-bold" value="@Resource.Register" />
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+
+@*/// Gallery Pictures////*@
+<div class="wrap-modal1 js-modal1 p-t-60 p-b-20">
+    <div class="overlay-modal1 js-hide-modal1"></div>
+
+    <div class="container">
+        <div class="bg0 p-t-60 p-b-30 p-lr-15-lg how-pos3-parent">
+            <button class="how-pos3 hov3 trans-04 js-hide-modal1">
+                <img src="~/Images/icons/icon-close.png" alt="CLOSE">
+            </button>
+            <h4 style="text-align:center;">@Resource.Select @Resource.Company @Resource.ProfilePicture</h4>
+            <div id="dvGalleryPicture" style="margin:30px;">
+                @foreach (var item in ViewBag.ProfilePictures)
+                {
+                    <a onclick="SelectProfilePic('@item.ID')">
+                        <img src="@item.Image" width="120" height="140" style="border:1px solid black;margin-right:10px;margin-bottom:10px;" />
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+@*<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>*@
+@*<script src="~/Scripts/js/maps-google-api.js"></script>*@
+
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=AIzaSyAPFGkzEre1YIwcyejsVgRrl8T1DWJZouU"></script>
+<script type="text/javascript">
+    google.maps.event.addDomListener(window, 'load', function () {
+        var places = new google.maps.places.Autocomplete(document.getElementById('txtAddress'));
+        google.maps.event.addListener(places, 'place_changed', function () {
+            var place = places.getPlace();
+            document.getElementById('txtAddress').value = place.formatted_address;
+            document.getElementById('txtLatitude').value = place.geometry.location.lat();
+            document.getElementById('txtLongitude').value = place.geometry.location.lng();
+        });
+    });
+</script>
+@*@if (ViewBag.Message != null)
+    {
+        <script type="text/javascript">
+                window.onload = function(){
+                    alert("@ViewBag.Message");
+                };
+        </script>
+    }*@
+<script>
+    $("#CompanyModel_ProfilePictureID").click(function () {
+        $('.js-modal1').addClass('show-modal1');
+    });
+
+    function SelectProfilePic(pic) {
+        var myPicID = Number(pic);
+        $("#CompanyModel_ProfilePictureID").val(myPicID);
+        $('.js-modal1').removeClass('show-modal1');
+    }
+</script>
+
+<script>
+    $("#btnSubmit").click(function () {
+        var SupplierModel_FullName = $("#SupplierModel_FullName").val(),
+            SupplierModel_ArFullName = $("#SupplierModel_ArFullName").val(),
+            SupplierModel_Phone = $("#SupplierModel_Phone").val(),
+            SupplierModel_Email = $("#SupplierModel_Email").val(),
+            SupplierModel_Address = $("#txtAddress").val(),
+            SupplierModel_Password = $("#SupplierModel_Password").val(),
+            SupplierModel_ConfirmPassword = $("#SupplierModel_ConfirmPassword").val(),
+            Image = $("#Image").val(),
+            CompanyModel_ProfilePictureID = $("#CompanyModel_ProfilePictureID").val(),
+            CompanyModel_ArName = $("#CompanyModel_ArName").val(),
+            CompanyModel_Name = $("#CompanyModel_Name").val(),
+            Logo = $("#Logo").val(),
+            NationalCopyID = $("#NationalCopyID").val(),
+            CommericialRegister = $("#CommericialRegister").val();
+        var ValidImage = ValidateImage(Image),
+            ValidLogo = ValidateImage(Logo),
+            ValidNationalCopyID = ValidateImage(NationalCopyID),
+            ValidCommericialRegister = ValidateImage(CommericialRegister);
+
+        var validEmail = ValidateEmail(SupplierModel_Email);
+        var ValidPass = ValidatePassword(SupplierModel_Password, SupplierModel_ConfirmPassword);
+
+        if (SupplierModel_FullName != "" && SupplierModel_FullName != null && SupplierModel_ArFullName != "" && SupplierModel_ArFullName != null
+            && SupplierModel_Phone != "" && SupplierModel_Phone != null && SupplierModel_Phone.length == 11
+            &&SupplierModel_Address != "" && SupplierModel_Address != null && validEmail == 1 && ValidPass == 2
+            && CompanyModel_ProfilePictureID != "" && CompanyModel_ProfilePictureID != null
+            && CompanyModel_ArName != "" && CompanyModel_ArName != null && CompanyModel_Name != "" && CompanyModel_Name != null
+            && ValidImage == true && ValidLogo == true && ValidNationalCopyID == true && ValidCommericialRegister == true) {
+            document.getElementById("btnSubmit").setAttribute("type","submit");
+        }
+        else {
+            if (SupplierModel_FullName == "" || SupplierModel_FullName == null) {
+                $("#msgSupplierModel_FullName").removeClass("dis-none");
+                $("#msgSupplierModel_FullName").html("@Resource.EnName @Resource.IsRequired");
+            }
+            else{
+                $("#msgSupplierModel_FullName").html("");
+            }
+            //
+            if (SupplierModel_ArFullName == "" || SupplierModel_ArFullName == null) {
+                $("#msgSupplierModel_ArFullName").removeClass("dis-none");
+                $("#msgSupplierModel_ArFullName").html("@Resource.ArName @Resource.IsRequired");
+            }
+            else{
+                $("#msgSupplierModel_ArFullName").html("");
+            }
+            //
+            if (SupplierModel_Phone == "" || SupplierModel_Phone == null) {
+                $("#msgSupplierModel_Phone").removeClass("dis-none");
+                $("#msgSupplierModel_Phone").html("@Resource.Phone @Resource.IsRequired");
+            }
+            else {
+                if (SupplierModel_Phone.length < 11 || SupplierModel_Phone.length > 11) {
+                    $("#msgSupplierModel_Phone").removeClass("dis-none");
+                    $("#msgSupplierModel_Phone").html("@Resource.Phone @Resource.MustBeLength");
+                }
+                else{
+                    $("#msgSupplierModel_Phone").html("");
+                }
+            }
+            //
+            //alert(validEmail);
+            if (validEmail == -1) {
+                $("#msgSupplierModel_Email").removeClass("dis-none");
+                $("#msgSupplierModel_Email").html("@Resource.Email @Resource.IsNotValid");
+            }
+            else if (validEmail == 0) {
+                $("#msgSupplierModel_Email").removeClass("dis-none");
+                $("#msgSupplierModel_Email").html("@Resource.Email @Resource.IsRequired");
+            }
+            else{
+                $("#msgSupplierModel_Email").html("");
+            }
+            //
+            //alert(ValidPass);
+            if (ValidPass == -1) {
+                $("#msgSupplierModel_Password").removeClass("dis-none");
+                $("#msgSupplierModel_Password").html("@Resource.Password @Resource.IsRequired");
+            }
+            else if (ValidPass == 0) {
+                $("#msgSupplierModel_Password").removeClass("dis-none");
+                $("#msgSupplierModel_Password").html("@Resource.PassIsNotValid");
+            }
+            else if (ValidPass == 1) {
+                $("#msgSupplierModel_ConfirmPassword").removeClass("dis-none");
+                $("#msgSupplierModel_ConfirmPassword").html("@Resource.PassNotMatching");
+                $("#msgSupplierModel_Password").html("");
+            }
+            else{
+                $("#msgSupplierModel_Password").html("");
+                $("#msgSupplierModel_ConfirmPassword").html("");
+            }
+            //
+            if (SupplierModel_Address == "" || SupplierModel_Address == null) {
+                $("#msgSupplierModel_Address").removeClass("dis-none");
+                $("#msgSupplierModel_Address").html("@Resource.Address @Resource.IsRequired");
+            }
+            else{
+                $("#msgSupplierModel_Address").html("");
+            }
+            //
+            if (ValidImage == false) {
+                $("#msgImage").removeClass("dis-none");
+                $("#msgImage").html("@Resource.Image @Resource.IsNotValid");
+            }
+            else {
+                $("#msgImage").html("");
+            }
+            //
+            if (ValidLogo == false) {
+                $("#msgLogo").removeClass("dis-none");
+                $("#msgLogo").html("@Resource.Image @Resource.IsNotValid");
+            }
+            else {
+                $("#msgLogo").html("");
+            }
+            //
+            if (ValidCommericialRegister == false) {
+                $("#msgCommericialRegister").removeClass("dis-none");
+                $("#msgCommericialRegister").html("@Resource.Image @Resource.IsNotValid");
+            }
+            else {
+                $("#msgCommericialRegister").html("");
+            }
+            //
+            if (ValidNationalCopyID == false) {
+                $("#msgNationalCopyID").removeClass("dis-none");
+                $("#msgNationalCopyID").html("@Resource.Image @Resource.IsNotValid");
+            }
+            else {
+                $("#msgNationalCopyID").html("");
+            }
+            //
+            if (CompanyModel_ProfilePictureID == "" || CompanyModel_ProfilePictureID == null) {
+                $("#msgCompanyModel_ProfilePictureID").removeClass("dis-none");
+                $("#msgCompanyModel_ProfilePictureID").html("@Resource.ProfilePicture @Resource.IsRequired");
+            }
+            else {
+                $("#msgCompanyModel_ProfilePictureID").html("");
+            }
+            //
+            if (CompanyModel_Name == "" || CompanyModel_Name == null) {
+                $("#msgCompanyModel_Name").removeClass("dis-none");
+                $("#msgCompanyModel_Name").html("@Resource.CompanyName @Resource.IsRequired");
+            }
+            else {
+                $("#msgCompanyModel_Name").html("");
+            }
+            //
+            if (CompanyModel_ArName == "" || CompanyModel_ArName == null) {
+                $("#msgCompanyModel_ArName").removeClass("dis-none");
+                $("#msgCompanyModel_ArName").html("@Resource.CompanyArName @Resource.IsRequired");
+            }
+            else {
+                $("#msgCompanyModel_ArName").html("");
+            }
+
+        }
+    });
+
+
+
+    function ValidateEmail(email) {
+        //alert(email);
+        if (email != "" && email != null) {
+            const re = /^(([^<>()\[\]\\.,;:\s@@"]+(\.[^<>()\[\]\\.,;:\s@@"]+)*)|(".+"))@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            var x = re.test(String(email).toLowerCase());
+            if (x == false) {
+                return -1;
+            }
+            else {
+                return 1;
+            }
+        }
+        else {
+            return 0;
+        }
+
+    }
+
+    function ValidatePassword(password, confirmPassword) {
+
+        var lowerCaseLetters = /[a-z]/g;
+        var validpass = 0;
+        // Validate small letters
+        if (password.match(lowerCaseLetters)) {
+            validpass = validpass + 1;
+        }
+
+        // Validate capital letters
+        var upperCaseLetters = /[A-Z]/g;
+        if (password.match(upperCaseLetters)) {
+            validpass = validpass + 1;
+        }
+
+        // Validate numbers
+        var numbers = /[0-9]/g;
+        if (password.match(numbers)) {
+            validpass = validpass + 1;
+        }
+
+        // Validate length
+        if (password.length >= 8) {
+            validpass = validpass + 1;
+        }
+
+
+        if (password == null || password == "") {
+            //pass required
+            return -1;
+        }
+        else{
+            if (validpass < 4) {
+                //not valid
+                return 0;
+            }
+            else {
+                if (password != confirmPassword) {
+                    //not match
+                    return 1;
+                }
+                else {
+                    //done
+                    return 2;
+                }
+            }
+        }
+    }
+
+    function ValidateImage(file) {
+        //alert(Image);
+        if(file == null || file == ""){
+            return true;
+        }
+        var FileArr = file.split(".");
+        var extension = FileArr[FileArr.length - 1];
+        //alert(extension);
+        if (extension == "jpg" || extension == "png" || extension == "jpeg" || extension == "gif") {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+</script>

@@ -1,0 +1,542 @@
+﻿@using IdentityLibrary.DataModel
+@model FWYSupplierCooperation
+@using BagGomla.Models;
+@using System.Web.UI.WebControls
+@using IdentityLibrary.DataModel;
+@using Microsoft.AspNet.Identity;
+@using BagGomla.Helper;
+@using BagGomla.LocalResource
+@{
+    TagHelper helper = new TagHelper();
+    ViewBag.Title =  Resource.Products + " " + Resource.Company;
+    var ProductDetailsLink = "/Products/Details/";
+    if (User.Identity.IsAuthenticated)
+    {
+        DatabaseContext db = new DatabaseContext();
+        var userId = User.Identity.GetUserId();
+        var user = db.AspNetUsers.SingleOrDefault(c => c.Id == userId);
+        if (User.IsInRole("1"))
+        {
+            Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+        }
+        else
+        {
+            Layout = "~/Views/Shared/_Layout.cshtml";
+        }
+        if (User.IsInRole("2") && Model.SupplierID == userId)
+        {
+            ProductDetailsLink = "/FWYStores/ProductDetails/";
+        }
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_DefualtLayout.cshtml";
+    }
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+
+    var ProductList = new List<FWYProduct>();
+    foreach (var item in Model.AspNetUsers.FWYStore)
+    {
+        foreach (var item1 in item.FWYStoreProduct)
+        {
+            if (ProductList.Find(c => c.ID == item1.FWYProduct.ID) == null)
+            {
+                if(item1.FWYProduct.IsDeleted == false && item1.FWYProduct.IsAvailable == true)
+                {
+                    ProductList.Add(item1.FWYProduct);
+                }
+            }
+        }
+    }
+}
+
+<!-- ======================== Profile ========================== -->
+<!-- ======================== Profile Cover ========================== -->
+@*@if (ViewBag.ProfilePicture != "" && ViewBag.ProfilePicture != null)
+{
+    <div class="profile-cover border-bottom">
+        <img src="@ViewBag.ProfilePicture" height="400" width="100%" alt="">
+    </div>
+}*@
+
+
+<style>
+    .block2-btn:hover{
+        color:white !important;
+    }
+</style>
+
+<section class="mx-auto">
+    <div class="container">
+        <div class="row no-gutters">
+
+            <div class="col-md-3">
+                <div class="card mt-4">
+                    <div class="card-header">
+                        @Resource.ProductCategories
+                    </div>
+                    <div class="card-body">
+                        <ul>
+                            @{
+                                var CategoryList = new List<FWYCategory>();
+
+                                foreach (var item in Model.AspNetUsers.FWYStore)
+                                {
+                                    foreach (var item1 in item.FWYStoreProduct)
+                                    {
+                                        if (item1.FWYProduct.FWYCategory.CategoryID == null)
+                                        {
+                                            if (CategoryList.Find(c => c.ID == item1.FWYProduct.FWYCategory.ID) == null)
+                                            {
+                                                CategoryList.Add(item1.FWYProduct.FWYCategory);
+                                                <li>@item1.FWYProduct.FWYCategory.Name</li>
+                                                foreach (var i in item1.FWYProduct.FWYCategory.FWYCategory1)
+                                                {
+                                                    if (CategoryList.Find(c => c.ID == i.ID) == null)
+                                                    {
+                                                        CategoryList.Add(i);
+                                                        if (lang == "ar-EG")
+                                                        {
+                                                            <li> <a href="#" onclick="GetProductList('@i.ID' ,'@item.SupplierID')">@i.ARName</a></li>
+                                                        }
+                                                        else
+                                                        {
+                                                            <li> <a href="#" onclick="GetProductList('@i.ID','@item.SupplierID')">@i.Name</a></li>
+
+                                                        }
+
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                }
+                                if (CategoryList.Count == 0)
+                                {
+                                    foreach (var item in Model.AspNetUsers.FWYStore)
+                                    {
+                                        foreach (var item1 in item.FWYStoreProduct)
+                                        {
+                                            if (CategoryList.Find(c => c.ID == item1.FWYProduct.FWYCategory.ID) == null)
+                                            {
+                                                if(item1.FWYProduct.IsDeleted == false) 
+                                                {
+                                                    CategoryList.Add(item1.FWYProduct.FWYCategory);
+                                                    if (lang == "ar-EG")
+                                                    {
+                                                        <li> <a href="#" onclick="GetProductList('@item1.FWYProduct.FWYCategory.ID','@item.SupplierID')">@item1.FWYProduct.FWYCategory.ARName</a></li>
+                                                    }
+                                                    else
+                                                    {
+                                                        <li> <a href="#" onclick="GetProductList('@item1.FWYProduct.FWYCategory.ID','@item.SupplierID')">@item1.FWYProduct.FWYCategory.Name</a></li>
+                                                    }
+                                                }
+                                                
+
+                                            }
+                                        }
+                                    }
+
+                                }
+                            }
+                        </ul>
+                    </div>
+                </div>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            @Resource.SocialNetworks
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled d-flex">
+                                <li class="mx-2"><a href="@Model.Facebook"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+                                <li class="mx-2"><a href="@Model.Instagram"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+                                <li class="mx-2"><a href="@Model.Linkedin"><i class="fa fa-telegram" aria-hidden="true"></i></a></li>
+                            </ul>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p><i class="fa fa-phone"></i> @Model.Phone</p>
+                                </div>
+                                <div class="col-md-12">
+                                    <a href="@Model.WebsiteUrl"><i class="fa fa-link"></i> @Model.Name</a>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <br /><br />
+                    <button class="btn btn-success" id="DisplayCon">@Resource.DisplayContact</button>
+                    <div class="dis-none need-be-user" id="dvBeUser">
+                        <p><strong>@Resource.NotMember</strong> <a href="/Account/Register?returnUrl=/SupplierCorporation/CompanyProducts/@Model.ID"> @Resource.Register</a></p>
+                        <p><strong>@Resource.AlreadyMember</strong> <a href="/Account/Login?returnUrl=/SupplierCorporation/CompanyProducts/@Model.ID"> @Resource.Login</a></p>
+                    </div>
+                }
+            </div>
+
+            <div class="col-md-9 pl-17">
+                <div class="card mt-4">
+                    <div class="card-header">
+                        @Resource.Productsinformation
+                    </div>
+                    <div class="card-body">
+                        <!-- products -->
+                        <div class="sec-blog bg0 p-b-90">
+                            <div class="container" id="dvProductList">
+
+                                <div class="row">
+                                    @{
+                                        foreach (var item in ProductList.Where(c => c.IsDeleted == false))
+                                        {
+                                            var img = "";
+                                            if (item.FWYProductImage.Where(c => c.IsMain == true).ToList().Count > 0)
+                                            {
+                                                var proimage = item.FWYProductImage.Where(c => c.IsMain == true).ToList().First();
+                                                img = proimage.Image;
+                                            }
+                                            <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item women Search">
+                                                <!-- Block2 -->
+                                                <div class="block2">
+                                                    <div class="block2-pic hov-img0">
+                                                        <a href="@ProductDetailsLink@item.ID">
+                                                            <img src="/Images/Products/@img" alt="IMG-PRODUCT" height="250">
+                                                        </a>
+                                                        <a onclick="ViewProduct('@item.ID');" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04" style="cursor:pointer;">
+                                                            @Resource.QuickView
+                                                        </a>
+                                                    </div>
+
+                                                    <div class="block2-txt flex-w flex-t p-t-14">
+                                                        <div class="block2-txt-child1 flex-col-l ">
+                                                            @if (lang == "ar-EG")
+                                                            {
+                                                                <a href="@ProductDetailsLink@item.ID" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6" style="color:blue;font-weight:bold;">
+                                                                    @item.ARName
+                                                                </a>
+                                                            }
+                                                            else
+                                                            {
+                                                                <a href="@ProductDetailsLink@item.ID" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6" style="color:blue;font-weight:bold;">
+                                                                    @item.Name
+                                                                </a>
+                                                            }
+
+                                                            @if (item.FWYProductPriceRange.Count > 0)
+                                                            {
+                                                                var min = item.FWYProductPriceRange.Min(c => c.Price);
+                                                                var max = item.FWYProductPriceRange.Max(c => c.Price);
+                                                                <span class="stext-105 cl3">
+                                                                    @Resource.Price: @Resource.From @min @Resource.To @max
+                                                                </span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="stext-105 cl3">
+                                                                    @Resource.Price: @Resource.From @item.FinalPrice @Resource.To @item.FinalPrice
+                                                                </span>
+                                                            }
+
+                                                            @if (item.LessQuantityGomla != null)
+                                                            {
+                                                                <span class="stext-105 cl3">
+                                                                    @Resource.LessQuanGomla: @item.LessQuantityGomla
+                                                                </span>
+                                                            }
+                                                        </div>
+                                                        <div class="block2-txt-child2 flex-r p-t-3">
+
+                                                            @if (BagGomla.Helper.TagHelper.IsProductInMyFav(item.ID, User.Identity.GetUserId()) == true)
+                                                            {
+                                                                <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addedwish-b2" onclick="RemoveFav(@item.ID)">
+                                                                    <img class="icon-heart2 dis-block trans-04 ab-t-l" src="~/Images/icons/icon-heart-02.png" alt="ICON">
+                                                                </a>
+                                                            }
+                                                            else
+                                                            {
+                                                                <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2" onclick="AddFav(@item.ID)">
+                                                                    <img class="icon-heart1 dis-block trans-04" src="~/Images/icons/icon-heart-01.png" alt="ICON">
+                                                                    <img class="icon-heart2 dis-block trans-04 ab-t-l" src="~/Images/icons/icon-heart-02.png" alt="ICON">
+                                                                </a>
+                                                            }
+
+                                                        </div>
+                                                        @if (User.Identity.IsAuthenticated)
+                                                        {
+                                                            var CurrentUser = User.Identity.GetUserId();
+                                                            if (Model.SupplierID == CurrentUser)
+                                                            {
+                                                                <a href="/FWYStores/EditCreateProduct?ID=@item.ID&&StoreID=@item.FWYStoreProduct.FirstOrDefault().StoreID" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6 btn btn-success" style="color:black;">
+                                                                    @Resource.Edit
+                                                                </a>
+                                                                <button type="button" onclick="DeleteProduct(@item.ID, @item.FWYStoreProduct.FirstOrDefault().StoreID);" class="btn btn-danger">@Resource.Delete</button>
+                                                                @*<a href="/FWYStores/DeleteProduct?id=@item.ID&&StoreID=@item.FWYStoreProduct.FirstOrDefault().StoreID" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6  btn btn-danger" style="color:black;">
+                                                                        @Resource.Delete
+                                                                    </a>*@
+                                                            }
+
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- end products -->
+                    </div>
+                </div>
+            </div>
+
+            @*<div class="col-md-12">
+                <div class="card mt-4">
+                    <div class="card-header">
+                        @Resource.LatestProducts
+                    </div>
+                    <div class="card-body">
+                        <div class="wrap-slick2">
+                            <div class="slick2">
+                                @{
+                                    ProductList.Reverse();
+                                    foreach (var item in ProductList)
+                                    {
+                                        var img = "";
+                                        if (item.FWYProductImage.Where(c => c.IsMain == true).ToList().Count > 0)
+                                        {
+                                            var proimage = item.FWYProductImage.Where(c => c.IsMain == true).ToList().First();
+                                            img = helper.ConnvertToImageSrc(proimage.Image, proimage.ImageExtension);
+                                        }
+
+                                        <div class="item-slick2 p-l-15 p-r-15 p-t-15 p-b-15 has-dicount">
+                                            <div class="block2">
+                                                <div class="block2-pic hov-img0">
+                                                    <img src="@img" alt="IMG-PRODUCT" height="250" width="100">
+                                                    <a onclick="ViewProduct('@item.ID');" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
+                                                        @Resource.QuickView
+                                                    </a>
+                                                </div>
+                                                <div class="block2-txt flex-w flex-t p-t-14">
+                                                    <div class="block2-txt-child1 flex-col-l ">
+                                                        @if (lang == "ar-EG")
+                                                        {
+                                                            <a href="/FWYStores/ProductDetails/@item.ID" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+                                                                @item.ARName
+                                                            </a>
+                                                        }
+                                                        else
+                                                        {
+                                                            <a href="/FWYStores/ProductDetails/@item.ID" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+                                                                @item.Name
+                                                            </a>
+                                                        }
+
+                                                        @if (item.FWYProductPriceRange.Count > 0)
+                                                        {
+                                                            var min = item.FWYProductPriceRange.Min(c => c.Price);
+                                                            var max = item.FWYProductPriceRange.Max(c => c.Price);
+                                                            <span class="stext-105 cl3">
+                                                                @Resource.Price: @Resource.From @min @Resource.To @max
+                                                            </span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="stext-105 cl3">
+                                                                @Resource.Price: @Resource.From @item.FinalPrice @Resource.To @item.FinalPrice
+                                                            </span>
+                                                        }
+
+                                                        @if (item.LessQuantityGomla != null)
+                                                        {
+                                                            <span class="stext-105 cl3">
+                                                                @Resource.LessQuanGomla: @item.LessQuantityGomla
+                                                            </span>
+                                                        }
+                                                    </div>
+                                                    <div class="block2-txt-child2 flex-r p-t-3">
+
+                                                        @if (BagGomla.Helper.BagGomla.Helper.TagHelper.IsProductInMyFav(item.Value.ID, User.Identity.GetUserId()) == true)
+                                                        {
+                                                            <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addedwish-b2" onclick="RemoveFav(@item.ID)">
+                                                                <img class="icon-heart2 dis-block trans-04 ab-t-l" src="~/Images/icons/icon-heart-02.png" alt="ICON">
+                                                            </a>
+                                                        }
+                                                        else
+                                                        {
+                                                            <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2" onclick="AddFav(@item.ID)">
+                                                                <img class="icon-heart1 dis-block trans-04" src="~/Images/icons/icon-heart-01.png" alt="ICON">
+                                                                <img class="icon-heart2 dis-block trans-04 ab-t-l" src="~/Images/icons/icon-heart-02.png" alt="ICON">
+                                                            </a>
+                                                        }
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>*@
+            <div class="col-md-12">
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        @Resource.Discounts
+                    </div>
+                    <div class="card-body">
+                        <div class="wrap-slick2">
+                            <div class="slick2">
+                                @{
+                                    ProductList.Reverse();
+                                    foreach (var item in ProductList)
+                                    {
+                                        if (item.Discount != null && item.Discount > 0)
+                                        {
+                                            var img = "";
+                                            if (item.FWYProductImage.Where(c => c.IsMain == true).ToList().Count > 0)
+                                            {
+                                                var proimage = item.FWYProductImage.Where(c => c.IsMain == true).ToList().First();
+                                                img = helper.ConnvertToImageSrc(proimage.Image, proimage.ImageExtension);
+                                            }
+
+                                            <div class="item-slick2 p-l-15 p-r-15 p-t-15 p-b-15 has-dicount">
+                                                <div class="block2 has-discount">
+                                                    <div class="block2-pic hov-img0">
+                                                        <a href="@ProductDetailsLink@item.ID">
+                                                            <img src="/Images/Products/@img" alt="IMG-PRODUCT" height="250" width="100">
+                                                        </a>
+                                                        <div class="discount pos-absolute">
+                                                            <i class="fa fa-percent " aria-hidden="true"></i>
+                                                        </div>
+                                                        <a onclick="ViewProduct('@item.ID');" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
+                                                            @Resource.QuickView
+                                                        </a>
+                                                    </div>
+                                                    <div class="block2-txt flex-w flex-t p-t-14">
+                                                        <div class="block2-txt-child1 flex-col-l ">
+                                                            @if (lang == "ar-EG")
+                                                            {
+                                                                <a href="@ProductDetailsLink@item.ID" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6" style="color:blue;font-weight:bold;">
+                                                                    @item.ARName
+                                                                </a>
+                                                            }
+                                                            else
+                                                            {
+                                                                <a href="@ProductDetailsLink@item.ID" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6" style="color:blue;font-weight:bold;">
+                                                                    @item.Name
+                                                                </a>
+                                                            }
+
+                                                            <span class="stext-105 cl3 ">
+                                                                <span class="old-price">EGP.@item.Price</span>
+                                                                @if (item.FWYProductPriceRange.Count > 0)
+                                                                {
+                                                                    var min = item.FWYProductPriceRange.Min(c => c.Price);
+                                                                    var max = item.FWYProductPriceRange.Max(c => c.Price);
+                                                                    <span class="stext-105 cl3">
+                                                                        @Resource.Price: @Resource.From @min @Resource.To @max
+                                                                    </span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="stext-105 cl3">
+                                                                        @Resource.Price: @Resource.From @item.FinalPrice @Resource.To @item.FinalPrice
+                                                                    </span>
+                                                                }
+
+                                                                @if (item.LessQuantityGomla != null)
+                                                                {
+                                                                    <span class="stext-105 cl3">
+                                                                        @Resource.LessQuanGomla: @item.LessQuantityGomla
+                                                                    </span>
+                                                                }
+                                                            </span>
+                                                        </div>
+                                                        <div class="block2-txt-child2 flex-r p-t-3">
+
+                                                            @if (BagGomla.Helper.TagHelper.IsProductInMyFav(item.ID, User.Identity.GetUserId()) == true)
+                                                            {
+                                                                <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addedwish-b2" onclick="RemoveFav(@item.ID)">
+                                                                    <img class="icon-heart2 dis-block trans-04 ab-t-l" src="~/Images/icons/icon-heart-02.png" alt="ICON">
+                                                                </a>
+                                                            }
+                                                            else
+                                                            {
+                                                                <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2" onclick="AddFav(@item.ID)">
+                                                                    <img class="icon-heart1 dis-block trans-04" src="~/Images/icons/icon-heart-01.png" alt="ICON">
+                                                                    <img class="icon-heart2 dis-block trans-04 ab-t-l" src="~/Images/icons/icon-heart-02.png" alt="ICON">
+                                                                </a>
+                                                            }
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        }
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</section>
+<script src="~/Scripts/jquery-1.10.2.js"></script>
+<!-- ======================== Profile  End========================== -->
+<script>
+    $("#DisplayCon").click(function () {
+        $("#dvBeUser").removeClass("dis-none");
+    });
+    function GetProductList(ID, SupID) {
+        $.ajax({
+            url: '@Url.Action("GetProductList", "SupplierCorporation")',
+            type: 'GET',
+            cache: false,
+            data: { ID: ID, SupID: SupID }
+        }).done(function (result) {
+            $('#dvProductList').empty();
+            $('#dvProductList').html(result);
+        });
+    }
+
+
+
+</script>
+
+<script>
+    function DeleteProduct(id, StoreID) {
+        if(confirm("@Resource.ConfirmDeleteMsg")){
+            $.ajax({
+                url: '@Url.Action("DeleteProduct", "FWYStores")',
+                type: 'GET',
+                cache: false,
+                data: { id: id, StoreID: StoreID }
+            }).done(function (result) {
+                if (result == 0) {
+                    swal("@Resource.Error", "@Resource.CannotDeleteProduct", "error");
+                }
+                else if (result == 1) {
+                    swal("@Resource.Done", "@Resource.DataDeleted", "success").then(function () {
+                        window.location.href = " ";
+                    });
+                }
+                else {
+                    window.location.href = "/Account/AccessDenied";
+                }
+            });
+        }
+
+    }
+</script>

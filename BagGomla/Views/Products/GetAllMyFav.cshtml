@@ -1,0 +1,90 @@
+﻿@model List<BagGomla.ViewModel.ProductVM>
+@using BagGomla.LocalResource;
+
+@{
+    ViewBag.Title = "My Fav Products";
+    if (User.Identity.IsAuthenticated)
+    {
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_DefualtLayout.cshtml";
+    }
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+}
+
+
+<style>
+    .block2-btn:hover {
+        color: white !important;
+    }
+</style>
+
+
+<div class="card">
+    <div class="card-header">
+        <h1 class="text-center">@Resource.YourFavourit</h1>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-11 mx-auto">
+                <div class="row">
+                    @foreach (var item in Model)
+                    {
+                        <div class="col-lg-3">
+                            <div class="block2">
+                                <div class="block2-pic hov-img0">
+                                    <a href="/Products/Details/@item.ID"><img src="/Images/Products/@item.Image" alt="IMG-PRODUCT" height="250"></a>
+
+                                    <a onclick="ViewProduct(@item.ID);" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04" style="cursor:pointer;">
+                                        عرض سريع
+                                    </a>
+                                </div>
+
+                                <div class="block2-txt flex-w flex-t p-t-14">
+                                    <div class="block2-txt-child1 flex-col-l ">
+                                        <a href="/Products/Details/@item.ID" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6" style="font-weight:bold;color:blue;">
+                                            @item.Name
+                                        </a>
+
+                                        <span class="stext-105 cl3">
+                                            السعر: من @item.Min الى @item.Max
+                                        </span>
+
+                                        <span class="stext-105 cl3">
+                                            اقل كمية جملة: @item.LessQuantityGomla
+                                        </span>
+
+
+                                        <a href="/SupplierCorporation/CompanyProducts/34" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+                                            <p class="text-secondary font-weight-bold">
+                                                @item.SupplierName
+                                                @if (item.IsSupplierVerified)
+                                                {
+                                                    <i class="fa fa-check-circle text-success" aria-hidden="true"> </i>
+                                                }
+                                            </p>
+                                        </a>
+
+
+                                    </div>
+                                    <div class="block2-txt-child2 flex-r p-t-3">
+                                        <a class="btn-addwish-b2 dis-block pos-relative js-addedwish-b2" onclick="RemoveFav(@item.ID)">
+                                            <img class="icon-heart2 dis-block trans-04 ab-t-l" src="/Images/icons/icon-heart-02.png" alt="ICON">
+                                        </a>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    }
+                </div>
+                
+            </div>
+            
+        </div>
+
+    </div>
+</div>

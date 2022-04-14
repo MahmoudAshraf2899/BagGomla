@@ -1,0 +1,154 @@
+﻿@model IdentityLibrary.DataModel.FWYCategory
+@{
+    ViewBag.Title = "الفئات";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container" dir="rtl" style="text-align:right;">
+
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="text-center">تعديل الفئات</h4>
+
+                    @using (Html.BeginForm("EditCreate", "FWYCategories", FormMethod.Post, new { @class = "form-horizontal", role = "form", enctype = "multipart/form-data" }))
+                {
+                @Html.AntiForgeryToken()
+
+                <div class="form-horizontal">
+                    <hr />
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    @Html.HiddenFor(c => c.ID)
+                    @*@Html.HiddenFor(c => c.SupplierID)*@
+                    @Html.HiddenFor(c => c.CategoryID)
+
+                    <div class="form-group row">
+                        <div class="col-md-6">
+                            <label for="Name" class="control-label">الاسم بالانجليزى</label>
+                            @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", required = "required" } })
+                            @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                            <span class="field-validation-error text-danger" style="display:none;" data-valmsg-for="Name" data-valmsg-replace="true" id="catName"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="ARName" class="control-label">الاسم بالعربى</label>
+                            @Html.EditorFor(model => model.ARName, new { htmlAttributes = new { @class = "form-control" } })
+                            <span class="field-validation-error text-danger" style="display:none;" data-valmsg-for="ArName" data-valmsg-replace="true" id="catArName"></span>
+                            @Html.ValidationMessageFor(model => model.ARName, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-6">
+                            <label for="Number" class="control-label">الترتيب</label>
+                            @Html.EditorFor(model => model.Number, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Number, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="col-md-6">
+                            <label for="Code" class="control-label">الكود</label>
+                            @Html.EditorFor(model => model.Code, new { htmlAttributes = new { @class = "form-control", required = "required" } })
+                            @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
+                            <span class="field-validation-error text-danger" style="display:none;" data-valmsg-for="Code" data-valmsg-replace="true" id="catCode"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-6">
+                            <label for="Description" class="control-label">الوصف بالانجليزى</label>
+                            @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="col-md-6">
+                            <label for="ARDescription" class="control-label">الوصف بالعربى</label>
+                            @Html.EditorFor(model => model.ARDescription, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.ARDescription, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-6">
+                            <label for="Image" class="control-label"> الصورة</label>
+                            <input type="file" name="Image" id="Image" class="form-control-file" accept="image/*" />
+                            <span class="field-validation-error text-danger" style="display:none;" data-valmsg-for="Image" data-valmsg-replace="true" id="catImage"></span>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="col-md-offset-2 col-md-10 text-center">
+                            <input type="button" value="حفظ" class="btn btn-success" id="btnSubmit" />
+                        </div>
+                    </div>
+                </div>
+                }
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+<script>
+    $("#btnSubmit").click(function () {
+        var name = $("#Name").val();
+        var arname = $("#ARName").val();
+        var code = $("#Code").val();
+        var Image = $("#Image").val();
+        var ValidImage = ValidateImage(Image);
+
+        if (name != "" && name != null && arname != "" && arname != null && code != "" && code != null
+            && ValidImage == true) {
+            document.getElementById("btnSubmit").setAttribute("type", "submit");
+        }
+        else {
+            if (name == "" || name == null) {
+                $("#catName").html("يجب ادخال الاسم");
+                $("#catName").show();
+            }
+            else {
+                $("#catName").hide();
+            }
+            if (code == "" || code == null) {
+                $("#catCode").html("يجب ادخال الكود");
+                $("#catCode").show();
+            }
+            else {
+                $("#catCode").hide();
+            }
+            if (arname == "" || arname == null) {
+                $("#catArName").html("يجب ادخال الاسم");
+                $("#catArName").show();
+            }
+            else {
+                $("#catArName").hide();
+            }
+            if (ValidImage == false) {
+                $("#catImage").html("غير صالحة");
+                $("#catImage").show();
+            }
+            else {
+                $("#catImage").hide();
+            }
+            //alert("error");
+        }
+    });
+
+
+    function ValidateImage() {
+        var file = document.getElementById("Image").value;
+        //alert(Image);
+        if (file == null || file == "") {
+            return true;
+        }
+        var FileArr = file.split(".");
+        var extension = FileArr[FileArr.length - 1];
+        //alert(extension);
+        if (extension == "jpg" || extension == "png" || extension == "jpeg" || extension == "gif") {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+</script>

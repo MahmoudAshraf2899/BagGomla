@@ -1,0 +1,61 @@
+﻿@model FWYCategory
+@using BagGomla.Models;
+@using System.Web.UI.WebControls
+@using IdentityLibrary.DataModel;
+
+<div class="container" dir="rtl">
+
+    <div class="table-responsive">
+        <table id="InvoiceTabel" class="table m-0 table-colored-bordered table-bordered-info table-bordered table-hover">
+            <thead class="thead-default">
+                <tr>
+                    <th> الصورة</th>
+                    <th> الاسم </th>
+                    <th> الرقم </th>
+                    <th> الكود</th>
+                    <th> الوصف </th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tr>
+                <td>
+                    <img src="~/Images/Categories/@Model.Image" width="100" height="100" />
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => Model.ARName)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => Model.Number)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => Model.Code)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => Model.ARDescription)
+                </td>
+                @if (Model.IsDeleted == false && ((Model.CategoryID != null && Model.FWYCategory2.IsDeleted == false) || Model.CategoryID == null))
+                {
+            <td>
+                <a href="/FWYCategories/EditCreate/@Model.ID?CateID=0" class="btn btn-info">تعديل</a>
+                @*@Html.ActionLink("Details", "Details", new { ID = Model.ID }, htmlAttributes: new { @class = "btn btn-info" })*@
+                <a href="#" class="btn btn-danger" onclick="ConfirmDelete(@Model.ID)">حذف</a>
+                <a href="#" class="btn btn-dark" onclick="HideCat(@Model.ID)">أخفاء</a>
+                @if (Model.CategoryID == null)
+                {
+            <a href="/FWYCategories/EditCreate/0?CateID=@Model.ID" class="btn btn-success">فئه فرعية جديدة</a>}
+            </td>}
+                else
+                {
+                    <td>
+                        <a href="/FWYCategories/ReturnDeletedCategory/@Model.ID" class="btn btn-success">استرجاع</a>
+                    </td>
+                }
+
+            </tr>
+        </table>
+    </div>
+</div>
+
+

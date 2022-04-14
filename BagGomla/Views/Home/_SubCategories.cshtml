@@ -1,0 +1,128 @@
+﻿@using IdentityLibrary.DataModel
+@model List<FWYCategory>
+@using BagGomla.LocalResource
+
+@{
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+}
+
+
+<div class="card-header">
+    <form>
+        <div class="input-group">
+            <input  id="Search" class="form-control py-2 border-right-0 border" type="search" placeholder="@Resource.CategoriesSearch">
+            <span class="input-group-append">
+                <button class="btn btn-outline-secondary border-left-0 border" type="button">
+                    <i class="fa fa-search"></i>
+                </button>
+            </span>
+        </div>
+    </form>
+</div>
+
+<div class="card-body">
+    @if (Model.Count > 0)
+    {
+        if (Model.First().CategoryID != null)
+        {
+            <a onclick="GetMainCategories(@Model.First().CategoryID);" style="cursor:pointer;color:dodgerblue;"><i class="fa fa-backward" style="color:dodgerblue;cursor:pointer;"></i> @Resource.Back</a>
+        }
+    }
+    <ul class="list-group">
+        @foreach (var item in Model)
+        {
+            <li class="list-group-item Search">
+                @if (item.FWYCategory1.Count > 0)
+                {
+                    <a onclick="GetSubCategories(@item.ID);" style="cursor:pointer;">
+                        <img src="~/Images/Categories/@item.Image" width="40" height="40" style="border-radius:100%;" />
+                        @if (lang == "ar-EG")
+                        {
+                            <span>@item.ARName</span>
+                            <span class="float-left" style="margin-top:8px"><i class="fa fa-arrow-left"></i></span>
+                        }
+                        else
+                        {
+                            <span>@item.Name</span>
+                            <span class="float-right" style="margin-top:8px"><i class="fa fa-arrow-right"></i></span>
+                        }
+                    </a>
+                }
+                else
+                {
+                    <a href="@Url.Action( "Index" , "Products" , new { CategoryID = @item.ID })" style="cursor:pointer;color:black;">
+                        <img src="~/Images/Categories/@item.Image" width="40" height="40" style="border-radius:100%;" />
+                        @if (lang == "ar-EG")
+                        {
+                            <span>@item.ARName</span>
+                        }
+                        else
+                        {
+                            <span>@item.Name</span>
+                        }
+                    </a>
+                }
+            </li>
+        }
+    </ul>
+</div>
+
+
+@*<div class="animsition-loading-1" style="display:none;" id="dvLoading"><div class="loader05"></div></div>*@
+
+<script>
+    function GetSubCategories(id) {
+        //alert(id);
+        $("#dvLoading").show();
+        $.ajax({
+            url: '@Url.Action("GetSubCategories", "Home")',
+            type: 'GET',
+            cache: false,
+            data: { id: id }
+        }).done(function (result) {
+            $('#dvCategoryList').empty();
+            $("#dvCategoryList").html(result);
+            $("#dvLoading").hide();
+        });
+    }
+
+    function GetMainCategories(id) {
+        //alert(id);
+        $("#dvLoading").show();
+        $.ajax({
+            url: '@Url.Action("GetMainCategories", "Home")',
+            type: 'GET',
+            cache: false,
+            data: { id: id }
+        }).done(function (result) {
+            $('#dvCategoryList').empty();
+            $("#dvCategoryList").html(result);
+            $("#dvLoading").hide();
+        });
+    }
+    
+
+</script>
+
+<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+<script>
+    $(document).ready(function () {
+        function Contains(text_one, text_two) {
+            if (text_one.indexOf(text_two) != -1)
+                return true;
+        }
+        $("#Search").keyup(function () {
+            var searchText = $("#Search").val().toLowerCase();
+            $(".Search").each(function () {
+                if (!Contains($(this).text().toLowerCase(), searchText)) {
+                    $(this).hide();
+                }
+                else {
+                    $(this).show();
+                }
+            });
+        });
+    });
+
+</script>
+

@@ -1,0 +1,135 @@
+﻿@model IEnumerable<FWYCategory>
+@using BagGomla.Models;
+@using System.Web.UI.WebControls
+@using IdentityLibrary.DataModel;
+
+@{
+    ViewBag.Title = "الفئات المخفية و المحذوفة";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<link href="~/Content/jsTree/themes/default/style.min.css" rel="stylesheet" />
+<div class="container">
+    <br />
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <br />
+                    <div id="jstree">
+                        @(Html.TreeView(Model)
+                          .EmptyContent("الفئات المخفية و المحذوفة")
+                          .Children(m => m.FWYCategory1.Where(c => c.IsDeleted == false))
+                          .HtmlAttributes(new { id = "tree" })
+                      .ChildrenHtmlAttributes(new { @class = "subItem" })
+                          .ItemText(m => m.Name)
+                          .ItemTemplate(
+                        @<text>
+                            <a href="@item.ARDescription" desc="@item.ARDescription" onclick="GetCategory(@item.ID);"><span>@item.ARName</span> <span>@if (item.CategoryID == null) { var productcounter = 0; foreach (var c in item.FWYCategory1) { productcounter += c.FWYProduct.Count(); }<span>(@productcounter)</span> } else {<span>(@item.FWYProduct.Count())</span> }</span> </a>
+                        </text>)
+                        )
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <a href="/FWYCategories/Index" class="btn btn-primary">عرض الفئات  الحالية</a>
+                    <div id="dvCategoryDetails">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<input id="IDHidden" type="hidden" />
+
+<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+@*<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>*@
+
+<script>
+
+    function HideCat(ID) {
+        $.ajax({
+            url: '@Url.Action("HideCat", "FWYCategories")',
+            type: 'GET',
+            cache: false,
+            data: { ID: ID}
+        }).done(function (result) {
+            swal("Done", "تم أخفاء الفئه بنجاح", "success");
+            location.reload();
+            
+        });
+    }
+    function ConfirmDelete(ID) {
+        if (confirm("هل انت متأكد من انك تريد مسح هذه الفئة؟")) {
+            $.ajax({
+                url: '@Url.Action("Delete", "FWYCategories")',
+                type: 'GET',
+                cache: false,
+                data: { Id: ID}
+            }).done(function (result) {
+                if (result == 0) {
+                    swal("خطأ", "لا يمكن مسح هذه الفئة يوجد منتجات بها", "error");
+                }
+                else if (result == 1) {
+                    swal("تم", "تم حذف الفئة بنجاح", "success").then(function () {
+                        window.location.href = "/FWYCategories/Index";
+                    });
+                }
+                else {
+                    window.location.href = "/Account/AccessDenied";
+                }
+            });
+        }
+    }
+</script>
+
+<script src="~/Scripts/jsTree3/jstree.min.js"></script>
+<script>
+
+    jQuery(function ($) {
+        var selectedData;
+        $('#jstree').jstree({
+            "core": {
+                "multiple": true,
+                "check_callback": true,
+                'themes': {
+                    "responsive": true,
+                    'variant': 'larg',
+                    'stripes': false,
+                    'dots': false
+                }
+            }
+            ,
+            "types": {
+                "default": {
+                    "icon": "fa fa-list-alt icon-state-warning icon-lg"
+                },
+                "file": {
+                    "icon": "fa fa-list-alt icon-state-warning icon-lg"
+                }
+            }
+            , "plugins": ["dnd", "state", "types", "sort", "none"]
+        });
+    });
+
+</script>
+<script>
+    function GetCategory(id) {
+        $.ajax({
+            url: '@Url.Action("CategoryDetails", "FWYCategories")',
+            type: 'GET',
+            cache: false,
+            data: { ID: id }
+        }).done(function (result) {
+            $('#dvCategoryDetails').empty();
+            $("#dvCategoryDetails").html(result);
+        });
+        
+    }
+</script>

@@ -1,0 +1,90 @@
+﻿@using BagGomla.Helper;
+@using IdentityLibrary.DataModel;
+@using BagGomla.LocalResource
+
+@{
+    DatabaseContext db = new DatabaseContext();
+    TagHelper helper = new TagHelper();
+    List<string> ShoppingCartCollection = TagHelper.GetCookiesCollection(Request.Cookies["Cart"]).ToList();
+    var ProductCollection = db.FWYProduct.Where(c => c.IsDeleted == false).ToList();
+    var ProductList = new List<BagGomla.Models.ShoppingCartStruct>();
+    foreach (var item in ShoppingCartCollection)
+    {
+        var SplitShopCart = item.Split('-');
+
+        foreach (var item2 in ProductCollection)
+        {
+            if (SplitShopCart[0] == (item2.ID).ToString())
+            {
+                if (SplitShopCart.Length > 0)
+                {
+                    if (!SplitShopCart[1].Equals("") && !SplitShopCart[2].Equals(""))
+                    {
+                        int sizeid = int.Parse(SplitShopCart[1]);
+                        int colorid = int.Parse(SplitShopCart[2]);
+                        var Colors = db.FWYColor.FirstOrDefault(c => c.ID == colorid);
+                        var Sizes = db.FWYSize.FirstOrDefault(c => c.ID == sizeid);
+
+                        ProductList.Add(new BagGomla.Models.ShoppingCartStruct(item2, sizeid, colorid, Colors, Sizes));
+                    }
+                    else
+                    {
+                        ProductList.Add(new BagGomla.Models.ShoppingCartStruct(item2, 0, 0, null, null));
+                    }
+                }
+            }
+        }
+    }
+}
+
+<div class="header-cart-content flex-w js-pscroll">
+    <ul class="header-cart-wrapitem w-full">
+        @foreach (var item in ProductList)
+        {
+            var img = "";
+            if (item.Product.FWYProductImage.Where(c => c.IsMain == true).ToList().Count > 0)
+            {
+                var proimg = item.Product.FWYProductImage.Where(c => c.IsMain == true).ToList().First();
+                img = helper.ConnvertToImageSrc(proimg.Image, proimg.ImageExtension);
+            }
+            <li class="header-cart-item flex-w flex-t m-b-12">
+                <div class="header-cart-item-img">
+                    <img src="@img" alt="IMG">
+                </div>
+
+                <div class="header-cart-item-txt p-t-8" style="padding:10px;">
+                    <a href="#" class="header-cart-item-name m-b-18 hov-cl1 trans-04">
+                        @item.Product.Name
+                    </a>
+
+                    <span class="header-cart-item-info" style="padding:10px;">
+                        EGP @item.Product.Price
+                    </span>
+                    @*<a href="#" onclick="RemoveCart('@item.Product.ID')" style="color:red;">@Resource.Delete</a>*@
+                </div>
+            </li>
+        }
+
+    </ul>
+    @if (ProductList.Count > 0)
+    {
+        <div class="form-group row">
+           
+            <div class="col-md-12">
+                <a href="#" onclick="RemoveAllCart()" class="btn btn-danger">
+                    @Resource.Delete
+                </a>
+                <a href="/Products/ShoppingCart"class="btn btn-primary">
+                   @Resource.ViewCart
+                </a>
+
+                <a href="/Products/ShoppingCart" class="btn btn-success">
+                    @Resource.CheckOut
+                </a>
+            </div>
+        </div>
+    }
+   
+</div>
+
+

@@ -1,0 +1,217 @@
+﻿@using IdentityLibrary.DataModel
+@model FWYSupplierCooperation
+@using IdentityLibrary.DataModel;
+
+@{
+    ViewBag.Title = "Register Company";
+    if (User.Identity.IsAuthenticated)
+    {
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_DefualtLayout.cshtml";
+    }
+}
+
+@using (Html.BeginForm("RegisterCompany", "SupplierCorporation", FormMethod.Post, new { @class = "form-horizontal", role = "form", enctype = "multipart/form-data" }))
+{
+    @Html.HiddenFor(m => m.SupplierID)
+    @Html.AntiForgeryToken()
+
+    @Html.ValidationSummary("", new { @class = "text-danger" })
+    <section class="p-t-10 p-b-10">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-10 mx-auto">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="mb-5 form-title pl-3 font-weight-bold text-capitalize">
+                                <i class="fa fa-institution" aria-hidden="true"></i>
+                                Register Company
+                            </h3>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label for="FullName"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-building"
+                                           aria-hidden="true"></i>
+                                        Name:
+                                    </label>
+                                    @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="Phone"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-phone"
+                                           aria-hidden="true"></i>
+                                        Phone:
+                                    </label>
+                                    @Html.TextBoxFor(m => m.Phone, new { @class = "form-control" })
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="Address"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-map-marker"
+                                           aria-hidden="true"></i>
+                                        Address:
+                                    </label>
+                                    @Html.TextBoxFor(m => m.Address, new { @class = "form-control" })
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="City"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-building-o"
+                                           aria-hidden="true"></i>
+                                        City:
+                                    </label>
+                                    @Html.TextBoxFor(m => m.City, new { @class = "form-control" })
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="State"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-building-o"
+                                           aria-hidden="true"></i>
+                                        State:
+                                    </label>
+                                    @Html.TextBoxFor(m => m.State, new { @class = "form-control"})
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="Country"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-building-o"
+                                           aria-hidden="true"></i>
+                                        Country:
+                                    </label>
+                                    @Html.TextBoxFor(m => m.Country, new { @class = "form-control" })
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-group file-upload">
+                                        <label for="Logo" class="font-weight-bold text-capitalize"><i class="fa fa-picture-o" aria-hidden="true"></i> Logo:</label>
+                                        <label class="custom-file form-control">
+                                            <input type="file" name="Logo" id="" placeholder="" class="custom-file-input" aria-describedby="fileHelpId">
+                                            <span class="custom-file-control"></span>
+
+                                            <small id="fileHelpId" class="form-text  invalid-feedback">Please fill this field</small>
+
+                                        </label>
+                                        <div class="images-infos">
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-group file-upload">
+                                        <label for="CommericialRegister" class="font-weight-bold text-capitalize"><i class="fa fa-file-image-o" aria-hidden="true"></i> Photo of National ID:</label>
+                                        <label class="custom-file form-control">
+                                            <input type="file" name="CommericialRegister" id="" placeholder="" class="custom-file-input" aria-describedby="fileHelpId">
+                                            <span class="custom-file-control"></span>
+
+                                            <small id="fileHelpId" class="form-text  invalid-feedback">Please fill this field</small>
+
+                                        </label>
+                                        <div class="images-infos">
+
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-md-4">
+                                    <div class="form-group file-upload">
+                                        <label for="NationalCopyID" class="font-weight-bold text-capitalize"><i class="fa fa-file-image-o" aria-hidden="true"></i> Photo of Commercial Register:</label>
+                                        <label class="custom-file form-control">
+                                            <input type="file" name="NationalCopyID" id="" placeholder="" class="custom-file-input" aria-describedby="fileHelpId">
+                                            <span class="custom-file-control"></span>
+                                            <small id="fileHelpId" class="form-text  invalid-feedback ">Please Fill This field</small>
+
+                                        </label>
+                                        <div class="images-infos">
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="WebsiteUrl"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-linkedin-square"
+                                           aria-hidden="true"></i>
+                                        Website Url:
+                                    </label>
+                                    @Html.TextBoxFor(m => m.WebsiteUrl, new { @class = "form-control" })
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="WebsiteUrl"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-facebook-square"
+                                           aria-hidden="true"></i>
+                                        Facebook:
+                                    </label>
+                                    @Html.TextBoxFor(m => m.Facebook, new { @class = "form-control" })
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="WebsiteUrl"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-instagram"
+                                           aria-hidden="true"></i>
+                                        Instagram:
+                                    </label>
+                                    @Html.TextBoxFor(m => m.Instagram, new { @class = "form-control" })
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="WebsiteUrl"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-linkedin-square"
+                                           aria-hidden="true"></i>
+                                        Linkedin:
+                                    </label>
+                                    @Html.TextBoxFor(m => m.Linkedin, new { @class = "form-control" })
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label for="About"
+                                           class="font-weight-bold text-capitalize">
+                                        <i class="fa fa-info-circle"
+                                           aria-hidden="true"></i>
+                                        About:
+                                    </label>
+                                    @Html.TextAreaFor(m => m.About, new { @class = "form-control",rows="5" })
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-group form-check">
+                                        @Html.CheckBoxFor(m => m.IsAgreedTerms, new { @class="form-check-input ml-0", id="exampleCheck1"})
+                                        @*<input type="checkbox" class="form-check-input ml-0" id="exampleCheck1">*@
+                                        <label class="form-check-label" for="exampleCheck1">By checking this input you agree to our <a href="#">terms of service</a></label>
+                                        <small id="fileHelpId" class="form-text  invalid-feedback px-3">Please Fill This field</small>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="form-group">
+                                <br /><br />
+                                <div class="col-md-2 mx-auto">
+                                    <input type="submit" class="btn btn-warning font-weight-bold" value="Register" />
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}

@@ -1,0 +1,1041 @@
+﻿@using BagGomla.Helper;
+@using BagGomla.LocalResource;
+@using IdentityLibrary.DataModel;
+@using BagGomla.Helper;
+@using Microsoft.AspNet.Identity;
+@{
+    DatabaseContext db = new DatabaseContext();
+    List<string> ShoppingCartCollection = TagHelper.GetCookiesCollection(Request.Cookies["Cart"]).ToList();
+    var ProductCollection = db.FWYProduct.Where(c => c.IsDeleted == false).ToList();
+
+    var LatestNews = db.LatestNews.OrderByDescending(c => c.ID).ToList();
+    if (LatestNews.Count > 10)
+    {
+        LatestNews = LatestNews.Take(10).ToList();
+    }
+
+    var ProductList = new List<BagGomla.Models.ShoppingCartStruct>();
+    foreach (var item in ShoppingCartCollection)
+    {
+        var SplitShopCart = item.Split('-');
+
+        foreach (var item2 in ProductCollection)
+        {
+            if (SplitShopCart[0] == (item2.ID).ToString())
+            {
+                if (SplitShopCart.Length > 0)
+                {
+                    if (!SplitShopCart[1].Equals("") && !SplitShopCart[2].Equals(""))
+                    {
+                        int sizeid = int.Parse(SplitShopCart[1]);
+                        int colorid = int.Parse(SplitShopCart[2]);
+                        var Colors = db.FWYColor.FirstOrDefault(c => c.ID == colorid);
+                        var Sizes = db.FWYSize.FirstOrDefault(c => c.ID == sizeid);
+
+                        ProductList.Add(new BagGomla.Models.ShoppingCartStruct(item2, sizeid, colorid, Colors, Sizes));
+                    }
+                    else
+                    {
+                        ProductList.Add(new BagGomla.Models.ShoppingCartStruct(item2, 0, 0, null, null));
+                    }
+                }
+            }
+        }
+    }
+    var Counter = 0;
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+}
+
+
+@* dir="@(System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.IsRightToLeft? "rtl" : "ltr")" *@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <link rel="icon" href="~/Images/BIG LOGO@100x.png" type="image/x-icon">
+    <link href="~/Content/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    @*<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">*@
+    <link href="~/Content/bootstrap-5.0.0-beta1-dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <link href="~/Content/AdminDashboard/plugins/fontawesome-free/css/all.min.css" rel="stylesheet" />
+    <link href="~/Scripts/fonts/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Scripts/fonts/iconic/css/material-design-iconic-font.min.css" rel="stylesheet" />
+    <link href="~/Scripts/fonts/linearicons-v1.0.0/icon-font.min.css" rel="stylesheet" />
+    <link href="~/Content/vendor/animate/animate.css" rel="stylesheet" />
+    <link href="~/Content/vendor/css-hamburgers/hamburgers.min.css" rel="stylesheet" />
+    <link href="~/Content/vendor/animsition/css/animsition.min.css" rel="stylesheet" />
+    <link href="~/Content/vendor/select2/select2.min.css" rel="stylesheet" />
+    <link href="~/Content/vendor/daterangepicker/daterangepicker.css" rel="stylesheet" />
+    <link href="~/Content/vendor/slick/slick.css" rel="stylesheet" />
+    <link href="~/Content/vendor/MagnificPopup/magnific-popup.css" rel="stylesheet" />
+    <link href="~/Content/vendor/perfect-scrollbar/perfect-scrollbar.css" rel="stylesheet" />
+    <link href="~/Content/css/util.css" rel="stylesheet" />
+    <link href="~/Content/css/main.css" rel="stylesheet" />
+    <link href="~/Content/css/ayman.css" rel="stylesheet" />
+    <link href="~/Content/css/ayman2.css" rel="stylesheet" />
+    <!--===============================================================================================-->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.1.0/css/flag-icon.min.css" rel="stylesheet">
+    <link href="~/Content/css/desk_and_mobile.css" rel="stylesheet" />
+    <link href="/Content/AdminDashboard/plugins/flag-icon-css/css/flag-icon.css" rel="stylesheet" />
+    <link href="/Content/AdminDashboard/plugins/flag-icon-css/css/flag-icon.min.css" rel="stylesheet" />
+
+    @if (lang == "ar-EG")
+    {
+        <meta charset="utf-8" />
+        <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
+        <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <title>
+            داشبورد متریال توسط تیم خلاق
+        </title>
+        <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
+        <!-- Extra details for Live View on GitHub Pages -->
+        <!-- Canonical SEO -->
+        <link rel="canonical" href="https://www.creative-tim.com/product/material-dashboard" />
+        <!--  Social tags      -->
+        <meta name="keywords" content="creative tim, html dashboard, html css dashboard, web dashboard, bootstrap 4 dashboard, bootstrap 4, css3 dashboard, bootstrap 4 admin, material dashboard bootstrap 4 dashboard, frontend, responsive bootstrap 4 dashboard, free dashboard, free admin dashboard, free bootstrap 4 admin dashboard">
+        <meta name="description" content="Material Dashboard is a Free Material Bootstrap Admin with a fresh, new design inspired by Google's Material Design.">
+        <!-- Schema.org markup for Google+ -->
+        <meta itemprop="name" content="Material Dashboard by Creative Tim">
+        <meta itemprop="description" content="Material Dashboard is a Free Material Bootstrap Admin with a fresh, new design inspired by Google's Material Design.">
+        <meta itemprop="image" content="https://s3.amazonaws.com/creativetim_bucket/products/50/opt_md_thumbnail.jpg">
+        <!-- Twitter Card data -->
+        <meta name="twitter:card" content="product">
+        <meta name="twitter:site" content="creativetim">
+        <meta name="twitter:title" content="Material Dashboard by Creative Tim">
+        <meta name="twitter:description" content="Material Dashboard is a Free Material Bootstrap Admin with a fresh, new design inspired by Google's Material Design.">
+        <meta name="twitter:creator" content="creativetim">
+        <meta name="twitter:image" content="https://s3.amazonaws.com/creativetim_bucket/products/50/opt_md_thumbnail.jpg">
+        <!-- Open Graph data -->
+        <meta property="fb:app_id" content="655968634437471">
+        <meta property="og:title" content="Material Dashboard by Creative Tim" />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content="https://demos.creative-tim.com/material-dashboard/examples/dashboard.html" />
+        <meta property="og:image" content="https://s3.amazonaws.com/creativetim_bucket/products/50/opt_md_thumbnail.jpg" />
+        <meta property="og:description" content="Material Dashboard is a Free Material Bootstrap Admin with a fresh, new design inspired by Google's Material Design." />
+        <meta property="og:site_name" content="Creative Tim" />
+        <!--     Fonts and icons     -->
+        <link href="~/Content/bootstrap-5.0.0-beta1-dist/css/bootstrap.rtl.min.css" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600&display=swap" rel="stylesheet">
+        <style>
+            html {
+                direction: rtl;
+            }
+
+            .slick-slider {
+                direction: ltr;
+                text-align: right;
+            }
+
+            .block2-txt {
+                direction: rtl !important;
+            }
+
+            #navMenu {
+                direction: rtl;
+                text-align: right;
+            }
+
+            *:not(i):not(.fa):not(.fab):not(.fas) {
+                font-family: 'Cairo', sans-serif !important;
+            }
+            .js-addwish-b2:hover, .js-addedwish-b2:hover {
+                cursor: pointer;
+            }
+        </style>
+    }
+    <link href="~/Content/css/looder.css" rel="stylesheet" />
+
+
+</head>
+<body class="">
+    <div class="loader11"></div>
+    <!-- Header -->
+    <header class="header">
+        <!-- Header desktop -->
+        <div class="container-menu-desktop trans-03">
+            <div class="top-bar" style="background-color:#dcc198">
+                <div class="content-topbar flex-sb-m h-full container">
+                    <div class="left-top-bar" style="color:#404553;font-weight:bold; font-size:15px;">
+                        @{
+                            foreach (var i in LanguageMang.AvailableLanguages)
+                            {
+                                var lan = "";
+                                if (i.LanguageFullName.Equals("English"))
+                                {
+                                    lan = "English";
+                                    <span class="flag-icon flag-icon-us mx-2"></span>
+                                }
+                                else
+                                {
+                                    lan = "عربي";
+                                    <span class="flag-icon flag-icon-eg mx-2"></span>
+                                }
+                                @Html.ActionLink(lan, "ChangeLanguage", "Home", new { lang = i.LanguageCultureName, returnUrl = Request.Url.AbsoluteUri }, new { @style = "color:black;" })
+                            }
+                        }
+                    </div>
+                    <div class="flex-c-m h-full p-r-24">
+                        <div class="icon-header-item cl2 hov-cl1 trans-04 p-lr-11 ">
+                            <a style="font-size:16px;font-family:'Poppins-Regular';color:#404553;font-weight:bold;" href="#"
+                               id="accountDropDown" role="button" data-toggle="dropdown" aria-haspopup="true"
+                               aria-expanded="false">
+                                @Resource.Registerorlogin
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="accountDropDown" style="z-index:1300!important;">
+                                <a class="dropdown-item" href="/Account/Login"><i class="fa fa-user mx-2" aria-hidden="true"></i> @Resource.Login</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="/Account/Register"> <i class="fa fa-user-plus mx-2" aria-hidden="true"></i> @Resource.Register </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="wrap-menu-desktop" style="background-color:#75bfe2 ;height:75px !important;">
+                <nav class="limiter-menu-desktop  p-l-45">
+                    <!-- Menu desktop -->
+                    <div class="menu-desktop" style="margin-right:100px;">
+                        <ul class="main-menu">
+                            <li>
+                                <a href="/Home/Index">@Resource.Home</a>
+                            </li>
+                            @*<li>
+                                    <a href="/Home/SetLocation">SetLocation</a>
+                                </li>*@
+                            <li>
+                                <a href="/Account/Register">@Resource.Add @Resource.Product</a>
+                            </li>
+                            @*<li>
+                                <a href="/Products/Index">@Resource.Shop</a>
+                            </li>
+                            <li class="label1" data-label1="@Resource.hot">
+                                <a href="/Products/Discounts">@Resource.Offers</a>
+                            </li>*@
+                            <li>
+                                <a href="/About/About">@Resource.About</a>
+                            </li>
+
+                            <li>
+                                <a href="/About/ContentPage">@Resource.Contact</a>
+                            </li>
+
+                        </ul>
+                    </div>
+                    <!-- Logo desktop -->
+                    @if (lang == "ar-EG")
+                    {
+                        <a href="/Home/Index">
+                            <img src="~/Images/BIG LOGO@100x.png" id="test" alt="IMG-LOGO" width="150" height="60" style="position:absolute; top:9px;margin-right:5%">
+                        </a>
+                    }
+                    else
+                    {
+                        <a href="/Home/Index">
+                            <img src="~/Images/BIG LOGO@100x.png" id="test" alt="IMG-LOGO" width="150" height="60" style="position:absolute; top:9px;">
+                        </a>
+                    }
+                    <!-- Icon header -->
+                    <div class="wrap-icon-header flex-w flex-r-m h-full">
+
+
+                        <div class="flex-c-m h-full p-r-24">
+                            <div class="icon-header-item cl2 hov-cl1 trans-04 p-lr-11 " id="SearchIcon">
+                                @using (Html.BeginForm("Index", "Products", FormMethod.Post, new { id = "SearchProductForm1" }))
+                                {
+                                    <input class="form-control" type="text" name="ProductName" id="proName1" placeholder="@Resource.Search....." style="border-radius:10px;">
+                                    <input name="longitude" type="hidden" id="long1" value="0" />
+                                    <input name="latitude" type="hidden" id="lat1" value="0" />
+                                    <input name="location" type="hidden" id="location1" value="0" />
+                                }
+                            </div>
+                        </div>
+
+                        <div class="flex-c-m h-full p-l-18 p-r-25 bor5">
+                            <a href="#" class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti" id="display-Fav" data-notify="@TagHelper.GetMyFavCount(User.Identity.GetUserId())">
+                                <i class="zmdi zmdi-favorite-outline"></i>
+                            </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Header Mobile -->
+        @if (lang == "ar-EG")
+        {
+            <div class="wrap-header-mobile" style="background-color: #dcc198">
+                <!-- Button show menu -->
+                <div class="btn-show-menu-mobile hamburger hamburger--squeeze">
+                    <span class="hamburger-box">
+                        <span class="hamburger-inner" style="background-color:white !important;"></span>
+                    </span>
+                </div>
+                <!-- Logo moblie -->
+                <div class="logo-mobile" style="margin-right:60px;">
+                    <a href="/Home/Index"><img src="/Images/BIG LOGO@100x.png" alt="IMG-LOGO" width="100" height="120"></a>
+                </div>
+
+
+                <!-- Icon header -->
+              @*  <div class="wrap-icon-header flex-w flex-r-m h-full m-r-15">
+                    <div class="icon-header-item cl2 hov-cl1 trans-04 p-lr-11 icon-header-noti" id="display-cart" data-notify="@TagHelper.CountCookiesCollection(Request.Cookies["Cart"]).Count">
+                        <i class="zmdi zmdi-shopping-cart text-dark"></i>
+                    </div>
+                </div>*@
+            </div>
+        }
+        else
+        {
+            <div class="wrap-header-mobile" style="background-color: #dcc198">
+                <!-- Button show menu -->
+                <div class="btn-show-menu-mobile hamburger hamburger--squeeze">
+                    <span class="hamburger-box">
+                        <span class="hamburger-inner" style="background-color:white !important;"></span>
+                    </span>
+                </div>
+                <!-- Logo moblie -->
+                <div class="logo-mobile" style="margin-left:20px;">
+                    <a href="/Home/Index"><img src="/Images/BIG LOGO@100x.png" alt="IMG-LOGO" width="100" height="120"></a>
+                </div>
+                <!-- Icon header -->
+                <div class="wrap-icon-header flex-w flex-r-m h-full m-r-15">
+                    <div class="icon-header-item cl2 hov-cl1 trans-04 p-lr-11 icon-header-noti" id="display-cart" data-notify="@TagHelper.CountCookiesCollection(Request.Cookies["Cart"]).Count">
+                        <i class="zmdi zmdi-shopping-cart text-dark"></i>
+                    </div>
+                </div>
+            </div>
+        }
+        <div class="wrap-header-mobile" style="background-color: #f7f8fa; height: 50px;">
+            <div class="wrap-icon-header">
+                <div class="icon-header-item cl2 hov-cl1 trans-04" id="SearchIcon">
+                    @using (Html.BeginForm("Index", "Products", FormMethod.Post, new { id = "SearchProductForm2" }))
+                    {
+                        <input class="form-control" type="text" name="ProductName" id="proName2" placeholder="@Resource.Search.....">
+                        <input name="longitude" type="hidden" id="long2" value="0" />
+                        <input name="latitude" type="hidden" id="lat2" value="0" />
+                        <input name="location" type="hidden" id="location2" value="0" />
+                    }
+                </div>
+            </div>
+        </div>
+        <!-- Modal Search -->
+        <div class="modal-search-header flex-c-m trans-04 js-hide-modal-search">
+            <div class="container-search-header">
+                <button class="flex-c-m btn-hide-modal-search trans-04 js-hide-modal-search">
+                    <img src="~/Images/icons/icon-close2.png" alt="CLOSE">
+                </button>
+                @using (Html.BeginForm("Index", "Products", FormMethod.Post, new { id = "SearchProductForm2" }))
+                {
+                    <input class="form-control" type="text" name="ProductName" id="proName2" placeholder="@Resource.Search.....">
+                    <input name="longitude" type="hidden" id="long2" value="0" />
+                    <input name="latitude" type="hidden" id="lat2" value="0" />
+                    <input name="location" type="hidden" id="location2" value="0" />
+                }
+
+            </div>
+        </div>
+    </header>
+
+    <div class="top-bar" style="height:unset;">
+        <div class="simple-marquee-container">
+            <div class="marquee-sibling" style="width:120px;">
+                @Resource.LatestNews
+            </div>
+            <div class="marquee">
+                <ul class="marquee-content-items">
+
+                    @foreach (var item in LatestNews)
+                    {
+                        if (lang == "ar-EG")
+                        {
+                            <li>@item.ArName</li>
+                        }
+                        else
+                        {
+                            <li>@item.Name</li>
+                        }
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Cart -->
+   @* <div class="wrap-header-cart js-panel-cart">
+        <div class="s-full js-hide-cart"></div>
+
+        <div class="header-cart flex-col-l p-l-65 p-r-25" style="height:700px;overflow:auto;">
+            <div class="header-cart-title flex-w flex-sb-m p-b-8">
+                <span class="mtext-103 cl2">
+                    @Resource.YourCart
+                </span>
+
+                <div class="fs-35 lh-10 cl2 p-lr-5 pointer hov-cl1 trans-04 js-hide-cart">
+                    <i class="zmdi zmdi-close"></i>
+                </div>
+            </div>
+            <div id="dvSideShoppingCart">
+                @Html.Partial("_SideShoppingCart")
+            </div>
+        </div>
+    </div>*@
+
+    <!-- Fav -->
+    <div class="wrap-header-cart js-panel-Fav">
+        <div class="s-full js-hide-Fav"></div>
+
+        <div class="header-cart flex-col-l p-l-65 p-r-25" style="height:700px;overflow:auto;">
+            <div class="header-cart-title flex-w flex-sb-m p-b-8">
+                <span class="mtext-103 cl2">
+                    @Resource.YourFavourit
+                    <a class="" href="/Productts/GetAllMyFav">@Resource.SeeAll</a>
+                </span>
+
+                <div class="fs-35 lh-10 cl2 p-lr-5 pointer hov-cl1 trans-04 js-hide-Fav">
+                    <i class="zmdi zmdi-close"></i>
+                </div>
+            </div>
+            <div id="dvSideFavourit">
+                @Html.Partial("_SideFavourit")
+            </div>
+        </div>
+    </div>
+
+    @*/// Quick View////*@
+    <div class="wrap-modal1 js-modal1 p-t-60 p-b-20">
+        <div class="overlay-modal1 js-hide-modal1"></div>
+
+        <div class="container">
+            <div class="bg0 p-t-60 p-b-30 p-lr-15-lg how-pos3-parent">
+                <button class="how-pos3 hov3 trans-04 js-hide-modal1">
+                    <img src="~/Images/icons/icon-close.png" alt="CLOSE">
+                </button>
+                <div id="dvProductDetails">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div class="wrap-header-cart js-panel-Menu">
+        <div class="s-full js-hide-Menu"></div>
+        <div class="header-cart flex-col-l p-l-65 p-r-25" style="overflow:scroll">
+            <div class="header-cart-title flex-w flex-sb-m p-b-8">
+                <span class="mtext-102 cl2" style="font-weight:bold!important;">
+                    <i class="fa fa-user-circle"></i><a style="color:black !important;" href="/Account/Login"> @Resource.Welcome @Resource.Login</a>
+                </span>
+
+                <div class="fs-30 lh-10 cl2 p-lr-5 pointer hov-cl1 trans-04 js-hide-Menu">
+                    <i class="zmdi zmdi-close"></i>
+                </div>
+            </div>
+            <!-- Menu Mobile -->
+            <ul class="dropdown-menu" style="display:block;top:80px;width:100%;border:none;" role="menu" aria-labelledby="dropdownMenu" id="navMenu">
+                <li class="dropdown-divider"></li>
+                <li class="dropdown-item" style="margin:10px!important;font-size:16px!important;">
+                    <a href="/Account/Register" style="color:black;">
+                        <i class="fa fa-user-plus"></i> @Resource.Register
+                    </a>
+                </li>
+
+                <li class="dropdown-divider"></li>
+                <li class="dropdown-item" style="margin:10px!important;font-size:16px!important;">
+                    <a href="/Home/Index" style="color:black !important;"><i class="fa fa-home"> </i> @Resource.Home</a>
+                </li>
+
+                <li class="dropdown-item" style="margin:10px!important;font-size:16px!important;">
+                    <a style="color:black !important;cursor:pointer;" href="/Account/Register?returnUrl=/SupplierCorporation/EditSupProfile&&IsSupplier=true">
+                        <i class="fa fa-stop-circle"> </i> @Resource.Add @Resource.Product
+                    </a>
+                </li>
+                @*<li class="dropdown-item" style="margin:10px!important;font-size:16px!important;">
+
+                    <a href="/Products/Index" style="color:black !important"><i class="fa fa-stop-circle"> </i> @Resource.Shop</a>
+                </li>
+
+                <li class="dropdown-item" style="margin:10px!important;font-size:16px!important;">
+
+                    <a href="/Products/Discounts" style="color:black !important"><i class="fa fa-percent"> </i> @Resource.Offers</a>
+                </li>*@
+                <li class="dropdown-item" style="margin:10px!important;font-size:16px!important;">
+                    <a href="#" id="display-Fav" style="color:black !important"><i class="zmdi zmdi-favorite-outline"> </i> @Resource.YourFavourit (@TagHelper.GetMyFavCount(User.Identity.GetUserId()))</a>
+                </li>
+                <li class="dropdown-item" style="margin:10px!important;font-size:16px!important;">
+
+                    <a href="/About/About" style="color:black !important"><i class="fa fa-stop-circle"></i> @Resource.About</a>
+                </li>
+                <li class="dropdown-item" style="margin:10px!important;font-size:16px!important;">
+
+                    <a href="/About/ContentPage" style="color:black !important"><i class="fa fa-stop-circle"></i> @Resource.Contact</a>
+                </li>
+                <li class="dropdown-divider"></li>
+                <li class="dropdown-item-title" style="margin:10px!important;font-size:16px!important;padding:10px;">
+                    <h5>@Resource.Language</h5>
+                </li>
+                @{
+                    foreach (var i in LanguageMang.AvailableLanguages)
+                    {
+                        <li class="dropdown-item" style="margin:10px!important;font-size:16px!important;">
+                            @if (i.LanguageFullName.Equals("English"))
+                            {
+                                <a href="/Home/ChangeLanguage?lang=@i.LanguageCultureName&&returnUrl=@Request.Url.AbsoluteUri">
+                                    <span class="flag-icon flag-icon-us mx-2"></span> English
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="/Home/ChangeLanguage?lang=@i.LanguageCultureName&&returnUrl=@Request.Url.AbsoluteUri">
+                                    <span class="flag-icon flag-icon-eg mx-2"></span> @Resource.AR
+                                </a>
+                            }
+                        </li>
+                    }
+                }
+            </ul>
+        </div>
+    </div>
+    <div class="desk">
+        <br />  <br />  <br />
+    </div>
+    <div class="">
+        @RenderBody()
+
+    </div>
+
+    @*Footer*@
+    <footer class="page-footer font-small elegant-color" style="background-color: #dcc198">
+        <!-- Footer Links -->
+        <div class="container text-center text-md-left pt-4 pt-md-5">
+            <!-- Grid row -->
+            <div class="row mt-1 mt-md-0 mb-4 mb-md-0">
+                <!-- Grid column -->
+                <div class="col-md-3 mx-auto mt-3 mt-md-0 mb-0 mb-md-4">
+                    <!-- Links -->
+                    <h5 style="font:bold!important;color:#000000;">@Resource.About</h5>
+                    <hr class="color-primary mb-4 mt-0 d-inline-block mx-auto w-60">
+                    <p class="foot-desc mb-0">
+                        @Resource.DecAbout
+                    </p>
+                </div>
+                <!-- Grid column -->
+
+                <hr class="clearfix w-100 d-md-none">
+
+                <!-- Grid column -->
+                <div class="col-md-3 mx-auto mt-3 mt-md-0 mb-0 mb-md-4">
+
+                    <!-- Links -->
+                    <h5 style="font:bold!important;color:#000000;">@Resource.Categories</h5>
+                    <hr class="color-primary mb-4 mt-0 d-inline-block mx-auto w-60">
+                    @{
+                        //admin contect
+                        FWYContect FWYContect = new FWYContect();
+                        if (db.FWYContect.ToList().Count != 0)
+                        {
+                            FWYContect = db.FWYContect.FirstOrDefault();
+                        }
+
+                        //gat
+                        List<FWYCategory> Category = new List<FWYCategory>();
+                        if (db.FWYCategory.Where(c => c.CategoryID == null && c.IsDeleted == false).GroupBy(c => c.Name).Select(c => c.FirstOrDefault()).Count() != 0)
+                        {
+                            if (db.FWYCategory.Where(c => c.CategoryID == null && c.IsDeleted == false).GroupBy(c => c.Name).Select(c => c.FirstOrDefault()).Count() >= 5)
+                            {
+                                Category = db.FWYCategory.Where(c => c.CategoryID == null && c.IsDeleted == false).GroupBy(c => c.Name).Select(c => c.FirstOrDefault()).Take(5).ToList();
+                            }
+                            else
+                            {
+                                Category = db.FWYCategory.Where(c => c.CategoryID == null && c.IsDeleted == false).GroupBy(c => c.Name).Select(c => c.FirstOrDefault()).ToList();
+                            }
+                        }
+                        if (Category.Count != 0)
+                        {
+                            foreach (var item in Category)
+                            {
+                                <ul class="list-unstyled foot-desc">
+                                    <li class="mb-2">
+                                        <a href="/Products/Index" style="color:darkblue">
+                                            @item.ARName
+                                        </a>
+                                    </li>
+
+                                </ul>
+
+                            }
+                        }
+                    }
+
+
+                </div>
+                <!-- Grid column -->
+
+                <hr class="clearfix w-100 d-md-none">
+
+                <!-- Grid column -->
+                <div class="col-md-3 mx-auto mt-3 mt-md-0 mb-0 mb-md-4">
+
+                    <!-- Links -->
+                    <h5 style="font:bold!important;color:#000000;">@Resource.Products</h5>
+                    <hr class="color-primary mb-4 mt-0 d-inline-block mx-auto w-60">
+                    @{
+                        //admin contect
+                        List<FWYProduct> Pro = new List<FWYProduct>();
+                        if (db.FWYProduct.ToList().Count != 0)
+                        {
+                            if (db.FWYProduct.ToList().Count > 4)
+                            {
+                                Pro = db.FWYProduct.OrderByDescending(c=>c.ID).Take(4).ToList();
+                            }
+                            else
+                            {
+                                Pro = db.FWYProduct.OrderByDescending(c=>c.ID).ToList();
+                            }
+                        }
+                        if (Pro.Count != 0)
+                        {
+                            foreach (var item in Pro)
+                            {
+                                <ul class="list-unstyled foot-desc">
+                                    <li class="mb-2">
+                                        <a href="#!"></a>
+                                    </li>
+                                    <li class="mb-2">
+                                        <a href="/Products/Details/@item.ID" style="color:darkblue">@item.ARName</a>
+                                    </li>
+                                </ul>
+                            }
+                        }
+                    }
+
+                </div>
+                <!-- Grid column -->
+
+                <hr class="clearfix w-100 d-md-none">
+
+                <!-- Grid column -->
+                <div class="col-md-3 mx-auto mt-3 mt-md-0 mb-0 mb-md-4">
+
+                    <!-- Links -->
+                    <h5 style="font:bold!important;color:#000000;">@Resource.Contact</h5>
+                    <hr class="color-primary mb-4 mt-0 d-inline-block mx-auto w-60">
+                    <ul class="fa-ul foot-desc ml-4">
+                        <li class="mb-2">
+                            <a href="https://www.google.com/maps/place/@FWYContect.Address" target="_blank" style="color:darkblue">@FWYContect.Address</a>
+                            <i class="far fa-map"></i>
+                        </li>
+                        <li class="mb-2">
+                            <strong>@FWYContect.Phone</strong><i class="fas fa-phone-alt"></i>
+                        </li>
+                        <li class="mb-2">
+                            @if (FWYContect.Facebook != null)
+                            {
+                                <a href="@FWYContect.Facebook" class="fb-ic">
+                                    <i class="fab fa-facebook-f white-text mr-1"> </i>
+                                </a>
+
+                            }
+                            @if (FWYContect.Instagram != null)
+                            {
+                                <a href="@FWYContect.Instagram" class="fb-ic">
+                                    <i class="fab fa-instagram white-text mr-1"> </i>
+                                </a>
+
+                            }
+                            @if (FWYContect.Linkedin != null)
+                            {
+                                <a href="@FWYContect.Linkedin" class="fb-ic">
+                                    <i class="fab fa-telegram white-text mr-1"> </i>
+                                </a>
+                            }
+                        </li>
+                    </ul>
+
+                </div>
+                <!-- Grid column -->
+
+            </div>
+            <!-- Grid row -->
+
+        </div>
+        <!-- Footer Links -->
+        <!-- Copyright -->
+        <div class="footer-copyright text-center py-3" style="background-color:#dcc198; color: whitesmoke">
+            @Resource.Copyright &copy;
+            2020 :
+            <a href="https://project-egy.com/" target="_blank"> Project Egy</a>
+        </div>
+        <!-- Copyright -->
+
+    </footer>
+
+    <!-- Back to top -->
+    <div class="btn-back-to-top" id="myBtn">
+        <span class="symbol-btn-back-to-top">
+            <i class="zmdi zmdi-chevron-up"></i>
+        </span>
+    </div>
+
+
+    @*@Scripts.Render("~/bundles/jquery")
+        @Scripts.Render("~/bundles/bootstrap")*@
+    @RenderSection("scripts", required: false)
+    <!--===============================================================================================-->
+    <script src="~/Content/vendor/jquery/jquery-3.2.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            setTimeout(function () {
+                $(".loader11").fadeOut("slow");
+            }, 1000);
+        });
+    </script>
+    <!--===============================================================================================-->
+    <script src="~/Content/vendor/animsition/js/animsition.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/Content/vendor/bootstrap/js/popper.js"></script>
+    <script src="~/Content/vendor/bootstrap/js/bootstrap.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/Content/vendor/select2/select2.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/Content/vendor/daterangepicker/moment.min.js"></script>
+    <script src="~/Content/vendor/daterangepicker/daterangepicker.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/Content/vendor/slick/slick.min.js"></script>
+    <script src="~/Scripts/js/slick-custom.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/Content/vendor/parallax100/parallax100.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/Content/vendor/MagnificPopup/jquery.magnific-popup.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/Content/vendor/isotope/isotope.pkgd.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/Content/vendor/sweetalert/sweetalert.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/Content/vendor/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/Scripts/js/main.js"></script>
+    <script src="~/Scripts/js/marquee.en.js"></script>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-179505919-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'UA-179505919-1');
+    </script>
+
+    <script>
+        $(".js-select2").each(function () {
+            $(this).select2({
+                minimumResultsForSearch: 20,
+                dropdownParent: $(this).next('.dropDownSelect2')
+            });
+        })
+
+        $(function () {
+            $('.simple-marquee-container').SimpleMarquee({
+                duration: 99000
+            });
+        });
+
+    </script>
+
+    <script>
+        $('.parallax100').parallax100();
+    </script>
+
+    <script>
+        $('.gallery-lb').each(function () { // the containers for all your galleries
+            $(this).magnificPopup({
+                delegate: 'a', // the selector for gallery item
+                type: 'image',
+                gallery: {
+                    enabled: true
+                },
+                mainClass: 'mfp-fade'
+            });
+        });
+    </script>
+
+    <script>
+
+
+
+        //$(window).on("load", function () {
+        //    $(".loader-wrapper").fadeOut("slow");
+        //});
+
+        $('.js-addwish-b2, .js-addwish-detail').on('click', function (e) {
+            e.preventDefault();
+        });
+
+
+        $('.js-addwish-b2').each(function () {
+            var nameProduct = $(this).parent().parent().find('.js-name-b2').html();
+            $(this).on('click', function () {
+                //swal(nameProduct, "is added to wishlist !", "success");
+
+                $(this).addClass('js-addedwish-b2');
+                $(this).off('click');
+            });
+        });
+
+        $(document).on("click", ".btn-show-menu-mobile", function () {
+            $('.js-panel-Menu').addClass('show-header-cart');
+            $('.js-panel-Fav').removeClass('show-header-cart');
+            $('.js-panel-cart').removeClass('show-header-cart');
+            $('.btn-show-menu-mobile').removeClass('is-active');
+        });
+        $(document).on("click", ".js-hide-Menu", function () {
+            $('.js-panel-Menu').removeClass('show-header-cart');
+        });
+
+        $('.js-addwish-detail').each(function () {
+            var nameProduct = $(this).parent().parent().parent().find('.js-name-detail').html();
+
+            $(this).on('click', function () {
+                //swal(nameProduct, "is added to wishlist !", "success");
+
+                $(this).addClass('js-addedwish-detail');
+                $(this).off('click');
+            });
+        });
+
+        /*---------------------------------------------*/
+
+        $('.js-addcart-detail').each(function () {
+            var nameProduct = $(this).parent().parent().parent().parent().find('.js-name-detail').html();
+            //$(this).on('click', function () {
+            //    swal(nameProduct, "is added to cart !", "success");
+            //});
+        });
+
+    </script>
+
+    <script>
+        $('.js-pscroll').each(function () {
+            $(this).css('position', 'relative');
+            $(this).css('overflow', 'hidden');
+            var ps = new PerfectScrollbar(this, {
+                wheelSpeed: 1,
+                scrollingThreshold: 1000,
+                wheelPropagation: false,
+            });
+
+            $(window).on('resize', function () {
+                ps.update();
+            })
+        });
+    </script>
+
+
+    <script>
+        function AddFav(ProductID) {
+            $.ajax({
+                url: '@Url.Action("AddFavorite", "Products")',
+                type: 'GET',
+                data: { ProductID: ProductID, quantity: 1 }
+            }).done(function (result) {
+                if (result == "True") {
+                    swal("@Resource.ProductAddedToWish", "", "success").then(function () {
+                        window.location.href = "";
+                    });
+                    //var count = Number($("#display-Fav").attr("data-notify")) + 1;
+                    //$("#display-Fav").attr("data-notify", count.toString());
+                }
+                else {
+                    window.location.href = "/Account/Login?returnUrl=@Request.Url"
+                }
+            });
+        }
+
+    function RemoveFav(ProductID) {
+        $.ajax({
+            url: '@Url.Action("RemoveFavorite", "Products")',
+            type: 'GET',
+            data: { ProductID: ProductID }
+        }).done(function (result) {
+            if (result == "True") {
+                swal("@Resource.ProductRemovedFromWish", "", "success").then(function () {
+                    window.location.href = "";
+                });
+                //var count = Number($("#display-Fav").attr("data-notify")) - 1;
+                //$("#display-Fav").attr("data-notify", count);
+            }
+            else {
+                window.location.href = "/Account/Login?returnUrl=@Request.Url"
+            }
+        });
+    }
+
+        function AddCart(ProductID) {
+            var ProductSizeID = document.getElementById("ProductSizeID");
+            var ProductColorID = document.getElementById("ProductColorID");
+
+            var ColorID = -1;
+            var SizeID = -1;
+            if (ProductSizeID != null) {
+                SizeID = ProductSizeID.options[ProductSizeID.selectedIndex].value;
+            }
+            if (ProductColorID != null) {
+                ColorID = ProductColorID.options[ProductColorID.selectedIndex].value
+            }
+            var QTY = document.getElementById("QV_Qty").value;
+            if (ColorID == 0 || SizeID == 0) {
+                if (ColorID == 0) {
+                    $("#msgProductColorID").show();
+                }
+                else {
+                    $("#msgProductColorID").hide();
+                }
+                if (SizeID == 0) {
+                    $("#msgProductSizeID").show();
+                }
+                else {
+                    $("#msgProductSizeID").hide();
+                }
+            }
+            else {
+                if (ColorID == -1)
+                    ColorID = 0;
+                if (SizeID == -1)
+                    SizeID = 0
+                $.ajax({
+                    url: '@Url.Action("AddCart", "Products")',
+                    type: 'GET',
+                    data: { ProductID: ProductID, quantity: QTY, SizeID: SizeID, colorID: ColorID }
+                }).done(function (result) {
+                    $("#RefreshDiv").load(window.location.href + " #RefreshDiv");
+                    $("#dvSideShoppingCart").load(window.location.href + " #dvSideShoppingCart");
+                    swal("Successed", "Data Saved Successfully", "success");
+                    $('.js-modal1').removeClass('show-modal1');
+
+                });
+            }
+
+        }
+
+        function RemoveCart(ProductID, SizeID, ColorID) {
+            debugger;
+            $.ajax({
+                url: '@Url.Action("RemoveCart", "Products")',
+                type: 'GET',
+                data: { ProductID: ProductID ,SizeID:SizeID ,ColorID:ColorID}
+            }).done(function (result) {
+                $("#RefreshDiv").load(window.location.href + " #RefreshDiv");
+                window.location.href = "";
+            });
+        }
+        function RemoveAllCart() {
+            $.ajax({
+                url: '@Url.Action("RemoveCart2", "Products")',
+                type: 'GET',
+            }).done(function (result) {
+                $("#RefreshDiv").load(window.location.href + " #RefreshDiv");
+                window.location.href = "";
+            });
+
+        }
+
+
+        $(document).on("click", "#display-cart", function () {
+            var x = @TagHelper.CountCookiesCollection(Request.Cookies["Cart"]).Count;
+            if (x > 0) {
+                 $('.js-panel-cart').addClass('show-header-cart');
+                 $('.js-panel-Fav').removeClass('show-header-cart');
+            }
+        });
+
+        $(document).on("click", "#display-Fav", function () {
+            var y =@TagHelper.GetMyFavCount(User.Identity.GetUserId());
+            if (y > 0) {
+                $('.js-panel-Fav').addClass('show-header-cart');
+                $('.js-panel-cart').removeClass('show-header-cart');
+            }
+            else {
+                swal("No Data", "There is no items in your favourite", "warning");
+            }
+        });
+
+        function ViewProduct(ProductID) {
+            $.ajax({
+                url: '@Url.Action("ProductQuickView", "Products")',
+                type: 'GET',
+                cache: false,
+                data: { ID: ProductID }
+            }).done(function (result) {
+                $('#dvProductDetails').empty();
+                $('#dvProductDetails').html(result);
+                $('.wrap-slick3').each(function () {
+                    $(this).find('.slick3').slick({
+                        slidesToShow: 1,
+                        slidesToScroll: 1,
+                        fade: true,
+                        infinite: true,
+                        autoplay: false,
+                        autoplaySpeed: 6000,
+
+                        arrows: true,
+                        appendArrows: $(this).find('.wrap-slick3-arrows'),
+                        prevArrow: '<button class="arrow-slick3 prev-slick3"><i class="fa fa-angle-left" aria-hidden="true"></i></button>',
+                        nextArrow: '<button class="arrow-slick3 next-slick3"><i class="fa fa-angle-right" aria-hidden="true"></i></button>',
+
+                        dots: true,
+                        appendDots: $(this).find('.wrap-slick3-dots'),
+                        dotsClass: 'slick3-dots',
+                        customPaging: function (slick, index) {
+                            var portrait = $(slick.$slides[index]).data('thumb');
+                            return '<img src=" ' + portrait + ' "/><div class="slick3-dot-overlay"></div>';
+                        },
+                    });
+                });
+            });
+            $('.js-modal1').addClass('show-modal1');
+        }
+
+    </script>
+
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=AIzaSyAPFGkzEre1YIwcyejsVgRrl8T1DWJZouU"></script>
+    <script>
+        $("#proName1, #proName2").keyup(function () {
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(showPosition);
+            }
+        });
+
+        function showPosition(position) {
+            var lat = position.coords.latitude;
+            var long = position.coords.longitude;
+
+            document.getElementById("long1").value = long;
+            document.getElementById("lat1").value = lat;
+            document.getElementById("long2").value = long;
+            document.getElementById("lat2").value = lat;
+            GetAddress(lat, long);
+            //alert(lat);
+            //alert(long);
+        }
+
+        function GetAddress(lat, lng) {
+            var latlng = new google.maps.LatLng(lat, lng);
+            var geocoder = geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ 'latLng': latlng }, function (results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    if (results[1]) {
+                        document.getElementById("location1").value = results[1].formatted_address;
+                        document.getElementById("location2").value = results[1].formatted_address;
+                    }
+                }
+            });
+        }
+
+    </script>
+
+</body>
+</html>

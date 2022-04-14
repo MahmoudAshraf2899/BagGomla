@@ -1,0 +1,630 @@
+﻿﻿@using IdentityLibrary.DataModel
+@model FWYSupplierCooperation
+@using BagGomla.Models;
+@using System.Web.UI.WebControls
+@using IdentityLibrary.DataModel;
+@using Microsoft.AspNet.Identity;
+@using BagGomla.LocalResource
+@{
+    ViewBag.Title = Resource.Edit + " " + Resource.Profile;
+    if (User.Identity.IsAuthenticated)
+    {
+        DatabaseContext db = new DatabaseContext();
+        var userId = User.Identity.GetUserId();
+        var user = db.AspNetUsers.SingleOrDefault(c => c.Id == userId);
+        if (User.IsInRole("1"))
+        {
+            Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+        }
+        else
+        {
+            Layout = "~/Views/Shared/_Layout.cshtml";
+        }
+    }
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+
+
+}
+
+<!-- ======================== Profile ========================== -->
+<!-- ======================== Profile Cover ========================== -->
+@using (Html.BeginForm("EditSupProfile", "SupplierCorporation", FormMethod.Post, new { enctype = "multipart/form-data", id = "EditSupForm" }))
+{
+
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary()
+    @*@Html.HiddenFor(model => model.ID)*@
+    @Html.HiddenFor(model => model.SupplierID)
+    @Html.HiddenFor(model => model.AspNetUsers.UserName)
+    @Html.HiddenFor(model => model.AspNetUsers.Id)
+    @Html.HiddenFor(model => model.ProfilePictureID)
+    <input value="@Model.ID" name="ID"  hidden/>
+    @*if (ViewBag.ProfilePicture != null && ViewBag.ProfilePicture != "")
+        {
+            <div class="profile-cover border-bottom">
+                <img src="@ViewBag.ProfilePicture" height="400" width="100%" alt="" id="imgProfile">
+                <a href="javascript:void(0)" id="ChangeProfilePic" style="font-size:large">
+                    <i class="fa fa-edit"></i>@Resource.Change @Resource.ImageProfile
+                </a>
+                <input hidden id="CompanyModel_ProfilePictureID" name="ImageProfileID" value="@Model.ProfilePictureID"/>
+
+            </div>
+        }*@
+
+
+    <section class="mx-auto">
+        <div class="container">
+            <div class="row no-gutters">
+                <div class="col-md-3">
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            @Resource.CompanyLogo
+                        </div>
+                        <div class="card-body">
+                            <a href="javascript:void(0)" onclick="ChangeImg()">
+                                <i class="fa fa-edit"></i>@Resource.Change @Resource.Image
+                            </a>
+                            <img src="@Model.Logo" id="ImgID" class="img-fluid rounded-circle img-thumbnail" alt="">
+                            <input type="file" name="Image" class="form-control-file" style="display:none;" id="InpImgId" />
+                            <span class="dis-none field-validation-error text-danger" data-valmsg-for="InpImgId" data-valmsg-replace="true" id="msgImage"></span>
+                        </div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            @Resource.MemberStatus
+                        </div>
+                        <div class="card-body">
+                            
+                            @if (Model.IsAccepted == true)
+                            {
+                                if (Model.IsVerified == true)
+                                {
+                                    <p class="text-success font-weight-bold">@Resource.Verified <i class="fa fa-check-circle text-success" aria-hidden="true"></i></p>
+                                }
+                                else
+                                {
+                                    <p class="text-secondary font-weight-bold">@Resource.Unverified <i class="fa fa-check-circle text-secondary" aria-hidden="true"></i></p>
+                                    if (User.Identity.IsAuthenticated)
+                                    {
+                                        if (User.Identity.GetUserId() == Model.SupplierID)
+                                        {
+                                            <a href="/SupplierCorporation/CompanyVerify/@Model.ID" class="btn btn-warning font-weight-bold"> @Resource.Verify @Resource.Now </a>
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                <p class="text-warning font-weight-bold">@Resource.WaitingList <i class="fa fa-spinner text-warning" aria-hidden="true"></i></p>
+                            }
+
+                        </div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            @Resource.SocialNetworks
+
+                            <a href="javascript:void(0)" id="EditSocial" class="float-right">
+                                <i class="fa fa-edit"></i>@Resource.Edit @Resource.SocialNetworks
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled d-flex">
+                                <li class="mx-2"><a href="@Model.Facebook"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+                                <li class="mx-2"><a href="@Model.Instagram"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+                                <li class="mx-2"><a href="@Model.Linkedin"><i class="fa fa-telegram" aria-hidden="true"></i></a></li>
+                            </ul>
+                            <div style="display:none" class="EditSocial">
+                                <label style="color:blue;">@Resource.Facebook</label>
+                                @Html.TextBoxFor(m => m.Facebook, new { @class = "form-control" })
+                                <label style="color:blue;">@Resource.Instagram</label>
+                                @Html.TextBoxFor(m => m.Instagram, new { @class = "form-control" })
+                                <label style="color:blue;">@Resource.Linkedin</label>
+                                @Html.TextBoxFor(m => m.Linkedin, new { @class = "form-control" })
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            @Resource.Categories
+                        </div>
+                        <div class="card-body">
+                            <ul>
+                                @foreach (var item in Model.FWYSupplierCooperationCategory.Where(c => c.FWYCategory.IsDeleted == false).ToList())
+                                {
+                                    <li>
+                                        @if (lang == "ar-EG")
+                                        {
+                                            <a style="cursor:pointer"><i class="fa fa-times" onclick="RemoveSupplierCategory(this,@item.ID)"></i> @item.FWYCategory.ARName</a>
+                                        }
+                                        else
+                                        {
+                                            <a style="cursor:pointer"><i class="fa fa-times" onclick="RemoveSupplierCategory(this,@item.ID)"></i> @item.FWYCategory.Name</a>
+                                        }
+                                    </li>
+                                }
+
+                            </ul>
+                            @if (ViewBag.CategoryList.Count > 0)
+                            {
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label for="CategoryID"
+                                               class="font-weight-bold text-capitalize">
+                                            <i class="fa fa-list-alt"
+                                               aria-hidden="true"></i>
+                                            @Resource.Category:
+                                        </label>
+                                        <select id="CategoryID" class="form-control" name="CategoryID">
+                                            @foreach (var item in ViewBag.CategoryList)
+                                            {
+                                                if (lang == "ar-EG")
+                                                {
+                                                    <option value="@item.ID">@item.ARName</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@item.ID">@item.Name</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="col-md-12" id="CategoryList">
+                                        <label for="CategoryID"
+                                               class="font-weight-bold text-capitalize">
+                                            <i class="fa fa-list-alt"
+                                               aria-hidden="true"></i>
+                                            @Resource.Categories:
+                                        </label>
+                                        <br />
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-9 pl-17">
+                    <!-- ======================== About Company ========================== -->
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            @Resource.About
+                        </div>
+                        <div class="card-body">
+                            @Html.TextAreaFor(x => x.About, new { @class = "form-control", @cols = "100", @rows = "5", @value = @Model.About })
+                            @Html.ValidationMessageFor(m => m.About, "", new { @class = "text-danger" })
+                            @*<input cols="100" rows="5" value="@Model.About"/>*@
+                        </div>
+                        @*<div class="card-header">
+                            @Resource.ArAbout
+                        </div>
+                        <div class="card-body">
+                            @Html.TextAreaFor(x => x.ArAbout, new { @class = "form-control", @cols = "100", @rows = "5", @value = @Model.ArAbout })
+                            @Html.ValidationMessageFor(m => m.ArAbout, "", new { @class = "text-danger" })
+                            <input cols="100" rows="5" value="@Model.About"/>
+                        </div>*@
+
+                    </div>
+
+                    <!-- -------------------------------------------------------------------- -->
+
+                    <div class="card mt-4 ">
+                        <div class="card-header">
+                            @Resource.Basic @Resource.Information
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    @if (lang == "ar-EG")
+                                    {
+                            <p>اسم المورد </p> }
+                                            else
+                                            {
+                            <p>Supplier Name</p>}
+
+                                </div>
+                                <div class="col-md-9">
+                                    @Html.TextBoxFor(m => m.AspNetUsers.Name, new { @class = "form-control" })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="AspNetUsers_Name" data-valmsg-replace="true" id="msgFullName"></span>
+                                    @Html.ValidationMessageFor(m => m.AspNetUsers.Name, "", new { @class = "text-danger" })
+                                </div>
+                                @*<div class="col-md-6">
+            <p>@Resource.SupplierArName:</p>
+        </div>
+        <div class="col-md-6">
+            @Html.TextBoxFor(m => m.AspNetUsers.ARName, new { @class = "form-control" })
+            <span class="dis-none field-validation-error text-danger" data-valmsg-for="AspNetUsers_ARName" data-valmsg-replace="true" id="msgArFullName"></span>
+            @Html.ValidationMessageFor(m => m.AspNetUsers.ARName, "", new { @class = "text-danger" })
+        </div>*@
+                                <div class="col-md-3">
+                                    <p>@Resource.Email:</p>
+                                </div>
+                                <div class="col-md-9">
+                                    @Html.TextBoxFor(m => m.AspNetUsers.Email, new { @class = "form-control" })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="AspNetUsers_Email" data-valmsg-replace="true" id="msgEmail"></span>
+                                    @Html.ValidationMessageFor(m => m.AspNetUsers.Email, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-3">
+                                    @if (lang == "ar-EG")
+                                    {
+                            <p>اسم الشركة </p> }
+                                            else
+                                            {
+                            <p>Company Name </p>}
+
+                                </div>
+                                <div class="col-md-9">
+                                    @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="Name" data-valmsg-replace="true" id="msgName"></span>
+                                    @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger" })
+                                </div>
+                                @*<div class="col-md-6">
+            <p>@Resource.CompanyArName:</p>
+        </div>
+        <div class="col-md-6">
+            @Html.TextBoxFor(m => m.ArName, new { @class = "form-control" })
+            <span class="dis-none field-validation-error text-danger" data-valmsg-for="ArName" data-valmsg-replace="true" id="msgArName"></span>
+            @Html.ValidationMessageFor(m => m.ArName, "", new { @class = "text-danger" })
+        </div>*@
+                                <div class="col-md-3">
+                                    <p>@Resource.Address:</p>
+                                </div>
+                                <div class="col-md-9">
+                                    @Html.HiddenFor(m => m.Address)
+                                    @Html.HiddenFor(m => m.AspNetUsers.Address)
+                                    @Html.HiddenFor(m => m.Address)
+                                    @Html.HiddenFor(m => m.AspNetUsers.PhoneNumber)
+                                    <input type="text" id="txtAddress" class="form-control" value="@Model.Address" />
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="txtAddress" data-valmsg-replace="true" id="msgAddress"></span>
+                                    @*@Html.TextBox("txtAddress", new { @class = "form-control", @id = "txtAddress" })*@
+                                    @Html.ValidationMessageFor(m => m.Address, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="col-md-3">
+                                    <p>@Resource.Phone:</p>
+                                </div>
+                                <div class="col-md-9">
+                                    @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", type = "number" })
+                                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="Phone" data-valmsg-replace="true" id="msgPhone"></span>
+                                    @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-3">
+                                    <p>@Resource.WebsiteUrl:</p>
+                                </div>
+                                <div class="col-md-9">
+                                    @Html.TextBoxFor(m => m.WebsiteUrl, new { @class = "form-control", type = "Phone" })
+                                    @Html.ValidationMessageFor(m => m.WebsiteUrl, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-3">
+                                    <p>@Resource.Country:</p>
+                                </div>
+                                <div class="col-md-9">
+                                    <select id="CountryId" class="form-control">
+                                        @foreach (var item in ViewBag.CountryList as SelectList)
+                                        {
+                                            if (Model.SupCity != null)
+                                            {
+                                                if (Model.SupCity.CountryId.ToString() == item.Value)
+                                                {
+                                                    <option value="@item.Value" selected>@item.Text</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@item.Value">@item.Text</option>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <option value="@item.Value">@item.Text</option>
+                                            }
+                                        }
+                                    </select>
+                                    @Html.ValidationMessage("CountryId", "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-3">
+                                    <p>@Resource.City:</p>
+                                </div>
+                                <div class="col-md-9">
+                                    @Html.DropDownListFor(m => m.CityId, ViewBag.CityList as SelectList , new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.CityId, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-7">
+                                </div>
+                                <div class="col-md-5 mx-auto">
+                                    <button type="button" id="btnSubmit" class="btn btn-success font-weight-bold" style="width:150px;">@Resource.Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ======================== About Company  End========================== -->
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+@*/// Gallery Pictures////*@
+<div class="wrap-modal1 js-modal1 p-t-60 p-b-20">
+    <div class="overlay-modal1 js-hide-modal1"></div>
+
+    <div class="container">
+        <div class="bg0 p-t-60 p-b-30 p-lr-15-lg how-pos3-parent">
+            <button class="how-pos3 hov3 trans-04 js-hide-modal1">
+                <img src="~/Images/icons/icon-close.png" alt="CLOSE">
+            </button>
+            <h4 style="text-align:center;">@Resource.Select @Resource.Company @Resource.ProfilePicture</h4>
+            <div id="dvGalleryPicture" style="margin:30px;">
+                @foreach (var item in ViewBag.ProfilePictures)
+                {
+                    <a onclick="SelectProfilePic('@item.ID')">
+                        <img src="@item.Image" width="120" height="140" style="border:1px solid black;margin-right:10px;margin-bottom:10px;" />
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ======================== Profile  End========================== -->
+
+<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+@*<script src="~/Scripts/js/maps-google-api.js"></script>*@
+<script src="~/Scripts/js/BindingList.js"></script>
+@*<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>*@
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=AIzaSyAPFGkzEre1YIwcyejsVgRrl8T1DWJZouU"></script>
+
+<script>
+    $(document).on("click", "#EditSocial", function () {
+        $('.EditSocial').show();
+    });
+
+    function ChangeImg() {
+        $('#ImgID').hide();
+        $('#InpImgId').show();
+    }
+
+    //$("#ChangeProfilePic").click(function () {
+    //    $('.js-modal1').addClass('show-modal1');
+    //});
+
+    //function SelectProfilePic(pic) {
+    //    $('#imgProfile').hide();
+    //    var myPicID = Number(pic);
+    //    $("#CompanyModel_ProfilePictureID").val(myPicID);
+    //    $('.js-modal1').removeClass('show-modal1');
+    //}
+
+    $("#CategoryID").change(function () {
+        var CategoryVal = $(this).val();
+        var CategoryText = $("#CategoryID option:selected").text();
+        var CheckCategory = document.getElementById("spCategory_" + CategoryVal);
+        if (CategoryVal == "" || CheckCategory == null) {
+            var Category = "<span style='border:1px solid black;padding:10px;' class='btn btn-light' id='spCategory_"
+            + CategoryVal + "'><span>" + CategoryText +
+            " </span><i class='fa fa-times' onclick='RemoveCategory(" + CategoryVal
+            + ");'></i><input type='hidden' value='" + CategoryVal + "' name='CategoryIDs' id='inpCategory_" + CategoryVal + "'/></span>";
+            $("#CategoryList").append(Category);
+        }
+
+
+    });
+
+    function RemoveCategory(id) {
+        $("#spCategory_" + id).remove();
+    }
+
+</script>
+
+<script type="text/javascript">
+    google.maps.event.addDomListener(window, 'load', function () {
+        var places = new google.maps.places.Autocomplete(document.getElementById('txtAddress'));
+        google.maps.event.addListener(places, 'place_changed', function () {
+            var place = places.getPlace();
+            document.getElementById('txtAddress').value = place.formatted_address;
+        });
+    });
+</script>
+
+
+<script>
+    $("#btnSubmit").click(function () {
+        var SupplierModel_FullName = $("#AspNetUsers_Name").val(),
+            //SupplierModel_ArFullName = $("#AspNetUsers_ARName").val(),
+            SupplierModel_Phone = $("#Phone").val(),
+            SupplierModel_Email = $("#AspNetUsers_Email").val(),
+            SupplierModel_Address = $("#txtAddress").val(),
+            //CompanyModel_ArName = $("#ArName").val(),
+            CompanyModel_Name = $("#Name").val(),
+            Logo = $("#InpImgId").val();
+        $("#Address").val(SupplierModel_Address);
+
+        var validEmail = ValidateEmail(SupplierModel_Email);
+        var ValidLogo = ValidateImage(Logo);
+        var CurrentUserID = $("#AspNetUsers_Id").val();
+        $.when(IsUniqueEmail(SupplierModel_Email, CurrentUserID)).done(function (emailResult, e2, e3, e4) {
+            $.when(IsUniquePhone(SupplierModel_Phone, CurrentUserID)).done(function (phoneResult, p2, p3, p4) {
+
+                if (SupplierModel_FullName != "" && SupplierModel_FullName != null &&
+                    SupplierModel_Phone != "" && SupplierModel_Phone != null
+            && SupplierModel_Phone.length == 11 && phoneResult == 1 && SupplierModel_Address != "" && SupplierModel_Address != null
+            && (emailResult == 1) && ValidLogo == true
+            &&
+            CompanyModel_Name != "" && CompanyModel_Name != null) {
+
+                    //document.getElementById("btnSubmit").setAttribute("type", "submit");
+                    document.getElementById("EditSupForm").submit();
+                }
+                else {
+                    if (SupplierModel_FullName == "" || SupplierModel_FullName == null) {
+                        $("#msgFullName").removeClass("dis-none");
+                        $("#msgFullName").html("@Resource.EnName @Resource.IsRequired");
+                    }
+                    else {
+                        $("#msgFullName").html("");
+                    }
+                   
+                    //
+                    if (SupplierModel_Phone == "" || SupplierModel_Phone == null) {
+                        $("#msgPhone").removeClass("dis-none");
+                        $("#msgPhone").html("@Resource.Phone @Resource.IsRequired");
+                    }
+                    else {
+                        if (SupplierModel_Phone.length < 11 || SupplierModel_Phone.length > 11) {
+                            $("#msgPhone").removeClass("dis-none");
+                            $("#msgPhone").html("@Resource.Phone @Resource.MustBeLength");
+                        }
+                        else if (phoneResult == -2) {
+                            $("#msgPhone").removeClass("dis-none");
+                            $("#msgPhone").html("@Resource.Phone @Resource.Existing");
+                        }
+                        else {
+                            $("#msgPhone").html("");
+                        }
+                    }
+                    //
+                    //alert(validEmail);
+                    if (validEmail == -1) {
+                        $("#msgEmail").removeClass("dis-none");
+                        $("#msgEmail").html("@Resource.Email @Resource.IsNotValid");
+                    }
+                    else if (emailResult == -2) {
+                        $("#msgEmail").removeClass("dis-none");
+                        $("#msgEmail").html("@Resource.Email @Resource.Existing");
+                    }
+                    else if (emailResult == 0) {
+                        $("#msgEmail").removeClass("dis-none");
+                        $("#msgEmail").html("@Resource.Email @Resource.IsRequired");
+                    }
+                    else {
+                        $("#msgEmail").html("");
+                    }
+                    //
+                    if (SupplierModel_Address == "" || SupplierModel_Address == null) {
+                        $("#msgAddress").removeClass("dis-none");
+                        $("#msgAddress").html("@Resource.Address @Resource.IsRequired");
+                    }
+                    else {
+                        $("#msgAddress").html("");
+                    }
+                    //
+                    if (ValidLogo == false) {
+                        $("#msgImage").removeClass("dis-none");
+                        $("#msgImage").html("@Resource.Image @Resource.IsNotValid");
+                    }
+                    else {
+                        $("#msgImage").html("");
+                    }
+                    //
+                    if (CompanyModel_Name == "" || CompanyModel_Name == null) {
+                        $("#msgName").removeClass("dis-none");
+                        $("#msgName").html("@Resource.CompanyName @Resource.IsRequired");
+                    }
+                    else {
+                        $("#msgName").html("");
+                    }
+                    
+
+                }
+
+            });
+        });
+
+
+    });
+
+
+
+    function IsUniqueEmail(email, id) {
+        return $.ajax({
+            type: "GET",
+            url: "/Home/IsUniqueEmail?Email=" + email + "&&UserID="+id,
+            cache: false,
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8'
+        }).done(function (result) {
+        });
+    }
+
+
+    $("#CountryId").change(function () {
+        $.ajax({
+            type: "GET",
+            url: "/SupplierCorporation/GetCountryCities/" + $(this).val(),
+            cache: false,
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8'
+        }).done(function (result) {
+            BindCombo("CityId", result, "", false);
+        });
+    });
+
+    function IsUniquePhone(phone, id) {
+        return $.ajax({
+            type: "GET",
+            url: "/Home/IsUniquePhone?Phone=" + phone + "&&UserID=" + id,
+            cache: false,
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8'
+        }).done(function (result) {
+        });
+    }
+
+
+    function ValidateEmail(email) {
+        //alert(email);
+        if (email != "" && email != null) {
+            const re = /^(([^<>()\[\]\\.,;:\s@@"]+(\.[^<>()\[\]\\.,;:\s@@"]+)*)|(".+"))@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            var x = re.test(String(email).toLowerCase());
+            if (x == false) {
+                return -1;
+            }
+            else {
+                return 1;
+            }
+        }
+        else {
+            return 0;
+        }
+
+    }
+
+    function ValidateImage(file) {
+        //alert(Image);
+        if(file == null || file == ""){
+            return true;
+        }
+        var FileArr = file.split(".");
+        var extension = FileArr[FileArr.length - 1];
+        //alert(extension);
+        if (extension == "jpg" || extension == "png" || extension == "jpeg" || extension == "gif") {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    function RemoveSupplierCategory(element, id) {
+        element.style.display = "none";
+        $.ajax({
+            type: "GET",
+            url: "/SupplierCorporation/RemoveSupplierCategory/"+id,
+            cache: false,
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8'
+        }).done(function (result) {
+            if (result == true) {
+                element.parentElement.parentElement.remove();
+            }
+            else {
+                swal("@Resource.CannotDeleteCategory", "", "error");
+            }
+        });
+    }
+</script>

@@ -1,0 +1,60 @@
+﻿@model IEnumerable<IdentityLibrary.DataModel.FWYAbout>
+
+@{
+    ViewBag.Title = "بيانات الموقع";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<br />
+<div class="container" dir="rtl">
+
+    <div class="card">
+        <div class="card-body">
+            <br /><br />
+            <div class="table-responsive">
+                <table id="InvoiceTabel" class="table m-0 table-colored-bordered table-bordered-info table-bordered table-hover">
+                    <thead class="thead-default">
+                        <tr>
+                            <th data-breakpoints="xs">
+                                الصورة
+                            </th>
+                            <th data-breakpoints="xs">
+                                العنوان بالعربى
+                             </th>
+                            <th data-breakpoints="xs">
+                                العنوان بالانجليزى
+                            </th>
+                            <th data-breakpoints="xs">
+                                الوصف بالعربى
+                            </th>
+                            <th data-breakpoints="xs">
+                                الوصف بالانجليزى
+                            </th>
+                            <th>
+                                الاجراءات
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <img src="@item.Image" width="100" height="100" />
+                                </td>
+                                <td>@item.ArTitle</td>
+                                <td>@item.Title</td>
+                                <td>@item.ArDescription</td>
+                                <td>@item.Description</td>
+                                <td>
+                                    <a href="/Admin/About/@item.ID" class="btn btn-info">تعديل</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+

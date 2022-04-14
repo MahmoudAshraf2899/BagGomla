@@ -1,0 +1,51 @@
+﻿@model IdentityLibrary.DataModel.LatestNews
+
+@{
+    ViewBag.Title = "EditCreateCountry";
+    Layout = null;
+}
+<br />
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            @using (Html.BeginForm("EditCreateLatestNews", "LatestNews", FormMethod.Post, new { }))
+            {
+                @Html.HiddenFor(model => model.ID);
+                <div class="form-horizontal">
+                    <hr />
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label for="ArName" class="font-weight-bold text-capitalize"> الاسم باللغه العربيه</label>
+                            @Html.EditorFor(model => model.ArName, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.ArName, "", new { @class = "text-danger" })
+                            <span class="dis-none field-validation-error text-danger" data-valmsg-for="ArName" data-valmsg-replace="true" id="NameSpan">يجب ادخال هذا الحقل</span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label for="Name" class="font-weight-bold text-capitalize">الاسم باللغه الانجليزيه </label>
+                            @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-offset-2 col-md-10">
+                            <input type="button" value="حفظ" class="btn btn-success" id="btnSubmit" />
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<script>
+    $("#btnSubmit").click(function () {
+        var Name = $("#ArName").val();
+        if (Name != "" && Name != null) {
+            document.getElementById("btnSubmit").setAttribute("type", "submit");
+        }
+        else{
+            $("#NameSpan").removeClass("dis-none");
+        }
+    });
+</script>

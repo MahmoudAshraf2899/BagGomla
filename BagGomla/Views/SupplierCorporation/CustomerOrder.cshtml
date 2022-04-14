@@ -1,0 +1,701 @@
+﻿@using IdentityLibrary.DataModel
+@model FWYInvoiceOrder
+@using BagGomla.Models;
+@using System.Web.UI.WebControls
+@using IdentityLibrary.DataModel;
+@using Microsoft.AspNet.Identity;
+@using BagGomla.LocalResource
+
+@{
+    DatabaseContext db = new DatabaseContext();
+    ViewBag.Title = Resource.CustomerOrder ;
+    if (User.Identity.IsAuthenticated)
+    {
+        var userId = User.Identity.GetUserId();
+        var user = db.AspNetUsers.SingleOrDefault(c => c.Id == userId);
+        if (User.IsInRole("1"))
+        {
+            Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+        }
+        else
+        {
+            Layout = "~/Views/Shared/_Layout.cshtml";
+        }
+    }
+    var i = 0;
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+
+}
+<form>
+    @foreach (var item in Model.FWYInvoiceOrderProduct)
+    {
+        <input type="hidden" id="Product_@i" value="@item.ID" />
+        i++;
+    }
+</form>
+<!-- Modal1 -->
+<div class="container">
+    <div class="modal-wrapper overflow-auto">
+        <div class="bg0 p-t-60 p-b-30 p-lr-15-lg how-pos3-parent">
+            <div class="row">
+                <div class="col-md-6 col-lg-7 p-b-30">
+                    <div class="p-l-25 p-r-30 p-lr-0-lg">
+                        <div class="wrap-slick3 flex-sb flex-w">
+                            <div class="wrap-slick3-dots"></div>
+                            <div class="wrap-slick3-arrows flex-sb-m flex-w"></div>
+                            <!--Order Products Images-->
+                            <div class="slick3 gallery-lb">
+                                @foreach (var item in Model.FWYInvoiceOrderProduct)
+                                {
+
+                                    var img = "no-image.jpg";
+                                    if (item.FWYProduct.FWYProductImage.Where(c => c.IsMain == true).ToList().Count > 0)
+                                    {
+                                        var image = item.FWYProduct.FWYProductImage.Where(c => c.IsMain == true).ToList().First().Image;
+                                        if (image != "" || image != null)
+                                        {
+                                            img = image;
+                                        }
+                                    }
+
+                                    <div class="item-slick3" data-thumb="@img">
+                                        <div class="wrap-pic-w pos-relative">
+                                            <img src="@img" alt="IMG-PRODUCT" height="550">
+
+                                            <a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04"
+                                               href="@img">
+                                                <i class="fa fa-expand"></i>
+                                            </a>
+                                        </div>
+                                        @if (Model.OrderTypeID == 1 || Model.OrderTypeID == 2)
+                                        {
+                                            if (User.Identity.GetUserId() == Model.UserID)
+                                            {
+                                                <br />
+                                                <button type="button" class="btn btn-danger" onclick="RemoveOrderProduct(@item.ID);"><i class="fa fa-times-circle"></i> @Resource.Delete</button>
+                                                <button type="button" class="btn btn-primary" onclick="EditOrderProduct(@item.ID);"><i class="fa fa-edit"></i> @Resource.Edit</button>
+                                                <div class="dis-none" id="formEditOrderProduct_@item.ID">
+                                                    @using (Html.BeginForm("EditOrderProduct", "SupplierCorporation", FormMethod.Post, new { }))
+                                                    {
+                                                        <div class="card">
+                                                            <div class="card-body">
+                                                                <input type="hidden" name="orderProductID" value="@item.ID" />
+                                                                @*@{
+                                                                    var maxQuantity = item.FWYProduct.TotalQuantity - item.FWYProduct.SalesNum;
+                                                                    foreach (var c in item.FWYProduct.FWYInvoiceOrderProduct)
+                                                                    {
+                                                                        if (c.FWYInvoiceOrder.OrderTypeID == 2)
+                                                                        {
+                                                                            maxQuantity -= c.Quantity;
+                                                                        }
+                                                                    }
+                                                                    maxQuantity += item.Quantity;
+                                                                }*@
+                                                                <div class="col-md-12">
+                                                                    <label for="">@Resource.Quantity</label>
+                                                                    <input type="number" class="form-control requiredo" name="orderProductQuantity" value="@item.Quantity" min="1" aria-describedby="helpId" placeholder="" required>
+                                                                    <small id="helpId" class="d-none form-text invalid-feedback text-capitalize ">Please fill this field</small>
+                                                                </div>
+                                                                @if (item.ProductColorID != null && item.ProductColorID != 0)
+                                                                {
+                                                                    var ColorList = new List<FWYColor>();
+                                                                    foreach (var x in item.FWYProduct.FWYStoreProduct)
+                                                                    {
+                                                                        if (x.SalesNum == null)
+                                                                        {
+                                                                            x.SalesNum = 0;
+                                                                        }
+                                                                        if ((x.Quantity - x.SalesNum) > 0)
+                                                                        {
+                                                                            if (x.ColorID != null)
+                                                                            {
+                                                                                if (ColorList.Where(c => c.ID == x.ColorID).ToList().Count == 0)
+                                                                                {
+                                                                                    ColorList.Add(x.FWYColor);
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    <div class="col-md-12">
+                                                                        <label for="">@Resource.Color</label>
+                                                                        <select class="form-control requiredo" name="orderProductColor" aria-describedby="helpId" placeholder="">
+                                                                            @foreach (var color in ColorList)
+                                                                            {
+                                                                                if (lang == "ar-EG")
+                                                                                {
+                                                                                    if (item.ProductColorID == color.ID)
+                                                                                    {
+                                                                                        <option value="@color.ID" selected>@color.ARName</option>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <option value="@color.ID">@color.ARName</option>
+                                                                                    }
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    if (item.ProductColorID == color.ID)
+                                                                                    {
+                                                                                        <option value="@color.ID" selected>@color.Name</option>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <option value="@color.ID">@color.Name</option>
+                                                                                    }
+                                                                                }
+
+
+                                                                            }
+                                                                        </select>
+                                                                        <small id="helpId" class="d-none form-text invalid-feedback text-capitalize ">Please fill this field</small>
+                                                                    </div>
+                                                                }
+
+                                                                @if (item.ProductSizeID != null && item.ProductSizeID != 0)
+                                                                {
+                                                                    var SizeList = new List<FWYColor>();
+                                                                    foreach (var x in item.FWYProduct.FWYStoreProduct)
+                                                                    {
+                                                                        if (x.SalesNum == null)
+                                                                        {
+                                                                            x.SalesNum = 0;
+                                                                        }
+                                                                        if ((x.Quantity - x.SalesNum) > 0)
+                                                                        {
+                                                                            if (x.SizeID != null)
+                                                                            {
+                                                                                if (SizeList.Where(c => c.ID == x.SizeID).ToList().Count == 0)
+                                                                                {
+                                                                                    SizeList.Add(x.FWYColor);
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    <div class="col-md-12">
+                                                                        <label for="">@Resource.Size</label>
+                                                                        <select class="form-control requiredo" name="orderProductSize" aria-describedby="helpId" placeholder="">
+                                                                            @foreach (var size in SizeList)
+                                                                            {
+                                                                                if (lang == "ar-EG")
+                                                                                {
+                                                                                    if (item.ProductSizeID == size.ID)
+                                                                                    {
+                                                                                        <option value="@size.ID" selected>@size.ARName</option>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <option value="@size.ID">@size.ARName</option>
+                                                                                    }
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    if (item.ProductSizeID == size.ID)
+                                                                                    {
+                                                                                        <option value="@size.ID" selected>@size.Name</option>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <option value="@size.ID">@size.Name</option>
+                                                                                    }
+                                                                                }
+
+
+                                                                            }
+                                                                        </select>
+                                                                        <small id="helpId" class="d-none form-text invalid-feedback text-capitalize ">Please fill this field</small>
+                                                                    </div>
+                                                                }
+
+                                                                <div class="form-group row">
+                                                                    <div class="col-md-3 mx-auto">
+                                                                        <button type="submit" class="btn btn-success rounded-pill"><i class="fa fa-check-circle" aria-hidden="true"></i> @Resource.Submit</button>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-5 p-b-30">
+                    <div class="p-r-50 p-t-5 p-lr-0-lg">
+
+                        <!--Product Info-->
+                        <div id="dvOrderProductInfo">
+                            @if (Model.FWYInvoiceOrderProduct.Count > 0)
+                            {
+                                @Html.Partial("_InvoiceOrderProductDetails", Model.FWYInvoiceOrderProduct.First())
+                            }
+                        </div>
+                        <!--  -->
+                        <div class="p-t-33">
+
+                            <hr>
+
+                            <!--Invoice Info-->
+                            <div class="more-buyer-details">
+                                <span class="mtext-106 cl2">
+                                    @Resource.InvoiceInformation
+                                </span>
+                                <div>
+                                    @{ decimal totalDiscounts = 0;}
+                                    <table>
+                                        <tr>
+                                            <th>@Resource.SubTotal: </th>
+                                            <td>@Model.SubTotal</td>
+                                        </tr>
+                                        @if (Model.DeliveryServicePrice != null)
+                                        {
+                                            <tr>
+                                                <th>@Resource.DeliveryServicePrice: </th>
+                                                <td>@Model.DeliveryServicePrice</td>
+                                            </tr>
+                                        }
+                                        @if (Model.Discount != null)
+                                        {
+                                            totalDiscounts += (decimal)Model.Discount;
+                                            <tr>
+                                                <th>@Resource.Discount:</th>
+                                                <td>@Model.Discount %</td>
+                                            </tr>
+                                        }
+
+                                        <tr>
+                                            <th>@Resource.TotalPrice: </th>
+                                            <td>@Model.TotalPrice</td>
+                                        </tr>
+
+                                        @*@if (Model.CouponID != null)
+                                            {
+                                                totalDiscounts += (decimal)Model.FWYCoupon.Discount;
+                                                <tr>
+                                                    <th>Coupon Discount: </th>
+                                                    <td>@Model.FWYCoupon.Discount %</td>
+                                                </tr>
+                                            }
+
+                                            @if (totalDiscounts != 0)
+                                            {
+                                                <tr>
+                                                    <th>Total Discounts: </th>
+                                                    <td>@totalDiscounts %</td>
+                                                </tr>
+                                            }*@
+                                    </table>
+                                </div>
+                            </div>
+
+
+                            <hr>
+
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                if (User.Identity.GetUserId() == Model.SupplierID)
+                                {
+                                    <!--Buyer Info-->
+                                    <div class="more-buyer-details">
+                                        <span class="mtext-106 cl2">
+                                            @Resource.BuyerInformation
+                                        </span>
+                                        <div>
+                                            <table>
+                                                <tr>
+                                                    <th>@Resource.Name: </th>
+                                                    @if (lang == "ar-EG")
+                                                    {
+                                                        <td>@Model.AspNetUsers.ARName</td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td>@Model.AspNetUsers.Name</td>
+                                                    }
+                                                    
+                                                </tr>
+                                                <tr>
+                                                    <th>@Resource.Address: </th>
+                                                    <td>@Model.AspNetUsers.Address</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>@Resource.Phone: </th>
+                                                    <td>@Model.AspNetUsers.PhoneNumber</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>@Resource.Email</th>
+                                                    <td>@Model.AspNetUsers.Email</td>
+                                                </tr>
+                                            </table>
+
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <!--Supplier Info-->
+                                    <div class="more-buyer-details">
+                                        <span class="mtext-106 cl2">
+                                            @Resource.SupplierInformation
+                                        </span>
+                                        <div>
+                                            <table>
+                                                <tr>
+                                                    <th>@Resource.Name: </th>
+                                                    @if (lang == "ar-EG")
+                                                    {
+                                                        <td>@Model.AspNetUsers1.ARName</td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td>@Model.AspNetUsers1.Name</td>
+                                                    }
+                                                    
+                                                </tr>
+                                                <tr>
+                                                    <th>@Resource.CompanyName: </th>
+                                                    @if (lang == "ar-EG")
+                                                    {
+                                                        <td>@Model.AspNetUsers1.FWYSupplierCooperation.First().ArName</td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td>@Model.AspNetUsers1.FWYSupplierCooperation.First().Name</td>
+                                                    }
+                                                    
+                                                </tr>
+                                                <tr>
+                                                    <th>@Resource.Address: </th>
+                                                    <td>@Model.AspNetUsers1.Address</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>@Resource.Phone: </th>
+                                                    <td>@Model.AspNetUsers1.PhoneNumber</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>@Resource.Email</th>
+                                                    <td>@Model.AspNetUsers1.Email</td>
+                                                </tr>
+                                            </table>
+
+                                        </div>
+                                    </div>
+                                }
+                            }
+
+
+                            <hr />
+                            @if (Model.OrderTypeID != 1 && Model.OrderTypeID != 4 && Model.OrderTypeID != 6)
+                            {
+                                <!--Shipping Compant Info-->
+                                <div class="more-buyer-details">
+                                    <span class="mtext-106 cl2">
+                                        @Resource.ShippingCompanyInformation
+                                    </span>
+                                    <div>
+                                        <table>
+                                            <tr>
+                                                <th>@Resource.Name: </th>
+                                                <td>@Model.ShippingCompany</td>
+                                            </tr>
+                                            <tr>
+                                                <th>@Resource.TrackNumber: </th>
+                                                <td>@Model.TrackNumber</td>
+                                            </tr>
+                                            <tr>
+                                                <th>@Resource.DeliveryDate: </th>
+                                                <td>@Model.DeliveryDate</td>
+                                            </tr>
+                                        </table>
+
+                                    </div>
+                                </div>
+                            }
+                            <hr />
+
+
+
+
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                if (User.Identity.GetUserId() == Model.SupplierID || User.IsInRole("1"))
+                                {
+                                    var CompanyID = Model.AspNetUsers1.FWYSupplierCooperation.First().ID;
+                                     <!--Action On Order-->
+                                    <div class="flex-w flex-r-m p-b-10 choose-btn-group">
+                                        <div class="mx-auto">
+                                            <div>
+                                                @if (Model.OrderTypeID == 1)
+                                                {
+                                                    <button role="button" class="btn btn-success rounded-pill" id="btnAccept">
+                                                        <i class="fa fa-check-circle" aria-hidden="true"></i> @Resource.Accept
+                                                    </button>
+
+                                                    <a href="/SupplierCorporation/ChangeOrderType/@Model.ID?TypeID=4" class="btn btn-danger rounded-pill">
+                                                        <i class="fa fa-times-circle" aria-hidden="true"></i> @Resource.Reject
+                                                    </a>
+                                                }
+                                                else if (Model.OrderTypeID == 2)
+                                                {
+                                                    <a href="/SupplierCorporation/ChangeOrderType/@Model.ID?TypeID=3" class="btn btn-warning rounded-pill">
+                                                        <i class="fa fa-car" aria-hidden="true"></i> @Resource.Delivered @Resource.To @Resource.SC <i class="fa fa-question-circle"></i>
+                                                    </a>
+                                                    <br /><br />
+
+                                                    <a href="/SupplierCorporation/ChangeOrderType/@Model.ID?TypeID=5" class="btn btn-success rounded-pill">
+                                                        <i class="fa fa-user-circle" aria-hidden="true"></i> @Resource.Delivered @Resource.To @Resource.Customer <i class="fa fa-question-circle"></i>
+                                                    </a>
+                                                    <a href="/SupplierCorporation/ChangeOrderType/@Model.ID?TypeID=4" class="btn btn-danger rounded-pill">
+                                                        <i class="fa fa-times-circle" aria-hidden="true"></i> @Resource.Reject
+                                                    </a>
+                                                }
+                                                else if (Model.OrderTypeID == 3)
+                                                {
+                                                    <a href="/SupplierCorporation/ChangeOrderType/@Model.ID?TypeID=5" class="btn btn-success rounded-pill">
+                                                        <i class="fa fa-user-circle" aria-hidden="true"></i> @Resource.Delivered @Resource.To @Resource.Customer <i class="fa fa-question-circle"></i>
+                                                    </a>
+                                                }
+                                                else if (Model.OrderTypeID == 6)
+                                                {
+                                                    <span class="btn btn-danger rounded-pill">
+                                                        <i class="fa fa-times-circle" aria-hidden="true"></i> @Resource.Canceled
+                                                    </span>
+                                                }
+
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+
+                                }
+                                else
+                                {
+                                    if (Model.OrderTypeID == 1)
+                                    {
+                                        <button role="button" class="btn btn-primary rounded-pill">
+                                            <i class="fa fa-spinner" aria-hidden="true"></i> @Resource.Pending
+                                        </button>
+                                    }
+                                    else if (Model.OrderTypeID == 2)
+                                    {
+                                        <button role="button" class="btn btn-success rounded-pill">
+                                            <i class="fa fa-check-circle" aria-hidden="true"></i> @Resource.Accepted
+                                        </button>
+                                    }
+                                    else if (Model.OrderTypeID == 3)
+                                    {
+                                        <button role="button" class="btn btn-warning rounded-pill">
+                                            <i class="fa fa-car" aria-hidden="true"></i> @Resource.Delivered @Resource.To @Resource.SC <i class="fa fa-check-circle"></i>
+                                        </button>
+                                    }
+                                    else if (Model.OrderTypeID == 4)
+                                    {
+                                        <button role="button" class="btn btn-danger rounded-pill">
+                                            <i class="fa fa-times-circle" aria-hidden="true"></i> @Resource.Rejected
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button role="button" class="btn btn-success rounded-pill">
+                                            <i class="fa fa-lock" aria-hidden="true"></i> @Resource.Finished
+                                        </button>
+                                    }
+
+                                    if (Model.OrderTypeID == 1 || Model.OrderTypeID == 2)
+                                    {
+                                        <a href="/Customer/CancelCustomerOrder/@Model.ID" class="btn btn-success rounded-pill">
+                                            <i class="fa fa-times-circle" aria-hidden="true"></i> @Resource.CancelOrder
+                                        </a>
+                                    }
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@*/// Assign Product To Other Stores////*@
+<div class="wrap-modal1 js-modal1 p-t-60 p-b-20" id="popupProductStores">
+    <div class="overlay-modal1 js-hide-modal1"></div>
+
+    <div class="container">
+        <div class="bg0 p-t-60 p-b-30 p-lr-15-lg how-pos3-parent">
+            <button class="how-pos3 hov3 trans-04 js-hide-modal1">
+                <img src="~/Images/icons/icon-close.png" alt="CLOSE">
+            </button>
+            <div id="ShippingCompanyForm">
+                <div class="col-md-10 mx-auto">
+                    <div class="card">
+                        <div class="card-body">
+                            <form action="/SupplierCorporation/AcceptOrder">
+                                <input type="hidden" name="OrderID" value="@Model.ID" />
+                                <div class="form-group row">
+                                    <div class="col-md-6">
+                                        <label for="">@Resource.SC</label>
+                                        <input type="text" class="form-control requiredo" name="ShippingCompany" id="" aria-describedby="helpId" placeholder="" required>
+                                        <small id="helpId" class="d-none form-text invalid-feedback text-capitalize ">Please fill this field</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="">@Resource.TrackNumber</label>
+                                        <input type="number" class="form-control requiredo" name="TrackNumber" id="" aria-describedby="helpId" placeholder="" required>
+                                        <small id="helpId" class="d-none form-text invalid-feedback text-capitalize ">Please fill this field</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="">@Resource.Date</label>
+                                        <input type="date" class="form-control requiredo" name="DeliverDate" id="" aria-describedby="helpId" placeholder="" required>
+                                        <small id="helpId" class="d-none form-text invalid-feedback text-capitalize ">Please fill this field</small>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label for="">@Resource.DeliveryServicePrice</label>
+                                        <input type="number" class="form-control requiredo" name="DeliveryServicePrice" id="" aria-describedby="helpId" placeholder="" required>
+                                        <small id="helpId" class="d-none form-text invalid-feedback text-capitalize ">Please fill this field</small>
+                                    </div>
+                                </div>
+
+                                <table class="table m-0 table-colored-bordered table-bordered-info table-bordered table-hover">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>@Resource.ProductName</th>
+                                            <th>@Resource.ProductStores</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.FWYInvoiceOrderProduct)
+                                        {
+                                            if (item.ProductColorID == 0)
+                                            {
+                                                item.ProductColorID = null;
+                                            }
+
+                                            if (item.ProductSizeID == 0)
+                                            {
+                                                item.ProductSizeID = null;
+                                            }
+                                            var StoreProduct = db.FWYStoreProduct.Where(c => c.ProductID == item.ProductID && c.SizeID == item.ProductSizeID && c.ColorID == item.ProductColorID).ToList();
+                                            <tr>
+                                                @if (lang == "ar-EG")
+                                                {
+                                                    <td>
+                                                        <input type="hidden" name="OrderProductIDs" value="@item.ID" />
+                                                        @item.FWYProduct.ARName
+                                                    </td>
+                                                }
+                                                else
+                                                {
+                                                    <td>
+                                                        <input type="hidden" name="OrderProductIDs" value="@item.ID" />
+                                                        @item.FWYProduct.Name
+                                                    </td>
+                                                }
+                                                
+                                                <td>
+                                                    <select name="StoreProductIDs" class="form-control" required>
+                                                        <option value="" selected disabled>@Resource.Select @Resource.Store</option>
+                                                        @foreach (var x in StoreProduct)
+                                                        {
+                                                            if (lang == "ar-EG")
+                                                            {
+                                                                <option value="@x.ID">@x.FWYStore.ARName</option>
+                                                            }
+                                                            else
+                                                            {
+                                                                <option value="@x.ID">@x.FWYStore.Name</option>
+                                                            }
+
+                                                        }
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                        }
+
+                                    </tbody>
+                                </table>
+                                <br />
+                                <div class="form-group row">
+                                    <div class="col-md-3 mx-auto">
+                                        <button type="submit" class="btn btn-success rounded-pill"><i class="fa fa-check-circle" aria-hidden="true"></i> @Resource.Submit</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+@*<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>*@
+<script>
+    $("#btnAccept").click(function () {
+        $('#popupProductStores').addClass('show-modal1');
+    });
+
+    $(".js-hide-modal1").click(function () {
+        $('#popupProductStores').removeClass('show-modal1');
+    });
+
+    $(document).ready(function () {
+        var elements = $(".wrap-slick3-dots .slick3-dots li");
+        for (var x = 0; x < elements.length; x++) {
+            var InvoiceOrderProductID = document.getElementById("Product_" + x).value;
+            elements[x].setAttribute("onclick", "GetInvoiceOrderProductDetails(" + InvoiceOrderProductID + ");");
+        }
+    });
+
+    function GetInvoiceOrderProductDetails(orderProductID) {
+        $.ajax({
+            url: '@Url.Action("GetInvoiceOrderProductDetails", "SupplierCorporation")',
+            type: 'GET',
+            cache: false,
+            data: { ID: orderProductID }
+        }).done(function (result) {
+            $('#dvOrderProductInfo').empty();
+            $('#dvOrderProductInfo').html(result);
+        });
+    }
+
+    function EditOrderProduct(id) {
+        $('#formEditOrderProduct_' + id).removeClass("dis-none");
+    }
+
+    function RemoveOrderProduct(id) {
+        if (confirm("Are you sure you want to remove this product from order?")) {
+            $.ajax({
+                url: '@Url.Action("RemoveOrderProduct", "SupplierCorporation")',
+                type: 'GET',
+                cache: false,
+                data: { id: id }
+            }).done(function (result) {
+                if (result == 0) {
+                    swal("Done", "Product is removed from order", "success");
+                    window.location.href = "";
+                }
+                else if (result == 1) {
+                    swal("Done", "Your order is removed", "success");
+                    window.location.href = "/Customer/GetOrders";
+                } else {
+                    swal("Error", "You can't remove from this order", "error");
+                    window.location.href = "";
+                }
+
+            });
+        }
+    }
+
+</script>

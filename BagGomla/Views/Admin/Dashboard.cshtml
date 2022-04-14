@@ -1,0 +1,158 @@
+﻿@model BagGomla.Models.AdminDashboard
+@{
+    ViewBag.Title = "التقارير";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<br />
+<div class="row" style="text-align:right" dir="rtl">
+    <div class="col-md-10 mx-auto">
+        <!--Row1-->
+        <div class="row">
+
+
+            <!--Customers-->
+            <div class="col-md-6" style="cursor:pointer;" onclick="GetMethod('/Admin/Customers');">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="text-center"><span>العملاء </span> <span>(@Model.CustomerList.Count)</span></h4>
+                    </div>
+                </div>
+            </div>
+
+            <!--Sellers-->
+            <div class="col-md-6" style="cursor:pointer;" onclick="GetMethod('/Admin/Sellers');">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="text-center"><span>الموردين </span> <span>(@Model.SellerList.Count)</span></h4>
+                    </div>
+                </div>
+            </div>
+
+            <!--Products-->
+            <div class="col-md-4" style="cursor:pointer;" onclick="GetMethod('/Admin/Products');">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="text-center">المنتجات</h4>
+                        <h6><span>العدد الكلي </span> <span>@Model.ProductList.Count</span></h6>
+                        <h6><span>الكمية المباعة </span><span>@Model.ProductList.Sum(c => c.SalesNum)</span></h6>
+                        <h6><span>عدد المتاح </span> <span>@Model.ProductList.Where(c => c.IsAvailable == true).ToList().Count</span></h6>
+                    </div>
+                </div>
+            </div>
+
+            <!--Products-->
+            <div class="col-md-4" style="cursor:pointer;" onclick="GetMethod('/Admin/Products?IsFeatured=true');">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="text-center"> المنتجات المميزة</h4>
+                        <h6><span>العدد الكلي </span> <span>@Model.ProductList.Where(c => c.IsFeatured == true).ToList().Count</span></h6>
+                        <h6><span>عدد انتظار الموافقه </span> <span>@Model.ProductList.Where(c => c.IsAvailable == false && c.IsFeatured == true).ToList().Count</span></h6>
+                        <h6><span>عدد الموافق عليه </span> <span>@Model.ProductList.Where(c => c.IsAvailable == true && c.IsFeatured == true).ToList().Count</span></h6>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4" style="cursor:pointer;" onclick="GetMethod('/Admin/Products?IsShow=true');">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="text-center"> المنتجات الاكثر مبيعا</h4>
+                        <h6><span>العدد الكلي </span> <span>@Model.ProductList.Where(c => c.Show == true).ToList().Count</span></h6>
+                    </div>
+                </div>
+            </div>
+
+            <!--Featured Products-->
+            @*<div class="col-md-4" style="cursor:pointer;" onclick="GetMethod('/Admin/Products?IsFeatured=true');">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="text-center">المنتجات المميزة</h4>
+                    <h6>
+                        <span>العدد الكلي </span>
+                        <span>@Model.ProductList.Where(c => c.IsFeatured == true).ToList().Count</span>
+                    </h6>
+                    <h6>
+                        <span>الكمية المباعة </span>
+                        <span>@Model.ProductList.Where(c => c.IsFeatured == true).ToList().Sum(c => c.SalesNum)</span>
+                    </h6>
+                    <h6>
+                        <span>عدد المتاح </span>
+                        <span>@Model.ProductList.Where(c => c.IsFeatured == true && c.IsAvailable == true).ToList().Count</span>
+                    </h6>
+                </div>
+            </div>
+        </div>*@
+
+
+            <!--all orders-->
+            <!--<div class="col-md-4" style="cursor:pointer;" onclick="GetMethod('/Admin/Orders');">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="text-center">جميع الطلبات</h4>
+                        <h6><span>العدد الكلي </span><span>@Model.InvoiceOrderList.Count</span></h6>
+                        <h6>
+                            <span>المنتظر </span>
+                            <span>@Model.InvoiceOrderList.Where(c => c.OrderTypeID == 1).ToList().Count</span>
+                        </h6>
+                        <h6>
+                            <span>المسلم </span>
+                            <span>@Model.InvoiceOrderList.Where(c => c.OrderTypeID == 5).ToList().Count</span>
+                        </h6>
+                    </div>
+                </div>
+            </div>-->
+
+
+            <!--Pending orders-->
+            <!--<div class="col-md-4" style="cursor:pointer;" onclick="GetMethod('/Admin/Orders?OrderType=1');">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="text-center"> الطلبات المعلقة</h4>
+                        <h6>
+                            <span>العدد الكلي </span>
+                            <span>@Model.InvoiceOrderList.Where(c => c.OrderTypeID == 1).ToList().Count</span>
+                        </h6>
+                    </div>
+                </div>
+            </div>-->
+
+            <!--Approved orders-->
+            <!--<div class="col-md-4" style="cursor:pointer;" onclick="GetMethod('/Admin/Orders?OrderType=-1');">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="text-center"> الطلبات الموافق عليها</h4>
+                        <h6>
+                            <span>العدد الكلي </span>
+                            <span>@Model.InvoiceOrderList.Where(c => c.OrderTypeID == 2).ToList().Count</span>
+                        </h6>
+                    </div>
+                </div>
+            </div>-->
+
+            <!--Delivered orders-->
+            <!--<div class="col-md-4" style="cursor:pointer;" onclick="GetMethod('/Admin/Orders?OrderType=5');">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="text-center"> الطلبات المسلمة </h4>
+                        <h6>
+                            <span>العدد الكلي </span>
+                            <span>@Model.InvoiceOrderList.Where(c => c.OrderTypeID == 5).ToList().Count</span>
+                        </h6>
+                    </div>
+                </div>
+            </div>-->
+
+
+
+
+
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function GetMethod(redirectUrl) {
+        window.location.href = redirectUrl;
+    }
+</script>

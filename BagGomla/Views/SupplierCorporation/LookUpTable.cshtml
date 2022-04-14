@@ -1,0 +1,144 @@
+﻿@model PagedList.IPagedList< IdentityLibrary.DataModel.FWYLockupTable>
+@using BagGomla.LocalResource
+@using Microsoft.AspNet.Identity;
+@using IdentityLibrary.DataModel;
+@using System.Globalization;
+@using System.Threading;
+@using  PagedList.Mvc
+@{
+    ViewBag.Title = Resource.LookupTable;
+    DatabaseContext db = new DatabaseContext();
+
+    var userID = User.Identity.GetUserId();
+    var user = db.AspNetUsers.SingleOrDefault(c => c.Id == userID);
+    if (user.RoleID=="1")
+    {
+        var lang = "ar-EG";
+        var cultureInfo = new CultureInfo(lang);
+        Thread.CurrentThread.CurrentUICulture = cultureInfo;
+        Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture(cultureInfo.Name);
+        HttpCookie langCookie = new HttpCookie("culture", lang);
+        langCookie.Expires = DateTime.Now.AddYears(1);
+        HttpContext.Current.Response.Cookies.Add(langCookie);
+        Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    }
+    else
+    {
+        var lang = Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+    var i = ((Model.PageNumber - 1) * 10) + 1;
+}
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+<br />
+<div class="input-group" style="width:80%;margin:auto">
+    <span class="input-group-append">
+        <button class="btn btn-outline-secondary border-left-0 border" type="button" id="btnSearch">
+            <i class="fa fa-search"></i>
+        </button>
+        <button class="btn btn-outline-secondary border-left-0 border" type="button" id="btnRemoveSearch">
+            <i class="fa fa-times"></i>
+        </button>
+    </span>
+    <input id="Search" class="form-control py-2 border-right-0 border" placeholder="البحث" style="text-align:right!important;" value="@ViewBag.searchStr">
+</div>
+<br />
+
+<div class="container">
+    <br />
+    <div class="col-md-11 mx-auto">
+        <div class="card">
+            <div class="card-body">
+                <br /><br />
+                <div class="table-responsive">
+                    <table id="InvoiceTabel" class="table m-0 table-colored-bordered table-bordered-info table-bordered table-hover">
+                        <thead class="thead-default">
+                            <tr>
+                                <th colspan="7" class="text-center">
+                                    <h3>@Resource.LookupTable</h3>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th>#</th>
+                                <th data-breakpoints="xs">
+                                    @Resource.UserName
+                                </th>
+                                <th data-breakpoints="xs">
+                                    @Resource.SearchString
+                                </th>
+                                @if (user.RoleID != "1")
+                                {
+                            <th>
+                                @Resource.CategorySearchResult
+                            </th>}
+                                <th>
+                                    @Resource.Longitude
+                                </th>
+                                <th>
+                                    @Resource.Latitude
+                                </th>
+                                <th>
+                                    @Resource.Location
+                                </th>
+                                <th>
+                                    التاريخ
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                            <tr class="Search">
+                                <td>@i</td>
+                                <td>@item.UserName</td>
+                                <td>@item.SearchString</td>
+                                @if (user.RoleID != "1")
+                                {
+                            <td>@item.FWYCategory.Name</td>}
+                                <td>@item.Longitude</td>
+                                <td>@item.Latitude</td>
+                                <td>
+                                    <a href="https://www.google.com/maps/place/@item.Location" target="_blank">@item.Location</a> <br />
+                                </td>
+                                <td>
+                                @if(item.SearchDateTime != null)
+                                {
+                                    DateTime dt = (DateTime)item.SearchDateTime;
+                                    <span>@dt.ToString("dd/MM/yyyy")</span>
+                                }
+                                </td>
+                            </tr>
+                                i++;
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr style="text-align:center!important">
+                                <td colspan="7">
+                                    <h5>
+                                        صفحة رقم @(Model.PageCount < Model.PageNumber ? 1 : Model.PageNumber) من @Model.PageCount
+                                    </h5>
+                                    <p>
+                                        @Html.PagedListPager(Model, page => Url.Action("LookUpTable",
+                                        new
+                                        {
+                                            page = page,
+                                        }))
+                                    </p>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Content/vendor/jquery/jquery-3.2.1.min.js"></script>
+<script>
+     $(".pagination a").click(function () {
+        var url = $(this).attr("href");
+        $(this).attr("href", url + "&searchStr=@ViewBag.searchStr");
+    });
+</script>

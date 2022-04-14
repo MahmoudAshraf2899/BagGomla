@@ -1,0 +1,99 @@
+﻿@model IEnumerable<IdentityLibrary.DataModel.FWYAbout>
+@using BagGomla.LocalResource
+@{
+    ViewBag.Title = Resource.About;
+    if (User.Identity.IsAuthenticated)
+    {
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_DefualtLayout.cshtml";
+    }
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+
+}
+<section class="bg0 p-t-75 p-b-120">
+    <div class="container">
+        @foreach (var item in Model.Take(3))
+        {
+
+            if (item.TypeID == 1 || item.TypeID == 3)
+            {
+                <div class="row p-b-148">
+                    <div class="col-md-7 col-lg-8">
+                        <div class="p-t-7 p-r-85 p-r-15-lg p-r-0-md">
+                            @if (lang == "ar-EG")
+                            {
+                                <h3 class="mtext-111 cl2 p-b-16">
+                                    <span>
+                                        @item.ArTitle
+                                    </span>
+                                </h3>
+                                        <p class="stext-113 cl6 p-b-26">
+                                            @item.ArDescription
+                                        </p>
+                            }
+                            else
+                            {
+                                <h3 class="mtext-111 cl2 p-b-16">
+                                    <span>
+                                        @item.Title
+                                    </span>
+                                </h3>
+                                        <p class="stext-113 cl6 p-b-26">
+                                            @item.Description
+                                        </p>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-11 col-md-5 col-lg-4 m-lr-auto">
+                        <div class="how-bor1 ">
+                            <div class="hov-img0">
+                                <img src="@item.Image" alt="IMG">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="row p-b-148">
+                    <div class="order-md-2 col-md-7 col-lg-8 p-b-30">
+                        <div class="p-t-7 p-l-85 p-l-15-lg p-l-0-md">
+                            @if (lang == "ar-EG")
+                            {
+                                <h3 class="mtext-111 cl2 p-b-16">
+                                    <span>
+                                        @item.ArTitle
+                                    </span>
+                                </h3>
+                                        <p class="stext-113 cl6 p-b-26">
+                                            @item.ArDescription
+                                        </p>
+                            }
+                            else
+                            {
+                                <h3 class="mtext-111 cl2 p-b-16">
+                                    <span>
+                                        @item.Title
+                                    </span>
+                                </h3>
+                                        <p class="stext-113 cl6 p-b-26">
+                                            @item.Description
+                                        </p>
+                            }
+                        </div>
+                    </div>
+                    <div class="order-md-1 col-11 col-md-5 col-lg-4 m-lr-auto p-b-30">
+                        <div class="how-bor2">
+                            <div class="hov-img0">
+                                <img src="@item.Image" alt="IMG">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</section>

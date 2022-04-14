@@ -1,0 +1,65 @@
+﻿@model HttpPostedFileBase
+@using BagGomla.LocalResource
+@{
+    ViewBag.Title = "اضافة صورة واجهة";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<br />
+<br />
+<div class="row" dir="rtl">
+    <div class="col-md-6 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-center">اضافه صورة واجهة</h3>
+            </div>
+            <div class="card-body">
+                @using (Html.BeginForm("Create", "FacadeImage", FormMethod.Post, new { @class = "form-horizontal", role = "form", enctype = "multipart/form-data" }))
+                {
+                    @Html.AntiForgeryToken()
+
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                    <div class="form-group row">
+                        <label for="Title" class="control-label col-md-3">إرفاق الصورة</label>
+                        <div class="col-md-9">
+                            <span class="field-validation-error text-danger" style="display:none;" data-valmsg-for="Title" data-valmsg-replace="true" id="msgTitle"></span>
+                            @Html.TextBox("picture", null, new { @class = " input-file", @type = "file", @multiple = "multiple" })
+                            @Html.ValidationMessageFor(m => Model)
+                        </div>
+                    </div>
+
+                    <div class="form-group  row">
+                        <div class="col-md-offset-2 col-md-2 mx-auto">
+                            <input type="submit" id="btnSubmit" value="حفظ" class="btn btn-success" />
+                        </div>
+                    </div>
+                }
+
+                <div>
+                    <a href="/FacadeImage/Index"><i class="fa fa-arrow-circle-left"></i> العودة للقائمه السابقه</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+<script>
+    function ValidateImage() {
+        var file = document.getElementById("Image").value;
+        //alert(Image);
+        if (file == null || file == "") {
+            return true;
+        }
+        var FileArr = file.split(".");
+        var extension = FileArr[FileArr.length - 1];
+        //alert(extension);
+        if (extension == "jpg" || extension == "png" || extension == "jpeg" || extension == "gif") {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+</script>
+

@@ -1,0 +1,225 @@
+﻿@model PagedList.IPagedList<IdentityLibrary.DataModel.AspNetUsers>
+@using PagedList.Mvc;
+@{
+    ViewBag.Title = "العملاء";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var i = ((Model.PageNumber - 1) * 20) + 1;
+}
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+
+<br />
+<div class="input-group" style="width:80%;margin:auto">
+    <span class="input-group-append">
+        <button class="btn btn-outline-secondary border-left-0 border" type="button" id="btnSearchInCustomers">
+            <i class="fa fa-search"></i>
+        </button>
+        <button class="btn btn-outline-secondary border-left-0 border" type="button" id="btnRemoveSearchInCustomers">
+            <i class="fa fa-times"></i>
+        </button>
+    </span>
+    <input id="Search" class="form-control py-2 border-right-0 border" placeholder="البحث" style="text-align:right!important;" value="@ViewBag.searchStr">
+</div>
+
+<br />
+<div class="card" dir="rtl" style="text-align:right" id="RefreshCust">
+    <div class="card-header text-center">
+        <h3 class="text-center">العملاء</h3>
+        <span>عرض</span>
+        <a class="btn btn-success" href="/Admin/Customers?page=1&userState=1">
+            @if (ViewBag.userState == 1)
+            {
+                <i class="fa fa-check-circle"></i>
+            }
+            <span>الغير محذوفين</span>
+        </a>
+        <a class="btn btn-danger" href="/Admin/Customers?page=1&userState=2">
+            @if (ViewBag.userState == 2)
+            {
+                <i class="fa fa-check-circle"></i>
+            }
+            <span>المحذوفين</span>
+        </a>
+        <a class="btn btn-primary" href="/Admin/Customers?page=1&userState=3">
+            @if (ViewBag.userState == 3)
+            {
+                <i class="fa fa-check-circle"></i>
+            }
+            <span>الكل</span>
+        </a>
+        @*<button type="button" class="btn btn-success" onclick="GetUsers(1);"><i class="fa fa-check-circle" id="i1"></i> <span>الغير محذوفين</span></button>
+        <button type="button" class="btn btn-danger" onclick="GetUsers(2);"><i class="fa fa-check-circle" id="i2" style="display:none"></i> <span>المحذوفين</span></button>
+        <button type="button" class="btn btn-primary" onclick="GetUsers(3);"><i class="fa fa-check-circle" id="i3" style="display:none"></i> <span>الكل</span></button>*@
+    
+    </div>
+    <div class="card-body">
+        <table class="table m-0 table-colored-bordered table-bordered-info table-bordered table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th>#</th>
+                    <th>الاسم</th>
+                    <th>رقم الهاتف</th>
+                    <th>تاريخ التسجيل</th>
+                    <th>عدد الطلبات المنتهية</th>
+                    <th>عدد الطلبات الملغية</th>
+                    <th>اجراءات</th>
+                </tr>
+            </thead>
+            <tbody id="ActiveUsers">
+
+                @foreach (var item in Model)
+                {
+                    <tr class="Search">
+                        <td>@i</td>
+                        <td>
+                            @if(item.ARName != null)
+                            {
+                                <span>@item.ARName</span>
+                            }
+                            else
+                            {
+                                <span>@item.Name</span>
+                            }
+                        </td>
+                        <td>@item.PhoneNumber</td>
+                        <td>
+                            @if(item.CreatedDateTime != null)
+                            {
+                                <span>@(((DateTime)item.CreatedDateTime).ToString("dd/MM/yyyy"))</span>
+                            }
+                        </td>
+                        <td>@item.FWYInvoiceOrder.Where(c => c.OrderTypeID == 5).ToList().Count</td>
+                        <td>@item.FWYInvoiceOrder.Where(c => c.OrderTypeID == 6).ToList().Count</td>
+                        <td>
+                            <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                                <div class="btn-group" role="group">
+                                    <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        الاجراءات
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                        <a class="dropdown-item" href="/Customer/EditCustomerProfile/@item.Id">تعديل</a>
+                                        <a href="javascript:void(0)" class="dropdown-item text-danger" onclick="BlockUser('@item.Id')">حذف</a>
+                                        <a class="dropdown-item" href="/Admin/Orders?CustomerID=@item.Id">الطلبات</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    i++;
+                }
+
+            </tbody>
+            @*<tbody id="DisActiveUsers" style="display:none;">
+
+                @foreach (var item in Model.Where(c => c.IsDeleted == true))
+                {
+                    <tr style="color:red;">
+                        <td>@item.ARName</td>
+                        <td>@item.PhoneNumber</td>
+                        <td>@item.FWYInvoiceOrder.Where(c => c.OrderTypeID == 5).ToList().Count</td>
+                        <td>@item.FWYInvoiceOrder.Where(c => c.OrderTypeID == 6).ToList().Count</td>
+                        <td>
+                            <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                                <div class="btn-group" role="group">
+                                    <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        الاجراءات
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                        <a class="dropdown-item" href="/Customer/EditCustomerProfile/@item.Id">تعديل</a>
+                                        <a href="javascript:void(0)" class="dropdown-item text-success" onclick="UnBlockUser('@item.Id')">استرجاع</a>
+                                        <a class="dropdown-item" href="/Admin/Orders?CustomerID=@item.Id">الطلبات</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    i++;
+                }
+
+            </tbody>*@
+        </table>
+    </div>
+
+    <div style="text-align:center!important">
+        <h5>
+            Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+        </h5>
+        <p>
+            @Html.PagedListPager(Model, page => Url.Action("Customers",
+                   new { page }))
+        </p>
+    </div>
+</div>
+
+<script src="~/Content/vendor/jquery/jquery-3.2.1.min.js"></script>
+
+<script>
+    function BlockUser(ID) {
+        $.ajax({
+            url: '@Url.Action("BlockUser", "Admin")',
+            type: 'GET',
+            cache: false,
+            data: { ID: ID }
+        }).done(function (result) {
+            $("#RefreshCust").load(window.location.href + " #RefreshCust");
+            swal("تم", "تم حذف المستخدم بنجاح", "success");
+        });
+    }
+
+    function UnBlockUser(ID) {
+        $.ajax({
+            url: '@Url.Action("UnBlockUser", "Admin")',
+            type: 'GET',
+            cache: false,
+            data: { ID: ID }
+        }).done(function (result) {
+            $("#RefreshCust").load(window.location.href + " #RefreshCust");
+            swal("تم", "تم استرجاع المستخدم بنجاح", "success");
+        });
+    }
+    //var userType = 1;
+    //function GetUsers(num) {
+    //    if (num == 1) {
+    //        $("#ActiveUsers").show();
+    //        $("#DisActiveUsers").hide();
+    //        $("#i1").show();
+    //        $("#i2").hide();
+    //        $("#i3").hide();
+    //        userType = 1;
+    //    }
+    //    else if (num == 2) {
+    //        $("#DisActiveUsers").show();
+    //        $("#ActiveUsers").hide();
+    //        $("#i2").show();
+    //        $("#i1").hide();
+    //        $("#i3").hide();
+    //        userType = 2;
+    //    }
+    //    else {
+    //        $("#ActiveUsers").show();
+    //        $("#DisActiveUsers").show();
+    //        $("#i3").show();
+    //        $("#i1").hide();
+    //        $("#i2").hide();
+    //        userType = 3;
+    //    }
+    //}
+
+    $(".pagination a").click(function () {
+        var url = $(this).attr("href");
+        $(this).attr("href", url + "&userState=@ViewBag.userState&searchStr=@ViewBag.searchCtr");
+    });
+
+    $("#btnRemoveSearchInCustomers").click(function () {
+        $("#Search").val("");
+        var searchText = $("#Search").val().toLowerCase();
+        var currentUrl = "@Context.Request.Path";
+        window.location.href = currentUrl + "?page=1&userState=@ViewBag.userState&searchStr=" + searchText;
+    });
+
+    $("#btnSearchInCustomers").click(function () {
+        var searchText = $("#Search").val().toLowerCase();
+        var currentUrl = "@Context.Request.Path";
+        window.location.href = currentUrl + "?page=1&userState=@ViewBag.userState&searchStr=" + searchText;
+    });
+
+</script>

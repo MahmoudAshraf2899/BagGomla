@@ -1,0 +1,237 @@
+﻿@model PagedList.IPagedList<IdentityLibrary.DataModel.FWYProduct>
+@using PagedList.Mvc;
+
+@using BagGomla.LocalResource;
+@using System.Globalization;
+@using System.Threading;
+@{
+    ViewBag.Title = "المنتجات";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var i = ((Model.PageNumber - 1) * 20) + 1;
+    var lang = "ar-EG";
+    var cultureInfo = new CultureInfo(lang);
+    Thread.CurrentThread.CurrentUICulture = cultureInfo;
+    Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture(cultureInfo.Name);
+    HttpCookie langCookie = new HttpCookie("culture", lang);
+    langCookie.Expires = DateTime.Now.AddYears(1);
+    HttpContext.Current.Response.Cookies.Add(langCookie);
+}
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+
+<br />
+<div class="input-group" style="width:80%;margin:auto">
+    <span class="input-group-append">
+        <button class="btn btn-outline-secondary border-left-0 border" type="button" id="btnSearchInProducts">
+            <i class="fa fa-search"></i>
+        </button>
+        <button class="btn btn-outline-secondary border-left-0 border" type="button" id="btnRemoveSearchInProducts">
+            <i class="fa fa-times"></i>
+        </button>
+    </span>
+    <input id="Search" class="form-control py-2 border-right-0 border" placeholder="البحث" style="text-align:right!important;" value="@ViewBag.searchStr">
+</div>
+
+<br />
+<div class="card" dir="rtl" style="text-align:right" id="RefreshPro">
+    <div class="card-header">
+        <h3 class="text-center">@Resource.Products</h3>
+    </div>
+    <div class="card-body">
+        <table class="table m-0 table-colored-bordered table-bordered-info table-bordered table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th>#</th>
+                    <th>@Resource.Image</th>
+                    <th>@Resource.Name</th>
+                    <th>@Resource.Price</th>
+                    <th>@Resource.TotalQuantity</th>
+                    <th>تاريخ الاضافة</th>
+                    <th>الموردين</th>
+                    <th>@Resource.SalesNumber</th>
+                    <th>@Resource.Category</th>
+                    @if (Model.Where(c => c.IsFeatured == true).ToList().Count > 0)
+                    {
+                <th>@Resource.IsFeaturedProduct</th>
+}
+                    <th>@Resource.Action</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var item in Model)
+                {
+                <tr class="Search">
+                    <td>@i</td>
+                    @if (item.FWYProductImage.Where(c => c.IsMain == true).Count() > 0)
+                    {
+                        var src = item.FWYProductImage.Where(c => c.IsMain == true).First().Image;
+                <td>
+                    <img src="/Images/Products/@src" width="70" height="70" style="border-radius:100%;" alt="">
+                </td> }
+                                else
+                                {
+                <td></td>}
+                    <td>@item.ARName</td>
+                    <td>@item.FinalPrice</td>
+                    <td>@item.TotalQuantity</td>
+                    <td>
+                            @if(item.CreatedDateTime != null)
+                            {
+                                <span>@(((DateTime)item.CreatedDateTime).ToString("dd/MM/yyyy"))</span>
+                            }
+                        </td>
+                    <td>
+                        @if(item.FWYStoreProduct != null && item.FWYStoreProduct.Count() > 0)
+                        {
+                            if(item.FWYStoreProduct.First().FWYStore != null)
+                            {
+                                if(item.FWYStoreProduct.First().FWYStore.AspNetUsers != null)
+                                {
+                                    <p>@item.FWYStoreProduct.First().FWYStore.AspNetUsers.ARName</p>
+                                }
+                            }
+                        }
+                    </td>
+                    <td>@item.SalesNum</td>
+                    @if (item.FWYCategory != null)
+                    {
+                <td>@item.FWYCategory.ARName</td> }
+                                else
+                                {
+                <td></td>}
+
+                    @if (Model.Where(c => c.IsFeatured == true).ToList().Count > 0)
+                    {
+                        if (item.IsFeatured == true)
+                        {
+                <td>@Resource.Yes</td> }
+                                    else
+                                    {
+                <td>@Resource.No</td>}
+                                }
+                    <td>
+                        <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                            <div class="btn-group" role="group">
+                                <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    @Resource.Action
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    @if (item.IsAvailable == false && item.IsFeatured == true)
+                                    {
+                    <a href="javascript:void(0)" class="dropdown-item" onclick="AcceptProduct('@item.ID','1')">@Resource.Accept</a> }
+                                    else if (item.IsAvailable == true && item.IsFeatured == true)
+                                    {
+                    <a href="javascript:void(0)" class="dropdown-item" onclick="AcceptProduct('@item.ID','0')">@Resource.Reject</a>}
+                                    @if (item.Show == false)
+                                    {
+                    <a href="javascript:void(0)" class="dropdown-item" onclick="AddInHomePage('@item.ID')">@Resource.AddProduct</a>}
+                                    @if (item.Show == true)
+                                    {
+                    <a href="javascript:void(0)" class="dropdown-item" onclick="RemoveFromHomePage('@item.ID')">@Resource.RemoveProduct</a>}
+                                    @if (item.FWYStoreProduct.Count > 0)
+                                    {
+                    <a class="dropdown-item" href="/FWYStores/EditCreateProduct/@item.ID?StoreID=@item.FWYStoreProduct.First().StoreID">@Resource.Edit</a>}
+                                    <a class="dropdown-item" href="/FWYStores/ProductDetails/@item.ID">@Resource.Details</a>
+                                    <a href="javascript:void(0)" class="dropdown-item" onclick="DelProduct('@item.ID')">@Resource.Delete</a>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                    </td>
+                </tr>
+                    i++;
+                }
+
+            </tbody>
+        </table>
+    </div>
+
+    <div style="text-align:center!important">
+        <h5>
+            Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+        </h5>
+        <p>
+            @Html.PagedListPager(Model, page => Url.Action("Products",
+                   new { page }))
+        </p>
+    </div>
+
+
+</div>
+
+<script src="~/Content/vendor/jquery/jquery-3.2.1.min.js"></script>
+
+<script>
+
+    function AddInHomePage(ID) {
+        $.ajax({
+            url: '@Url.Action("AddInHomePage", "Admin")',
+            type: 'GET',
+            cache: false,
+            data: { ID: ID}
+        }).done(function (result) {
+            $("#RefreshPro").load(window.location.href + " #RefreshPro");
+              swal("@Resource.Done", "success");
+        });
+    }
+     function RemoveFromHomePage(ID) {
+        $.ajax({
+            url: '@Url.Action("RemoveFromHomePage", "Admin")',
+            type: 'GET',
+            cache: false,
+            data: { ID: ID}
+        }).done(function (result) {
+            $("#RefreshPro").load(window.location.href + " #RefreshPro");
+              swal("@Resource.Done", "success");
+        });
+    }
+    function AcceptProduct(ID, TypeID) {
+        $.ajax({
+            url: '@Url.Action("AcceptProduct", "Admin")',
+            type: 'GET',
+            cache: false,
+            data: { ID: ID, TypeID: TypeID }
+        }).done(function (result) {
+            $("#RefreshPro").load(window.location.href + " #RefreshPro");
+            if (TypeID==0) {
+                swal("@Resource.Done", "@Resource.Reject", "success");
+            }
+            else {
+                swal("@Resource.Done", "@Resource.Accept", "success");
+            }
+        });
+    }
+    function DelProduct(ID) {
+        $.ajax({
+            url: '@Url.Action("DeleteProduct", "Admin")',
+            type: 'GET',
+            cache: false,
+            data: { ID: ID }
+        }).done(function (result) {
+            $("#RefreshPro").load(window.location.href + " #RefreshPro");
+            swal("@Resource.Done", "@Resource.DataDeleted", "success");
+        });
+    }
+
+
+     $(".pagination a").click(function () {
+         var url = $(this).attr("href");
+         $(this).attr("href", url + "&IsFeatured=@ViewBag.IsFeatured&SellerID=@ViewBag.SellerID&IsShow=@ViewBag.IsShow&searchStr=@ViewBag.searchStr");
+     });
+
+    $("#btnRemoveSearchInProducts").click(function () {
+        $("#Search").val("");
+        var searchText = $("#Search").val().toLowerCase();
+        var currentUrl = "@Context.Request.Path";
+        window.location.href = currentUrl + "?page=1&IsFeatured=@ViewBag.IsFeatured&SellerID=@ViewBag.SellerID&IsShow=@ViewBag.IsShow&searchStr=" + searchText;
+    });
+
+    $("#btnSearchInProducts").click(function () {
+        var searchText = $("#Search").val().toLowerCase();
+        var currentUrl = "@Context.Request.Path";
+        window.location.href = currentUrl + "?page=1&IsFeatured=@ViewBag.IsFeatured&SellerID=@ViewBag.SellerID&IsShow=@ViewBag.IsShow&searchStr=" + searchText;
+    });
+
+</script>

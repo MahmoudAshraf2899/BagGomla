@@ -1,0 +1,334 @@
+﻿@using BagGomla.Models
+@using BagGomla.LocalResource;
+
+@model ProductModel
+@{
+    ViewBag.Title = "Index";
+    if (User.Identity.IsAuthenticated)
+    {
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_DefualtLayout.cshtml";
+    }
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+
+}
+<head>
+    <link href="~/Content/css/desk_and_mobile.css" rel="stylesheet" />
+    <style>
+        .filter-link:hover{
+            cursor:pointer;
+        }
+        .block2-btn:hover {
+            color: white !important;
+        }
+    </style>
+</head>
+<div class="bg0 m-t-23 p-b-140">
+    <div class="container">
+        @*header*@
+        <div class="flex-w flex-sb-m p-b-52">
+           @* <div class="flex-w flex-l-m filter-tope-group m-tb-10">
+                <button onclick="FilterProductsByCategory('0');" class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 how-active1" data-filter="*">
+                    @Resource.Products
+                </button>
+                @foreach (var item in Model.CategoryList)
+                {
+                    if (lang == "ar-EG")
+                    {
+                        <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" onclick="GetCategoryList('@item.ID');">
+                            @item.ARName
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" onclick="GetCategoryList('@item.ID');">
+                            @item.Name
+                        </button>
+                    }
+
+                }
+              
+              
+            </div>*@
+
+            <div class="flex-w flex-c-m m-tb-10">
+                <div class="flex-c-m stext-106 cl6 size-104 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4 js-show-filter">
+                    <i class="icon-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-filter-list"></i>
+                    <i class="icon-close-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
+                    @Resource.Filter
+                </div>
+
+                <div class="flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-tb-4 js-show-search">
+                    <i class="icon-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-search"></i>
+                    <i class="icon-close-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
+                    @Resource.Search
+                </div>
+            </div>
+
+            <!-- Search product -->
+            <div class="dis-none panel-search w-full p-t-10 p-b-15">
+                <div class="bor8 dis-flex p-l-15">
+                    <button class="size-113 flex-c-m fs-16 cl2 hov-cl1 trans-04">
+                        <i class="zmdi zmdi-search"></i>
+                    </button>
+
+                    <input id="Search" class="mtext-107 cl2 size-114 plh2 p-r-15" type="text" name="search-product" placeholder="@Resource.Search">
+                </div>
+            </div>
+
+            <!-- Filter -->
+            <div class="dis-none panel-filter w-full p-t-10">
+                <div class="wrap-filter flex-w bg6 w-full p-lr-40 p-t-27 p-lr-15-sm">
+                    <div class="filter-col1 p-r-15 p-b-27">
+                        <div class="mtext-102 cl2 p-b-15">
+                            @Resource.SortBy
+                        </div>
+
+                        <ul>
+                            <li class="p-b-6">
+                                <a onclick="Filter('SortBy',1);" class="filter-link stext-106 trans-04">
+                                    @Resource.Default
+                                </a>
+                            </li>
+
+                            <li class="p-b-6">
+                                <a onclick="Filter('SortBy',2);" class="filter-link stext-106 trans-04">
+                                    @Resource.BestSeller
+                                </a>
+                            </li>
+
+                            <li class="p-b-6">
+                                <a onclick="Filter('SortBy',3);" class="filter-link stext-106 trans-04">
+                                    @Resource.Price: @Resource.LowtoHigh
+                                </a>
+                            </li>
+
+                            <li class="p-b-6">
+                                <a onclick="Filter('SortBy',4);" class="filter-link stext-106 trans-04">
+                                    @Resource.Price: @Resource.HightoLow
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    @*<div class="filter-col2 p-r-15 p-b-27">
+                        <div class="mtext-102 cl2 p-b-15">
+                            @Resource.Price
+                        </div>
+
+                        <ul>
+                            <li class="p-b-6">
+                                <a onclick="Filter('Price',1);" class="filter-link stext-106 trans-04 filter-link">
+                                    @Resource.All
+                                </a>
+                            </li>
+
+                            <li class="p-b-6">
+                                <a onclick="Filter('Price',2);" class="filter-link stext-106 trans-04">
+                                    EGP0.00 - $50.00
+                                </a>
+                            </li>
+
+                            <li class="p-b-6">
+                                <a onclick="Filter('Price',3);" class="filter-link stext-106 trans-04">
+                                    EGP50.00 - $100.00
+                                </a>
+                            </li>
+
+                            <li class="p-b-6">
+                                <a onclick="Filter('Price',4);" class="filter-link stext-106 trans-04">
+                                    EGP100.00 - $150.00
+                                </a>
+                            </li>
+
+                            <li class="p-b-6">
+                                <a onclick="Filter('Price',5);" class="filter-link stext-106 trans-04">
+                                    EGP150.00 - $200.00
+                                </a>
+                            </li>
+
+                            <li class="p-b-6">
+                                <a onclick="Filter('Price',6);" class="filter-link stext-106 trans-04">
+                                    EGP200.00+
+                                </a>
+                            </li>
+                        </ul>
+                    </div>*@
+
+                    @*<div class="filter-col4 p-b-27">
+                        <div class="mtext-102 cl2 p-b-15">
+                            @Resource.Categories
+                        </div>
+
+                        <div class="flex-w p-t-4 m-r--5">
+                            <a onclick="Filter('Tag','0');" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">
+                                @Resource.All
+                            </a>
+                            @foreach (var item in Model.WWCategoryList)
+                            {
+                                <a onclick="Filter('Tag','@item.ID');" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">
+                                    @item.Name
+                                </a>
+                            }
+                        </div>
+                    </div>*@
+
+                    <div class="filter-col4 p-b-27">
+                        <div class="mtext-102 cl2 p-b-15">
+                            @Resource.Supplier
+                        </div>
+
+                        <div class="flex-w p-t-4 m-r--5">
+                            <select class="form-control" id="selectSupplierID" onchange="SelectSupplier(this);">
+                                <option value="0">@Resource.Select @Resource.Supplier</option>
+                                @foreach(var item in Model.Suppliers)
+                                {
+                                    <option value="@item.Id">@item.Name</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="dis-none w-full p-t-10" id="dvCategoryList">
+                @Html.Partial("_CategoryList",Model)
+            </div>
+        </div>
+        <div id="ProductList">
+            @Html.Partial("_ProductList", Model)
+        </div>                   
+    </div>
+
+    <form>
+        <input type="hidden" id="SortBy" value="0" />
+        <input type="hidden" id="Price" value="0" />
+        <input type="hidden" id="Tag" value="0" />
+        <input type="hidden" id="SupplierID" value="0" />
+    </form>
+</div>
+
+
+@*<div class="animsition-loading-1" style="display:none;" id="dvLoading"><div class="loader05"></div></div>*@
+
+<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+@*<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>*@
+
+<script>
+    $(document).ready(function () {
+        function Contains(text_one, text_two) {
+            if (text_one.indexOf(text_two) != -1)
+                return true;
+        }
+        $("#Search").keyup(function () {
+            var searchText = $("#Search").val().toLowerCase();
+            $(".Search").each(function () {
+                if (!Contains($(this).text().toLowerCase(), searchText)) {
+                    $(this).hide();
+                }
+                else {
+                    $(this).show();
+                }
+            });
+        });
+    });
+
+    function SelectSupplier(element) {
+        var eVal = element.value;
+        //alert(eVal);
+        Filter("SupplierID", eVal);
+    }
+
+    function Filter(FilterBy, Key)
+    {
+        $("#dvLoading").show();
+        if (FilterBy == "SortBy") {
+            $("#SortBy").val(Key);
+        }
+        else if (FilterBy == "Price") {
+            $("#Price").val(Key);
+        }
+        else if (FilterBy == "SupplierID") {
+            $("#SupplierID").val(Key);
+        }
+        else {
+            $("#Tag").val(Key);
+        }
+        var SortBy = Number($("#SortBy").val());
+        var Price = Number($("#Price").val());
+        var Tag = Number("@Model.CategoryID");
+        var SupplierID = $("#SupplierID").val();
+        debugger;
+
+        if (Number("@ViewBag.SortBy") != 0) {
+            if (SortBy != Number("@ViewBag.SortBy")) {
+                SortBy = Number("@ViewBag.SortBy");
+            }
+        }
+        if (Number("@ViewBag.Price") != 0) {
+            if (Price != Number("@ViewBag.Price")) {
+                Price = Number("@ViewBag.Price");
+            }
+        }
+        if (Number("@ViewBag.SupplierID") != 0) {
+            if (SupplierID != Number("@ViewBag.SupplierID")) {
+                SupplierID = Number("@ViewBag.SupplierID");
+            }
+        }
+
+        $.ajax({
+            url: '@Url.Action("FilterProducts", "Products")',
+            type: 'GET',
+            cache: false,
+            data: { SortBy: SortBy, Price: Price, Tag: Tag, SupplierID: SupplierID }
+        }).done(function (result) {
+            $('#ProductList').empty();
+            $('#ProductList').html(result);
+            $("#dvLoading").hide();
+        });
+    }
+
+    function GetCategoryList(CategoryID) {
+        $("#dvLoading").show();
+        if ($('.js-show-search').hasClass('show-search')) {
+            $('.js-show-search').removeClass('show-search');
+            $('.panel-search').slideUp(400);
+        }
+        if ($('.js-show-filter').hasClass('show-filter')) {
+            $('.js-show-filter').removeClass('show-filter');
+            $('.panel-filter').slideUp(400);
+        }
+        $.ajax({
+            url: '@Url.Action("GetSubCategories", "Products")',
+            type: 'GET',
+            cache: false,
+            data: { CategoryID: CategoryID }
+        }).done(function (result) {
+            $('#dvCategoryList').empty();
+            $('#dvCategoryList').html(result);
+            FilterProductsByCategory(CategoryID);
+        });
+        $("#dvCategoryList").show(400);
+        $("#dvLoading").hide();
+    }
+
+
+    function FilterProductsByCategory(CategoryID) {
+        $("#dvLoading").show();
+        $.ajax({
+            url: '@Url.Action("FilterProductsByCategory", "Products")',
+            type: 'GET',
+            cache: false,
+            data: { ID: CategoryID }
+        }).done(function (result) {
+            $('#ProductList').empty();
+            $('#ProductList').html(result);
+            $("#dvLoading").hide();
+        });
+    }
+
+</script>

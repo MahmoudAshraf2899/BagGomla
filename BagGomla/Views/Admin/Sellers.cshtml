@@ -1,0 +1,241 @@
+﻿@model PagedList.IPagedList<IdentityLibrary.DataModel.FWYSupplierCooperation>
+@using PagedList.Mvc;
+@{
+    ViewBag.Title = "الموردين";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var i = ((Model.PageNumber - 1) * 10) + 1;
+}
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+
+<br />
+<div class="input-group" style="width:80%;margin:auto">
+    <span class="input-group-append">
+        <button class="btn btn-outline-secondary border-left-0 border" type="button" id="btnSearchInSellers">
+            <i class="fa fa-search"></i>
+        </button>
+        <button class="btn btn-outline-secondary border-left-0 border" type="button" id="btnRemoveSearchInSellers">
+            <i class="fa fa-times"></i>
+        </button>
+    </span>
+    <input id="Search" class="form-control py-2 border-right-0 border" placeholder="البحث" style="text-align:right!important;" value="@ViewBag.searchStr">
+</div>
+
+<br />
+<div class="card" dir="rtl" style="text-align:right" id="RefreshSupp">
+    <div class="card-header text-center">
+        <h3 class="text-center">الموردين</h3>
+        <span>عرض</span>
+        <a  class="btn btn-success text-white" href="/Admin/Sellers?page=1&&filterSellerType=3">
+            @if (ViewBag.filterSellerType == 3)
+            {
+                <i class="fa fa-check-circle"></i>
+            }
+            <span>الغير محذوفين</span>
+        </a>
+        <a class="btn btn-danger text-white" href="/Admin/Sellers?page=1&&filterSellerType=2">
+            @if (ViewBag.filterSellerType == 2)
+            {
+                <i class="fa fa-check-circle"></i>
+            }
+            <span>المحذوفين</span>
+        </a>
+        <a class="btn btn-primary text-white" href="/Admin/Sellers?page=1&&filterSellerType=1">
+            @if (ViewBag.filterSellerType == 1)
+            {
+                <i class="fa fa-check-circle"></i>
+            }
+            <span>الكل</span>
+        </a>
+    </div>
+    <div class="card-body">
+        <h2 class="text-center">@ViewBag.SellerType</h2>
+        <table class="table m-0 table-colored-bordered table-bordered-info table-bordered table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th>المنتجات</th>
+                    <th colspan="4" class="text-center">عدد الطلبات</th>
+                    <th></th>
+                </tr>
+                <tr>
+                    <th>#</th>
+                    <th>المورد</th>
+                    <th>الشركة</th>
+                    <th>تاريخ التسجيل</th>
+                    <th>عددها</th>
+                    <th>المعلقة</th>
+                    <th>المنتهية</th>
+                    <th>المرفوضة</th>
+                    <th>اجمالي</th>
+                    <th>اجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.ToList())
+                {
+                    var productsnum = 0;
+                    if(item.AspNetUsers.FWYStore !=  null && item.AspNetUsers.FWYStore.Count() > 0)
+                    {
+                        foreach(var st in item.AspNetUsers.FWYStore)
+                        {
+                            productsnum += st.FWYStoreProduct.Select(c => c.ProductID).Distinct().Count();
+                        }
+                    }
+        <tr class="Search">
+                <td>@i</td>
+            <td>@item.AspNetUsers.Name</td>
+            @if (item.Name != null)
+            {
+        <td>@item.Name</td> }
+                        else
+                        {
+        <td>@item.AspNetUsers.Name</td>}
+                <td>
+                            @if(item.AspNetUsers.CreatedDateTime != null)
+                            {
+                                <span>@(((DateTime)item.AspNetUsers.CreatedDateTime).ToString("dd/MM/yyyy"))</span>
+                            }
+                        </td>
+                <td>@productsnum</td>
+            <td>@item.AspNetUsers.FWYInvoiceOrder1.Where(c => c.OrderTypeID == 1).ToList().Count</td>
+            <td>@item.AspNetUsers.FWYInvoiceOrder1.Where(c => c.OrderTypeID == 5).ToList().Count</td>
+            <td>@item.AspNetUsers.FWYInvoiceOrder1.Where(c => c.OrderTypeID == 6).ToList().Count</td>
+            <td>@item.AspNetUsers.FWYInvoiceOrder1.Count</td>
+
+            <td>
+                <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                    <div class="btn-group" role="group">
+                        <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            الاجراءات
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                            <a class="dropdown-item" href="/SupplierCorporation/EditSupProfile/@item.AspNetUsers.Id">تعديل</a>
+                            @if(item.AspNetUsers.IsDeleted == false)
+                            {
+                                <a href="javascript:void(0)" class="dropdown-item text-danger" onclick="BlockUser('@item.AspNetUsers.Id')">حذف</a>
+
+                            }
+                            else
+                            {
+                                 <a href="javascript:void(0)" class="dropdown-item text-danger" onclick="UnBlockUser('@item.AspNetUsers.Id')">استرجاع</a>
+                            }
+                            <a class="dropdown-item" href="/Admin/Products?SellerID=@item.AspNetUsers.Id">المنتجات</a>
+                            <a class="dropdown-item" href="/Admin/Orders?SellerID=@item.AspNetUsers.Id">الطلبات</a>
+                            @if (item.IsVerified == true)
+                            {
+            <a class="dropdown-item" href="javascript:void(0)" onclick="UntrustedSupplier('@item.AspNetUsers.Id', '0')">غير موثوق</a> }
+                            else
+                            {
+            <a class="dropdown-item" href="javascript:void(0)" onclick="UntrustedSupplier('@item.AspNetUsers.Id', '1')"> موثوق</a>}
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>i++;
+                    }
+            </tbody>
+        </table>
+    </div>
+
+    <div style="text-align:center!important">
+        <h5>
+            Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+        </h5>
+        <p>
+            @Html.PagedListPager(Model, page => Url.Action("Sellers",
+                   new { page }))
+        </p>
+    </div>
+</div>
+
+<script src="~/Content/vendor/jquery/jquery-3.2.1.min.js"></script>
+
+<script>
+
+    function UntrustedSupplier(SellerID, ID) {
+        $.ajax({
+            url: '@Url.Action("UntrustedSupplier", "Admin")',
+            type: 'GET',
+            cache: false,
+            data: {SellerID:SellerID , ID:ID }
+        }).done(function (result) {
+            $("#RefreshSupp").load(window.location.href + " #RefreshSupp");
+            swal("تم", "تم تعديل حاله البائع بنجاح", "success");
+        });
+    }
+
+    function BlockUser(ID) {
+        $.ajax({
+            url: '@Url.Action("BlockUser", "Admin")',
+            type: 'GET',
+            cache: false,
+            data: { ID: ID }
+        }).done(function (result) {
+            //$("#RefreshSupp").load(window.location.href + " #RefreshSupp");
+            swal("تم", "تم حذف المستخدم بنجاح", "success").then(function () {
+                window.location.href = "";
+            });
+        });
+    }
+
+    function UnBlockUser(ID) {
+        $.ajax({
+            url: '@Url.Action("UnBlockUser", "Admin")',
+            type: 'GET',
+            cache: false,
+            data: { ID: ID }
+        }).done(function (result) {
+            //$("#RefreshSupp").load(window.location.href + " #RefreshSupp");
+            swal("تم", "تم استرجاع المستخدم بنجاح", "success").then(function () {
+                window.location.href = "";
+            });
+        });
+    }
+
+    //function GetUsers(num) {
+    //    if (num == 1) {
+    //        $("#AllUsers").hide();
+    //        $("#DisActiveUsers").hide();
+    //        $("#ActiveUsers").show();
+    //        $("#i1").show();
+    //        $("#i2").hide();
+    //        $("#i3").hide();
+    //    }
+    //    else if (num == 2) {
+    //        $("#DisActiveUsers").show();
+    //        $("#ActiveUsers").hide();
+    //        $("#i2").show();
+    //        $("#i1").hide();
+    //        $("#i3").hide();
+    //    }
+    //    else {
+    //        $("#ActiveUsers").show();
+    //        $("#DisActiveUsers").show();
+    //        $("#i3").show();
+    //        $("#i1").hide();
+    //        $("#i2").hide();
+    //    }
+    //}
+
+    $(".pagination a").click(function () {
+        var url = $(this).attr("href");
+        $(this).attr("href", url + "&filterSellerType=@ViewBag.filterSellerType&searchStr=@ViewBag.searchStr");
+    });
+
+    $("#btnRemoveSearchInSellers").click(function () {
+        $("#Search").val("");
+        var searchText = $("#Search").val().toLowerCase();
+        var currentUrl = "@Context.Request.Path";
+        window.location.href = currentUrl + "?page=1&filterSellerType=@ViewBag.filterSellerType&searchStr=" + searchText;
+    });
+
+    $("#btnSearchInSellers").click(function () {
+        var searchText = $("#Search").val().toLowerCase();
+        var currentUrl = "@Context.Request.Path";
+        window.location.href = currentUrl + "?page=1&filterSellerType=@ViewBag.filterSellerType&searchStr=" + searchText;
+    });
+</script>
+

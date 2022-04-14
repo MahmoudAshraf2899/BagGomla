@@ -1,0 +1,138 @@
+﻿@using BagGomla.Models
+
+@model ProductModel
+@using BagGomla.LocalResource
+@{
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+}
+<div class="row" id="block2Div">
+    @foreach (var item in Model.ProductList)
+    {
+        var img = "";
+        var CompID = 0;
+        var SupName = "";
+        var Check = false;
+        if (item.FWYProductImage.Where(c => c.IsMain == true).ToList().Count > 0)
+        {
+            img = item.FWYProductImage.First().Image;
+            if (item.FWYStoreProduct.Count != 0)
+            {
+                if (item.FWYStoreProduct.First().FWYStore.AspNetUsers.FWYSupplierCooperation.Count != 0)
+                {
+                    if (lang == "ar-EG")
+                    {
+                        SupName = item.FWYStoreProduct.First().FWYStore.AspNetUsers.ARName;
+                    }
+                    else
+                    {
+                        SupName = item.FWYStoreProduct.First().FWYStore.AspNetUsers.Name;
+                    }
+
+                    CompID = item.FWYStoreProduct.First().FWYStore.AspNetUsers.FWYSupplierCooperation.First().ID;
+                    Check = item.FWYStoreProduct.First().FWYStore.AspNetUsers.FWYSupplierCooperation.First().IsVerified;
+                }
+            }
+        }
+
+        <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item women Search">
+            <!-- Block2 -->
+            <div class="block2">
+                <div class="block2-pic hov-img0">
+                    <img src="@img" alt="IMG-PRODUCT" height="250">
+
+                    <a onclick="ViewProduct('@item.ID');" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04" style="cursor:pointer;">
+                        @Resource.QuickView
+                    </a>
+                </div>
+
+                <div class="block2-txt flex-w flex-t p-t-14">
+                    <div class="block2-txt-child1 flex-col-l ">
+                        @if (lang == "ar-EG")
+                        {
+                            <a href="/Products/Details/@item.ID" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+                                @item.ARName
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="/Products/Details/@item.ID" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+                                @item.Name
+                            </a>
+                        }
+
+                        @if (item.FWYProductPriceRange.Count > 0)
+                        {
+                            var min = item.FWYProductPriceRange.Min(c => c.Price);
+                            var max = item.FWYProductPriceRange.Max(c => c.Price);
+                            <span class="stext-105 cl3">
+                                @Resource.Price: @Resource.From @min @Resource.To @max
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="stext-105 cl3">
+                                @Resource.Price: @Resource.From @item.FinalPrice @Resource.To @item.FinalPrice
+                            </span>
+                        }
+                        
+                        @if (item.LessQuantityGomla != null)
+                        {
+                            <span class="stext-105 cl3">
+                                @Resource.LessQuanGomla: @item.LessQuantityGomla
+                            </span>
+                        }
+                       
+
+                        @if (Check == true)
+                        {
+                            <a href="/SupplierCorporation/CompanyProducts/@CompID" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+                                <p class="text-success font-weight-bold">
+                                    @SupName  <i class="fa fa-check-circle text-success" aria-hidden="true"> </i>
+                                </p>
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="/SupplierCorporation/CompanyProducts/@CompID" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+                                <p class="text-secondary font-weight-bold">
+                                    @SupName  <i class="fa fa-check-circle text-secondary" aria-hidden="true"> </i>
+                                </p>
+                            </a>
+                        }
+
+
+                    </div>
+                    <div class="block2-txt-child2 flex-r p-t-3">
+                        @if (BagGomla.Helper.TagHelper.CookiesHereOrNot(Request.Cookies["Fav"], item.ID) == true)
+                        {
+                            <a class="btn-addwish-b2 dis-block pos-relative js-addedwish-b2" onclick="RemoveFav(@item.ID)">
+                                <img class="icon-heart2 dis-block trans-04 ab-t-l" src="~/Images/icons/icon-heart-02.png" alt="ICON">
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="btn-addwish-b2 dis-block pos-relative js-addwish-b2" onclick="AddFav(@item.ID)">
+                                <img class="icon-heart1 dis-block trans-04" src="~/Images/icons/icon-heart-01.png" alt="ICON">
+                                <img class="icon-heart2 dis-block trans-04 ab-t-l" src="~/Images/icons/icon-heart-02.png" alt="ICON">
+                            </a>
+                        }
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+@*<!-- End -->
+<!-- Load more -->
+<div class="flex-c-m flex-w w-full p-t-45">
+    <a href="#" class="flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">
+        @Resource.LoadMore
+    </a>
+</div>*@
+
+
+
+

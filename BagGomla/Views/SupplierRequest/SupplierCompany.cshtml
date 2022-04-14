@@ -1,0 +1,218 @@
+﻿@model IdentityLibrary.DataModel.FWYSupplierCooperation
+@using Microsoft.AspNet.Identity;
+@using BagGomla.LocalResource
+@{
+    ViewBag.Title = "صفحة التاجر";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+
+}
+
+@if (ViewBag.ProfilePicture != "" && ViewBag.ProfilePicture != null)
+{
+    <div class="profile-cover border-bottom">
+        <img src="@ViewBag.ProfilePicture" height="400" width="100%" alt="">
+    </div>
+}
+
+
+<section class="mx-auto">
+
+
+    <div class="container">
+        <div class="row no-gutters">
+
+            <div class="col-md-3">
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        لوجو الشركه
+                    </div>
+                    <div class="card-body">
+                        <img src="@Model.Logo" class="img-fluid rounded-circle img-thumbnail" alt="">
+                    </div>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header">
+                        حاله الشخص
+                    </div>
+                    <div class="card-body">
+                        @if (Model.IsAccepted == true)
+                        {
+                            if (Model.IsVerified == true)
+                            {
+                                <p class="text-success font-weight-bold">موثوق منه <i class="fa fa-check-circle text-success" aria-hidden="true"></i></p>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-warning" onclick="VerifySupplier(@Model.ID)">تحقق</button>
+                            }
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-primary" onclick="AcceptRequest(@Model.ID)">موافق</button>
+                        }
+
+                        @if (Model.AllowAddStore == false)
+                        {
+                            <a href="/SupplierRequest/AllowAddStore/@Model.ID?state=true" class="btn btn-success">@Resource.AllowAddStore</a>
+                        }
+                        else
+                        {
+                            <a href="/SupplierRequest/AllowAddStore/@Model.ID?state=false" class="btn btn-danger">@Resource.DisAllowAddStore</a>
+                        }
+
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        سوشيال نتورك
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled d-flex">
+                            <li class="mx-2"><a href="@Model.Facebook"><i class="fa fa-facebook-f" aria-hidden="true"></i></a></li>
+                            <li class="mx-2"><a href="@Model.Instagram"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+                            <li class="mx-2"><a href="@Model.Linkedin"><i class="fa fa-telegram" aria-hidden="true"></i></a></li>
+                        </ul>
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-md-9 pl-17">
+
+                <!-- ======================== About Company ========================== -->
+
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        نبذه مختصرة
+                    </div>
+                    <div class="card-body">
+
+                        <p>
+                            @Model.ArAbout
+                        </p>
+
+                    </div>
+                </div>
+
+                <!-- -------------------------------------------------------------------- -->
+
+                <div class="card mt-4 ">
+                    <div class="card-header">
+                       معلومات اساسيه
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+
+                            <div class="col-md-6">
+                                <p>اسم الشخص</p>
+
+                            </div>
+                            <div class="col-md-6">
+                                <p>@Model.AspNetUsers.Name</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p>اسم الشركه:</p>
+
+                            </div>
+                            <div class="col-md-6">
+                                <p>@Model.Name</p>
+                            </div>
+
+                            <div class="col-md-6">
+                                <p> العنوان:</p>
+
+                            </div>
+                            <div class="col-md-6">
+                                <p>@Model.Address</p>
+                            </div>
+
+                            <div class="col-md-6">
+                                <p>رقم الموبيل:</p>
+
+                            </div>
+                            <div class="col-md-6">
+                                <p>@Model.Phone</p>
+                            </div>
+
+                            <div class="col-md-6">
+                                <p>لينك ويب سايت:</p>
+
+                            </div>
+                            <div class="col-md-6">
+                                <p>@Model.WebsiteUrl</p>
+                            </div>
+
+                        </div>
+
+
+
+
+                    </div>
+                </div>
+
+                <!-- ======================== About Company  End========================== -->
+
+                <div class="card mt-4 ">
+                    <div class="card-header">
+                        الملفات
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <p>صورة بطاقة الرقم القومي :</p>
+                            </div>
+                            <div class="col-md-9">
+                                @if (Model.NationalCopyID != null && Model.NationalCopyID != "")
+                                {
+                                    /// Account/DownloadFile/@Model.ID?type=0
+                                    <a href="#">
+                                        صورة بطاقة الرقم القومي
+                                    </a>
+                                }
+                            </div>
+
+                            <div class="col-md-3">
+                                <p>صورة السجل التجاري:</p>
+                            </div>
+                            <div class="col-md-9">
+                                @if (Model.CommericialRegister != null && Model.CommericialRegister != "")
+                                {
+                                    ///Account/DownloadFile/@Model.ID?type=1
+                                    <a href="#">
+                                        صورة السجل التجاري
+                                    </a>
+                                }
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+
+
+        </div>
+    </div>
+
+
+
+</section>
+
+
+<script>
+    function AcceptRequest(id) {
+        window.location.href = "/SupplierRequest/Accept/" + id;
+        swal("Done", "Data saved successfully", "success");
+    }
+
+    function VerifySupplier(id) {
+        window.location.href = "/SupplierRequest/Verify/" + id;
+        swal("Done", "Data saved successfully", "success");
+    }
+</script>

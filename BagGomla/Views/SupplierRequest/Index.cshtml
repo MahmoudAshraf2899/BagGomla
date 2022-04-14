@@ -1,0 +1,224 @@
+﻿@using BagGomla.LocalResource
+@model PagedList.IPagedList<IdentityLibrary.DataModel.FWYSupplierCooperation>
+@using PagedList.Mvc;
+@{
+    ViewBag.Title ="طلبات التجار للاشتراك";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var i = ((Model.PageNumber - 1) * 10) + 1;
+}
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+<br />
+<div class="input-group" style="width:80%;margin:auto">
+    <span class="input-group-append">
+        <button class="btn btn-outline-secondary border-left-0 border" type="button" id="btnSearchInRequests">
+            <i class="fa fa-search"></i>
+        </button>
+        <button class="btn btn-outline-secondary border-left-0 border" type="button" id="btnRemoveSearchInRequests">
+            <i class="fa fa-times"></i>
+        </button>
+    </span>
+    <input id="Search" class="form-control py-2 border-right-0 border" placeholder="البحث" style="text-align:right!important;" value="@ViewBag.searchStr">
+</div>
+<br />
+
+<section class="mx-auto" dir="rtl">
+    <div class="container">
+        <div class="row no-gutters">
+            <div class="col-md-12">
+                <div class="row align-items-md-center no-gutters">
+                    <h2 class="pt-3 font-italic pr-3">حاله الطلب</h2>
+                    <ul class="list-inline pt-3 tab-status">
+                        <li class="list-inline-item">
+                            <a class="btn btn-info" href="/SupplierRequest/Index?requestState=new">
+                                @if (ViewBag.RequestState == "new")
+                                {
+                                    <i class="fa fa-check-circle"></i>
+                                }
+                                <span>جديدة</span>
+                            </a>
+                        </li>
+                        <li class="list-inline-item">
+                            <a class="btn btn-success" href="/SupplierRequest/Index?requestState=accepted">
+                                @if (ViewBag.RequestState == "accepted")
+                                {
+                                    <i class="fa fa-check-circle"></i>
+                                }
+                                <span>مقبولة</span>
+                            </a>
+                        </li>
+                        <li class="list-inline-item">
+                            <a class="btn btn-warning" href="/SupplierRequest/Index?requestState=rejected">
+                                @if (ViewBag.RequestState == "rejected")
+                                {
+                                    <i class="fa fa-check-circle"></i>
+                                }
+                                <span>مرفوضة</span>
+                            </a>
+                        </li>
+                        <li class="list-inline-item">
+                            <a class="btn btn-danger" href="/SupplierRequest/Index?requestState=deleted">
+                                @if(ViewBag.RequestState == "deleted")
+                                {
+                                    <i class="fa fa-check-circle"></i>
+                                }
+                                <span>محذوفة</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+
+            <!-- Start Requests -->
+            @if (Model.ToList().Count > 0)
+            {
+                
+                <div class="col-md-12">
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <ul class="nav d-flex justify-content-between">
+                                <li>@ViewBag.RequestTitle (@ViewBag.RequestCount)</li>
+                            </ul>
+
+                        </div>
+                        <div class="card-body">
+                            <div class="sec-blog bg0 ">
+                                <div class="container">
+
+                                    <div class="row">
+                                        <div class="table-responsive">
+                                        <table class="table m-0 table-colored-bordered table-bordered-info table-bordered table-hover">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>الاسم</th>
+                                                    <th>الموبيل</th>
+                                                    <th>الايميل</th>
+                                                    <th>تاريخ التسجيل</th>
+                                                    <th>العنوان</th>
+                                                    <th>الشركه</th>
+                                                    @if (ViewBag.RequestState == "new" || ViewBag.RequestState == "accepted")
+                                                    {
+                                                        <th></th>
+                                                    }
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var item in Model)
+                                                {
+                                                <tr class="Search">
+                                                    <td>@i</td>
+                                                    <td>@item.AspNetUsers.Name</td>
+                                                    <td>@item.AspNetUsers.PhoneNumber</td>
+                                                    <td>@item.AspNetUsers.Email</td>
+                                                    <td>
+                                                        @if (item.AspNetUsers.CreatedDateTime != null)
+                                                        {
+                                                            <span>@(((DateTime)item.AspNetUsers.CreatedDateTime).ToString("dd/MM/yyyy"))</span>
+                                                        }
+                                                    </td>
+                                                    <td>@item.AspNetUsers.Address</td>
+                                                    <td><a href="/SupplierRequest/SupplierCompany/@item.ID">@item.Name</a></td>
+                                                     @if (ViewBag.RequestState == "new")
+                                                     {
+                                                         <td>
+                                                            <button type="button" class="btn btn-info" onclick="AcceptRequest(@item.ID)">قبول</button>
+                                                            <button type="button" class="btn btn-warning" onclick="RejectRequest(@item.ID)">رفض</button>
+                                                            <button type="button" class="btn btn-danger" onclick="DeleteRequest(@item.ID)">حذف</button>
+                                                        </td>
+                                                     }
+                                                     else if(ViewBag.RequestState == "accepted")
+                                                     {
+                                                         <td>
+                                                        @if (item.IsVerified == true)
+                                                        {
+                                                <p class="text-success font-weight-bold">موثوق <i class="fa fa-check-circle text-success" aria-hidden="true"></i></p> }
+                                                                    else
+                                                                    {
+                                                <button type="button" class="btn btn-warning" onclick="VerifySupplier(@item.ID)">تحقق</button>}
+                                                        @if (item.AllowAddStore == false)
+                                                        {
+                                                <a href="/SupplierRequest/AllowAddStore/@item.ID?state=true" class="btn btn-success">@Resource.AllowAddStore</a> }
+                                                                    else
+                                                                    {
+                                                <a href="/SupplierRequest/AllowAddStore/@item.ID?state=false" class="btn btn-danger">@Resource.DisAllowAddStore</a>}
+                                                    </td>
+                                                     }
+                                                </tr>
+                                                    i++;
+                                                }
+                                            </tbody>
+                                        </table>
+
+                                        </div>
+                                    </div>
+
+                                    <div style="text-align:center!important">
+                                        <h5>
+                                            Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+                                        </h5>
+                                        <p>
+                                            @Html.PagedListPager(Model, page => Url.Action("Index",
+                                                   new { page }))
+                                        </p>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- End Requests -->
+           
+        </div>
+    </div>
+
+
+
+</section>
+
+<script src="~/Content/vendor/jquery/jquery-3.2.1.min.js"></script>
+
+<script>
+    function AcceptRequest(id) {
+        window.location.href = "/SupplierRequest/Accept/" + id;
+        //swal("Done", "Data saved successfully", "success");
+    }
+
+    function RejectRequest(id) {
+        window.location.href = "/SupplierRequest/Reject/" + id;
+        //swal("Done", "Data saved successfully", "success");
+    }
+
+    function DeleteRequest(id) {
+        window.location.href = "/SupplierRequest/DeleteRequest/" + id;
+        //swal("Done", "Data saved successfully", "success");
+    }
+
+    function VerifySupplier(id) {
+        window.location.href = "/SupplierRequest/Verify/" + id;
+        swal("Done", "Data saved successfully", "success");
+    }
+
+    $(".pagination a").click(function () {
+        var url = $(this).attr("href");
+        $(this).attr("href", url + "&requestState=@ViewBag.RequestState&searchStr=@ViewBag.searchStr");
+    });
+
+    $("#btnRemoveSearchInRequests").click(function () {
+        $("#Search").val("");
+        var searchText = $("#Search").val().toLowerCase();
+        var currentUrl = "@Context.Request.Path";
+        window.location.href = currentUrl + "?page=1&requestState=@ViewBag.RequestState&searchStr=" + searchText;
+    });
+
+    $("#btnSearchInRequests").click(function () {
+        var searchText = $("#Search").val().toLowerCase();
+        var currentUrl = "@Context.Request.Path";
+        window.location.href = currentUrl + "?page=1&requestState=@ViewBag.RequestState&searchStr=" + searchText;
+    });
+
+</script>

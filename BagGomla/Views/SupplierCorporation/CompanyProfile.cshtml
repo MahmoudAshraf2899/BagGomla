@@ -1,0 +1,224 @@
+﻿@using IdentityLibrary.DataModel
+@model FWYSupplierCooperation
+@using BagGomla.Models;
+@using System.Web.UI.WebControls
+@using IdentityLibrary.DataModel;
+@using Microsoft.AspNet.Identity;
+@using BagGomla.LocalResource
+@{
+    ViewBag.Title = Resource.Profile + " " + Resource.Company;
+    if (User.Identity.IsAuthenticated)
+    {
+        DatabaseContext db = new DatabaseContext();
+        var userId = User.Identity.GetUserId();
+        var user = db.AspNetUsers.SingleOrDefault(c => c.Id == userId);
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_DefualtLayout.cshtml";
+    }
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+
+}
+
+<!-- ======================== Profile ========================== -->
+<!-- ======================== Profile Cover ========================== -->
+@*@if (ViewBag.ProfilePicture != "" && ViewBag.ProfilePicture != null)
+{
+    <div class="profile-cover border-bottom">
+        <img src="@ViewBag.ProfilePicture" height="400" width="100%" alt="">
+    </div>
+}*@
+
+<section class="mx-auto">
+
+
+    <div class="container">
+        <div class="row no-gutters">
+
+            <div class="col-md-3">
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        @Resource.CompanyLogo
+                    </div>
+                    <div class="card-body">
+                        <img src="@Model.Logo" class="img-fluid rounded-circle img-thumbnail" alt="">
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        @Resource.MemberStatus
+                    </div>
+                    <div class="card-body">
+                        @if (Model.IsAccepted == true)
+                        {
+                            if (Model.IsVerified == true)
+                            {
+                                <p class="text-success font-weight-bold">@Resource.Verified <i class="fa fa-check-circle text-success" aria-hidden="true"></i></p>
+                            }
+                            else
+                            {
+                                <p class="text-secondary font-weight-bold">@Resource.Unverified <i class="fa fa-check-circle text-secondary" aria-hidden="true"></i></p>
+                                if (User.Identity.IsAuthenticated)
+                                {
+                                    if (User.Identity.GetUserId() == Model.SupplierID)
+                                    {
+                                        <a href="/SupplierCorporation/CompanyVerify/@Model.ID" class="btn btn-warning font-weight-bold"> @Resource.Verify @Resource.Now </a>
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-warning font-weight-bold">@Resource.WaitingList <i class="fa fa-spinner text-warning" aria-hidden="true"></i></p>
+                        }
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        @Resource.SocialNetworks
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled d-flex">
+                            <li class="mx-2"><a href="@Model.Facebook"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+                            <li class="mx-2"><a href="@Model.Instagram"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+                            <li class="mx-2"><a href="@Model.Linkedin"><i class="fa fa-telegram" aria-hidden="true"></i></a></li>
+                        </ul>
+
+                    </div>
+                </div>
+
+            </div>
+
+
+
+
+            <div class="col-md-9 pl-17">
+
+
+
+
+
+                <!-- ======================== About Company ========================== -->
+
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        @Resource.About
+                    </div>
+                    <div class="card-body">
+
+                        @if (lang == "ar-EG")
+                        {
+                            <p>
+                                @Model.ArAbout
+                            </p>
+                        }
+                        else
+                        {
+                            <p>
+                                @Model.About
+                            </p>
+                        }
+                        
+
+                    </div>
+                </div>
+
+                <!-- -------------------------------------------------------------------- -->
+
+                <div class="card mt-4 ">
+                    <div class="card-header">
+                        @Resource.Basic @Resource.Information
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+
+                            <div class="col-md-6">
+                                <p>@Resource.SupplierName:</p>
+
+                            </div>
+                            <div class="col-md-6">
+                                @if (lang == "ar-EG")
+                                {
+                                    <p>@Model.AspNetUsers.ARName</p>
+                                }
+                                else
+                                {
+                                    <p>@Model.AspNetUsers.Name</p>
+                                }
+                                
+                            </div>
+                            <div class="col-md-6">
+                                <p>@Resource.CompanyName:</p>
+
+                            </div>
+                            <div class="col-md-6">
+                                @if (lang == "ar-EG")
+                                {
+                                    <p>@Model.ArName</p>
+                                }
+                                else
+                                {
+                                    <p>@Model.Name</p>
+                                }
+                                
+                            </div>
+
+                            <div class="col-md-6">
+                                <p> @Resource.Address:</p>
+
+                            </div>
+                            <div class="col-md-6">
+                                <p>@Model.Address</p>
+                            </div>
+                           
+
+
+                            <div class="col-md-6">
+                                <p>@Resource.Phone:</p>
+
+                            </div>
+                            <div class="col-md-6">
+                                <p>@Model.Phone</p>
+                            </div>
+
+                            <div class="col-md-6">
+                                <p>@Resource.WebsiteUrl:</p>
+
+                            </div>
+                            <div class="col-md-6">
+                                <p>@Model.WebsiteUrl</p>
+                            </div>
+
+                        </div>
+
+
+
+
+                    </div>
+                </div>
+
+                <!-- ======================== About Company  End========================== -->
+
+
+
+
+
+            </div>
+
+
+
+
+        </div>
+    </div>
+
+
+
+</section>
+
+<!-- ======================== Profile  End========================== -->

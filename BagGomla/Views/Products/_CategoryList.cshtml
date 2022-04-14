@@ -1,0 +1,46 @@
+﻿@using BagGomla.Models
+@using System.Web.UI.WebControls
+@using IdentityLibrary.DataModel;
+@model ProductModel
+@{
+    DatabaseContext db = new DatabaseContext();
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+}
+<div class="flex-w bg6 w-full p-lr-40 p-t-27 p-lr-15-sm">
+    @foreach (var i in Model.CategoryList)
+    {
+        var myList = new List<FWYCategory>();
+        myList.Add(i);
+        <div class="p-r-15 p-b-27">
+            <div class="mtext-102 cl2 p-b-15">
+                <a onclick="FilterProductsByCategory('@i.ID');" class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5">
+                    @i.Name
+                </a>
+            </div>
+            <div id="jstree">
+                @(Html.TreeView(myList)
+                                  .EmptyContent("")
+                                  .Children(m => m.FWYCategory1)
+                                  .HtmlAttributes(new { id = "tree" })
+                                  .ChildrenHtmlAttributes(new { @class = "subItem" })
+                                  .ItemText(m => m.Name)
+                                  .ItemTemplate(
+                @<text>
+                    @if (item.ID != myList.First().ID)
+                    {
+                        if (lang == "ar-EG")
+                        {
+                            <a onclick="FilterProductsByCategory('@item.ID');" class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5">@item.ARName</a>
+                        }
+                        else
+                        {
+                            <a onclick="FilterProductsByCategory('@item.ID');" class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5">@item.Name</a>
+                        }
+                    }
+                </text>)
+                )
+            </div>
+        </div>
+    }
+
+</div>

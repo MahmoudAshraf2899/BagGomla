@@ -1,0 +1,256 @@
+﻿@model FWYProduct
+@using Microsoft.AspNet.Identity;
+@using IdentityLibrary.DataModel;
+@using BagGomla.LocalResource
+@{ ViewBag.Title = Resource.Details + " " + Resource.Product;
+    if (User.Identity.IsAuthenticated)
+    {
+        //if (User.IsInRole("1"))
+        //{
+        //    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+        //}
+        //else
+        //{
+        //    Layout = "~/Views/Shared/_Layout.cshtml";
+        //}
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName; }
+
+<head>
+
+    <link href="~/Content/css/desk_and_mobile.css" rel="stylesheet" />
+    @if (lang == "ar-EG")
+    {
+        <style>
+            .slick3-dots {
+                width: 100px;
+            }
+        </style>
+        <script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+        <script>
+            
+            function slickDotsClk() {
+                var lang = "@lang";
+                if (lang == "ar-EG") {
+                    var elements = document.getElementsByClassName("slick-active");
+                    var element = null;
+                    if (elements.length > 0) {
+                        element = elements[0];
+                    }
+                    for (var i = 0; i < elements.length; i++) {
+                        if (elements[i].className == "item-slick3 slick-slide slick-current slick-active") {
+                            element = elements[i];
+                        }
+                    }
+                    var leftVal = getComputedStyle(element).getPropertyValue('left');
+                    element.style.setProperty('left', 'inherit !important');
+                    element.style.setProperty('right', leftVal);
+                }
+            }
+        </script>
+    }
+</head>
+<!-- Product Detail -->
+<section class="sec-product-detail bg0 p-t-65 p-b-60">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-lg-7 p-b-30">
+                <div class="p-l-25 p-r-30 p-lr-0-lg">
+                    <div class="wrap-slick3 flex-sb flex-w">
+                        <div class="wrap-slick3-dots" onclick="slickDotsClk();"></div>
+                        @*@if (lang == "ar-EG")
+                        {
+            <div class="desk">
+                <div class="wrap-slick3-arrows flex-sb-m flex-w" style="margin-right:100.7px!important;" onclick="ay7aga();"></div>
+            </div>
+                            <div class="div-only-mobile">
+                                <div class="wrap-slick3-arrows flex-sb-m flex-w" style="margin-right:55px!important;" id="slickArr"></div>
+                            </div> }
+                                        else
+                                        {
+                            <div class="wrap-slick3-arrows flex-sb-m flex-w"></div>}*@
+                        <div class="slick3 gallery-lb">
+                            @foreach (var item in Model.FWYProductImage)
+                            {
+                <div class="item-slick3" data-thumb="/Images/Products/@item.Image">
+                    <div class="wrap-pic-w pos-relative">
+                        <img src="~/Images/Products/@item.Image" alt="IMG-PRODUCT" height="400">
+
+                        <a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="@item.Image">
+                            <i class="fa fa-expand"></i>
+                        </a>
+
+                    </div>
+                    <br />
+                    @if (Model.FWYProductImage.Count > 1)
+                    {
+                        <button type="button" class="btn btn-danger" onclick="RemoveImage(@item.ID);">
+                            <i class="fa fa-times"></i> @Resource.Delete @Resource.Image
+                        </button>
+                    }
+
+                </div>}
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-5 p-b-30">
+                <div class="p-r-50 p-t-5 p-lr-0-lg">
+                    <table class="table m-0 table-colored-bordered table-bordered-info table-bordered table-hover">
+                        <tr>
+                            <th>@Resource.Name</th>
+                            @if (lang == "ar-EG")
+                            {
+                <td>@Model.ARName</td> }
+                            else
+                            {
+                <td>@Model.Name</td>}
+                        </tr>
+                        <tr>
+                            <th>@Resource.ConsumerPrice</th>
+                            <td>EGP @Model.Price</td>
+                        </tr>
+                        <tr>
+                            <th>@Resource.WholesalePrice</th>
+                            <td>EGP @Model.WholesalePrice</td>
+                        </tr>
+
+                        <tr>
+                            <th>@Resource.Description</th>
+                            @if (lang == "ar-EG")
+                            {
+                <td>@Model.ARDescription</td> }
+                            else
+                            {
+                <td>@Model.Description</td>}
+                        </tr>
+                        <tr>
+                            <th>@Resource.Category</th>
+                            @if (lang == "ar-EG")
+                            {
+                <td>
+                    @if (Model.CategoryID != null)
+                    {<span>@Model.FWYCategory.ARName</span>}
+                </td> }
+                            else
+                            {
+                <td>
+                    @if (Model.CategoryID != null)
+                    {<span>@Model.FWYCategory.Name</span>}
+                </td>}
+                        </tr>
+
+                        <tr>
+                            <th>@Resource.Unit</th>
+                            @if (lang == "ar-EG")
+                            {
+                <td>
+                    @if (Model.UnitID != null)
+                    {<span>@Model.FWYUnit.ARName</span>}
+                </td> }
+                            else
+                            {
+                <td>
+                    @if (Model.UnitID != null)
+                    {<span>@Model.FWYUnit.Name</span>}
+                </td>}
+                        </tr>
+
+                        <tr>
+                            <th>@Resource.SalesNumber</th>
+                            <td>@Model.SalesNum</td>
+                        </tr>
+
+                    </table>
+                </div>
+            </div>
+
+            @*<div class="col-md-11 mx-auto">
+                    <div class="">
+                        <table id="InvoiceTabel" class="table m-0 table-colored-bordered table-bordered-info table-bordered table-hover">
+                            <thead class="thead-default">
+                                <tr>
+                                    <th colspan="2" class="text-center">@Resource.Store</th>
+                                    <th colspan="2" class="text-center">@Resource.Product</th>
+                                    <th colspan="3" class="text-center">@Resource.Quantity</th>
+                                </tr>
+                                <tr>
+                                    <th>@Resource.Name</th>
+                                    <th>@Resource.Address</th>
+                                    <th>@Resource.Color</th>
+                                    <th>@Resource.Size</th>
+                                    <th>@Resource.TotalQuantity</th>
+                                    <th>@Resource.SalesNumber</th>
+                                    <th>@Resource.RestofQuantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach(var item in Model.FWYStoreProduct)
+                                {
+                                    <tr>
+                                        @if (lang == "ar-EG")
+                                        {
+                                            <td>@item.FWYStore.ARName</td>
+                                        }
+                                        else
+                                        {
+                                            <td>@item.FWYStore.Name</td>
+                                        }
+
+                                        <td>@item.FWYStore.Location</td>
+                                        @if (lang == "ar-EG")
+                                        {
+                                            <td>
+                                                @if (item.ColorID != null)
+                                                {
+                                                    <span>@item.FWYColor.ARName</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (item.SizeID != null)
+                                                {
+                                                    <span>@item.FWYSize.ARName</span>
+                                                }
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td>
+                                                @if (item.ColorID != null)
+                                                {
+                                                    <span>@item.FWYColor.Name</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (item.SizeID != null)
+                                                {
+                                                    <span>@item.FWYSize.Name</span>
+                                                }
+                                            </td>
+                                        }
+
+                                        <td>@item.Quantity</td>
+                                        <td>@item.SalesNum</td>
+                                        <td>@(item.Quantity - item.SalesNum)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>*@
+        </div>
+    </div>
+</section>
+
+<script>
+    //FWYStores/RemoveProductImage/item.ID
+    function RemoveImage(id) {
+        if (confirm("Are you sure you want to remove this image?")) {
+            window.location.href = "/FWYStores/RemoveProductImage/" + id;
+        }
+    }
+</script>

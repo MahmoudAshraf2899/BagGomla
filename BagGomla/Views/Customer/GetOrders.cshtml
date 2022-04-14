@@ -1,0 +1,405 @@
+﻿@using IdentityLibrary.DataModel
+@model IEnumerable<FWYInvoiceOrder>
+@using IdentityLibrary.DataModel;
+@using BagGomla.LocalResource
+@{
+    ViewBag.Title = Resource.MyOrders;
+    if (User.Identity.IsAuthenticated)
+    {
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_DefualtLayout.cshtml";
+    }
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+
+
+}
+
+<div class="row">
+    <div class="col-md-10 mx-auto">
+        <div class="col-md-12">
+            <div class="row align-items-md-center no-gutters">
+                <h2 class="pt-3 font-italic pr-3">@Resource.Order @Resource.Status</h2>
+                <ul class="list-inline pt-3 tab-status">
+                    <li class="list-inline-item pending"><i class="fa fa-pause-circle" aria-hidden="true"></i> @Resource.Pending</li>
+                    <li class="list-inline-item accepted"><i class="fa fa-check-circle" aria-hidden="true"></i> @Resource.Accepted</li>
+                    <li class="list-inline-item delivered"><i class="fa fa-truck" aria-hidden="true"></i> @Resource.Delivered @Resource.To @Resource.SC</li>
+                    <li class="list-inline-item finished"><i class="fa fa-check-square" aria-hidden="true"></i> @Resource.Finished</li>
+                    <li class="list-inline-item rejected"><i class="fa fa-times-circle" aria-hidden="true"></i> @Resource.Rejected</li>
+                </ul>
+            </div>
+        </div>
+
+        @if (Model.Count() == 0)
+        {
+            <h3>
+                @Resource.NoOrderFound
+            </h3>
+        }
+
+        @if (Model.Where(c => c.OrderTypeID == 1).Count() != 0)
+        {
+          <!-- Start Pending Orders -->
+            <div class="col-md-12">
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <ul class="nav d-flex justify-content-between">
+                            <li>@Resource.Recent @Resource.Pending</li>
+                        </ul>
+
+                    </div>
+                    <div class="card-body">
+
+                        <!-- products -->
+                        <div class="sec-blog bg0 ">
+                            <div class="container">
+
+                                <div class="row order-pending">
+                                    @foreach (var item in Model.Where(c => c.OrderTypeID == 1))
+                                    {
+                                        var CompanyLogo = "no-image.jpg";
+                                        if (item.AspNetUsers1.FWYSupplierCooperation.Count > 0)
+                                        {
+                                            CompanyLogo = item.AspNetUsers1.FWYSupplierCooperation.First().Logo;
+                                        }
+                                        <div class="col-sm-6 col-md-3 p-b-40">
+                                            <div class="blog-item">
+                                                <div class="hov-img0">
+                                                    <a href="/SupplierCorporation/CustomerOrder/@item.ID">
+                                                        <img src="@CompanyLogo" alt="IMG-BLOG" height="100">
+                                                    </a>
+                                                </div>
+
+                                                <div class="p-t-15">
+
+                                                    <div class="d-table">
+                                                        <p class="order-label  main-color font-weight-bold d-table-cell">
+                                                            @Resource.Supplier:
+                                                        </p>
+                                                        @if (lang == "ar-EG")
+                                                        {
+                                                            <p class="buyer-name pl-2 d-table-cell"> @item.AspNetUsers1.ARName</p>
+                                                        }
+                                                        else
+                                                        {
+                                                            <p class="buyer-name pl-2 d-table-cell"> @item.AspNetUsers1.Name</p>
+                                                        }
+
+                                                    </div>
+
+                                                    <div class="d-table">
+                                                        <p class="order-label d-table-cell main-color font-weight-bold pr-3">
+                                                            @Resource.Date:
+                                                        </p>
+                                                        <p class="buyer-name d-table-cell"> @item.OrderDateTime</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- end products -->
+
+                    </div>
+                </div>
+            </div>
+          <!-- End Pending Orders -->
+        }
+
+        @if (Model.Where(c => c.OrderTypeID == 2).Count() != 0)
+        {
+             <!-- Start Accepted Orders -->
+            <div class="col-md-12">
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <ul class="nav d-flex justify-content-between">
+                            <li>@Resource.Accepted</li>
+                        </ul>
+
+                    </div>
+                    <div class="card-body">
+
+                        <!-- products -->
+                        <div class="sec-blog bg0 ">
+                            <div class="container">
+
+                                <div class="row order-accepted">
+                                    @foreach (var item in Model.Where(c => c.OrderTypeID == 2))
+                                    {
+                                        var CompanyLogo = "no-image.jpg";
+                                        if (item.AspNetUsers1.FWYSupplierCooperation.Count > 0)
+                                        {
+                                            CompanyLogo = item.AspNetUsers1.FWYSupplierCooperation.First().Logo;
+                                        }
+                                        <div class="col-sm-6 col-md-3 p-b-40">
+                                            <div class="blog-item">
+                                                <div class="hov-img0">
+                                                    <a href="/SupplierCorporation/CustomerOrder/@item.ID">
+                                                        <img src="@CompanyLogo" alt="IMG-BLOG" height="100">
+                                                    </a>
+                                                </div>
+
+                                                <div class="p-t-15">
+
+                                                    <div class="d-table">
+                                                        <p class="order-label  main-color font-weight-bold d-table-cell">
+                                                            @Resource.Supplier:
+                                                        </p>
+                                                        @if (lang == "ar-EG")
+                                                        {
+                                                            <p class="buyer-name pl-2 d-table-cell"> @item.AspNetUsers1.ARName</p>
+                                                        }
+                                                        else
+                                                        {
+                                                            <p class="buyer-name pl-2 d-table-cell"> @item.AspNetUsers1.Name</p>
+                                                        }
+                                                    </div>
+
+                                                    <div class="d-table">
+                                                        <p class="order-label d-table-cell main-color font-weight-bold pr-3">
+                                                            @Resource.Date:
+                                                        </p>
+                                                        <p class="buyer-name d-table-cell"> @item.OrderDateTime</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- end products -->
+
+                    </div>
+                </div>
+            </div>
+             <!-- End Accepted Orders -->
+        }
+
+        @if (Model.Where(c => c.OrderTypeID == 3).Count() != 0)
+        {
+             <!-- Start Delivering Orders -->
+            <div class="col-md-12">
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <ul class="nav d-flex justify-content-between">
+                            <li>@Resource.Delivered @Resource.To @Resource.SC</li>
+                        </ul>
+
+                    </div>
+                    <div class="card-body">
+
+                        <!-- products -->
+                        <div class="sec-blog bg0 ">
+                            <div class="container">
+                                <div class="row order-accepted order-delivered-company">
+                                    @foreach (var item in Model.Where(c => c.OrderTypeID == 3))
+                                    {
+                                        var CompanyLogo = "no-image.jpg";
+                                        if (item.AspNetUsers1.FWYSupplierCooperation.Count > 0)
+                                        {
+                                            CompanyLogo = item.AspNetUsers1.FWYSupplierCooperation.First().Logo;
+                                        }
+                                        <div class="col-sm-6 col-md-3 p-b-40">
+                                            <div class="blog-item">
+                                                <div class="hov-img0">
+                                                    <a href="/SupplierCorporation/CustomerOrder/@item.ID">
+                                                        <img src="@CompanyLogo" alt="IMG-BLOG" height="100">
+                                                    </a>
+                                                </div>
+
+                                                <div class="p-t-15">
+
+                                                    <div class="d-table">
+                                                        <p class="order-label  main-color font-weight-bold d-table-cell">
+                                                            @Resource.Supplier:
+                                                        </p>
+                                                        @if (lang == "ar-EG")
+                                                        {
+                                                            <p class="buyer-name pl-2 d-table-cell"> @item.AspNetUsers1.ARName</p>
+                                                        }
+                                                        else
+                                                        {
+                                                            <p class="buyer-name pl-2 d-table-cell"> @item.AspNetUsers1.Name</p>
+                                                        }
+                                                    </div>
+
+                                                    <div class="d-table">
+                                                        <p class="order-label d-table-cell main-color font-weight-bold pr-3">
+                                                            @Resource.Date:
+                                                        </p>
+                                                        <p class="buyer-name d-table-cell"> @item.OrderDateTime</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- end products -->
+
+                    </div>
+                </div>
+            </div>
+             <!-- End Delivering Orders -->
+        }
+
+        @if (Model.Where(c => c.OrderTypeID == 4).Count() != 0)
+        {
+                 <!-- Start Rejected Orders -->
+            <div class="col-md-12">
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <ul class="nav d-flex justify-content-between">
+                            <li>@Resource.Rejected</li>
+                        </ul>
+
+                    </div>
+                    <div class="card-body">
+
+                        <!-- products -->
+                        <div class="sec-blog bg0 ">
+                            <div class="container">
+                                <div class="row order-rejected">
+                                    @foreach (var item in Model.Where(c => c.OrderTypeID == 4))
+                                    {
+                                        var CompanyLogo = "no-image.jpg";
+                                        if (item.AspNetUsers1.FWYSupplierCooperation.Count > 0)
+                                        {
+                                            CompanyLogo = item.AspNetUsers1.FWYSupplierCooperation.First().Logo;
+                                        }
+                                        <div class="col-sm-6 col-md-3 p-b-40">
+                                            <div class="blog-item">
+                                                <div class="hov-img0">
+                                                    <a href="/SupplierCorporation/CustomerOrder/@item.ID">
+                                                        <img src="@CompanyLogo" alt="IMG-BLOG" height="100">
+                                                    </a>
+                                                </div>
+
+                                                <div class="p-t-15">
+
+                                                    <div class="d-table">
+                                                        <p class="order-label  main-color font-weight-bold d-table-cell">
+                                                            @Resource.Supplier:
+                                                        </p>
+                                                        @if (lang == "ar-EG")
+                                                        {
+                                                            <p class="buyer-name pl-2 d-table-cell"> @item.AspNetUsers1.ARName</p>
+                                                        }
+                                                        else
+                                                        {
+                                                            <p class="buyer-name pl-2 d-table-cell"> @item.AspNetUsers1.Name</p>
+                                                        }
+                                                    </div>
+
+                                                    <div class="d-table">
+                                                        <p class="order-label d-table-cell main-color font-weight-bold pr-3">
+                                                            @Resource.Date:
+                                                        </p>
+                                                        <p class="buyer-name d-table-cell"> @item.OrderDateTime</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- end products -->
+
+                    </div>
+                </div>
+            </div>
+                 <!-- End Rejected Orders -->
+        }
+
+        @if (Model.Where(c => c.OrderTypeID == 5).Count() != 0)
+        {
+             <!-- Start Finished Orders -->
+            <div class="col-md-12">
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <ul class="nav d-flex justify-content-between">
+                            <li>@Resource.Finished</li>
+                        </ul>
+
+                    </div>
+                    <div class="card-body">
+
+                        <!-- products -->
+                        <div class="sec-blog bg0 ">
+                            <div class="container">
+
+                                <div class="row order-finished">
+                                    @foreach (var item in Model.Where(c => c.OrderTypeID == 5))
+                                    {
+                                        var CompanyLogo = "no-image.jpg";
+                                        if (item.AspNetUsers1.FWYSupplierCooperation.Count > 0)
+                                        {
+                                            CompanyLogo = item.AspNetUsers1.FWYSupplierCooperation.First().Logo;
+                                        }
+                                        <div class="col-sm-6 col-md-3 p-b-40">
+                                            <div class="blog-item">
+                                                <div class="hov-img0">
+                                                    <a href="/SupplierCorporation/CustomerOrder/@item.ID">
+                                                        <img src="@CompanyLogo" alt="IMG-BLOG" height="100">
+                                                    </a>
+                                                </div>
+
+                                                <div class="p-t-15">
+
+                                                    <div class="d-table">
+                                                        <p class="order-label  main-color font-weight-bold d-table-cell">
+                                                            @Resource.Supplier:
+                                                        </p>
+                                                        @if (lang == "ar-EG")
+                                                        {
+                                                            <p class="buyer-name pl-2 d-table-cell"> @item.AspNetUsers1.ARName</p>
+                                                        }
+                                                        else
+                                                        {
+                                                            <p class="buyer-name pl-2 d-table-cell"> @item.AspNetUsers1.Name</p>
+                                                        }
+                                                    </div>
+
+                                                    <div class="d-table">
+                                                        <p class="order-label d-table-cell main-color font-weight-bold pr-3">
+                                                            @Resource.Date:
+                                                        </p>
+                                                        <p class="buyer-name d-table-cell"> @item.OrderDateTime</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- end products -->
+
+                    </div>
+                </div>
+            </div>
+            <!-- End Finished Orders -->
+        }
+
+    </div>
+</div>

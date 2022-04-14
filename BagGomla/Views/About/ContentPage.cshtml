@@ -1,0 +1,176 @@
+﻿@model IdentityLibrary.DataModel.FWYContect
+@using BagGomla.LocalResource
+@{
+    ViewBag.Title = Resource.Contact;
+    if (User.Identity.IsAuthenticated)
+    {
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_DefualtLayout.cshtml";
+    }
+    var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.CultureName;
+}
+    @if (lang == "ar-EG")
+    {
+        <style>
+             [type=email], [type=number], [type=tel], [type=url] {
+              direction: rtl!important;
+         }
+        </style>
+    }
+
+<!-- Title page -->
+<section class="bg-img1 txt-center p-lr-15 p-tb-92" style="background-image: url('../../Images/bg-01.jpg');">
+    <h2 class="ltext-105 cl0 txt-center">
+        @Resource.Contact
+    </h2>
+</section>
+<!-- Content page -->
+<section class="bg0 p-t-104 p-b-116">
+    <div class="container">
+        <div class="flex-w flex-tr">
+            <div class="size-210 bor10 p-lr-70 p-t-55 p-b-70 p-lr-15-lg w-full-md">
+                @using (Html.BeginForm("ContentPage", "About", FormMethod.Post, new { @id = "ContectForm" }))
+                {
+                    @Html.HiddenFor(m => m.Password)
+                    @Html.HiddenFor(m => m.Email)
+                    @Html.HiddenFor(m => m.Phone)
+                    @Html.HiddenFor(m => m.Address)
+
+                    <h4 class="mtext-105 cl2 txt-center p-b-30">
+                        @Resource.SendUsAMessage
+                    </h4>
+
+                    <div class="bor8 m-b-20 how-pos4-parent">
+                        <input class="stext-111 cl2 plh3 size-116 p-l-62 p-r-30" type="email" name="From" placeholder="@Resource.Email" id="EmailFrom">
+                        <img class="how-pos4 pointer-none" src="~/Images/icons/icon-email.png" alt="ICON">
+                    </div>
+                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="Email" data-valmsg-replace="true" id="msgEmail"></span>
+
+
+                    <div class="bor8 m-b-30">
+                        <textarea class="stext-111 cl2 plh3 size-120 p-lr-28 p-tb-25" name="ComplaintOrsuggestion" placeholder="@Resource.SendUsAMessage" id="BodyID"></textarea>
+                    </div>
+                    <span class="dis-none field-validation-error text-danger" data-valmsg-for="ComplaintOrsuggestion" data-valmsg-replace="true" id="msgBody"></span>
+
+                    <button type="button" id="btnSubmitContect" class="flex-c-m stext-101 cl0 size-121 bg3 bor1 hov-btn3 p-lr-15 trans-04 pointer">
+                        @Resource.Submit
+                    </button>
+                }
+            </div>
+            <div class="size-210 bor10 flex-w flex-col-m p-lr-93 p-tb-30 p-lr-15-lg w-full-md">
+                <div class="flex-w w-full p-b-42">
+                    <span class="fs-18 cl5 txt-center size-211">
+                        <span class="fa fa-address-card"></span>
+                    </span>
+                    <div class="size-212 p-t-2">
+                        <span class="mtext-110 cl2">
+                            @Resource.Address
+                        </span>
+                        <p class="stext-115 cl6 size-213 p-t-18">
+                            <a href="https://www.google.com/maps/place/@Model.Address" target="_blank">@Model.Address</a> <br />
+                        </p>
+                    </div>
+                </div>
+                <div class="flex-w w-full p-b-42">
+                    <span class="fs-18 cl5 txt-center size-211">
+                        <span class="fa fa-phone"></span>
+                    </span>
+                    <div class="size-212 p-t-2">
+                        <span class="mtext-110 cl2">
+                            @Resource.LetsTalk
+                        </span>
+                        <p class="stext-115 cl1 size-213 p-t-18">
+                            @Model.Phone
+                        </p>
+                    </div>
+                </div>
+                @*<div class="flex-w w-full">
+                        <span class="fs-18 cl5 txt-center size-211">
+                            <span class="lnr lnr-envelope"></span>
+                        </span>
+
+                        <div class="size-212 p-t-2">
+                            <span class="mtext-110 cl2">
+                                Sale Support
+                            </span>
+
+                            <p class="stext-115 cl1 size-213 p-t-18">
+                                contact@example.com
+                            </p>
+                        </div>
+                    </div>*@
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Map -->
+<div class="map">
+    <div class="size-303" id="google_map" data-map-x="40.691446" data-map-y="-73.886787" data-pin="~/Images/icons/pin.png" data-scrollwhell="0" data-draggable="1" data-zoom="11"></div>
+</div>
+<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+<script>
+
+    function ValidateEmail(email) {
+        if (email != "" && email != null) {
+            const re = /^(([^<>()\[\]\\.,;:\s@@"]+(\.[^<>()\[\]\\.,;:\s@@"]+)*)|(".+"))@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            var x = re.test(String(email).toLowerCase());
+            if (x == false) {
+                return -1;
+            }
+            else {
+                return 1;
+            }
+        }
+        else {
+            return 0;
+        }
+
+    }
+
+
+    $("#btnSubmitContect").click(function () {
+        Email = $("#EmailFrom").val();
+        Body = $("#BodyID").val();
+        validEmail = ValidateEmail(Email);
+        if (Body == "") {
+            $("#msgBody").removeClass("dis-none");
+            $("#msgBody").html("@Resource.Complaints @Resource.IsRequired");
+        }
+        if (validEmail == -1) {
+            $("#msgEmail").removeClass("dis-none");
+            $("#msgEmail").html("@Resource.Email @Resource.IsNotValid");
+        }
+        else if (validEmail == 0) {
+            $("#msgEmail").removeClass("dis-none");
+            $("#msgEmail").html("@Resource.Email @Resource.IsRequired");
+        }
+        else if (validEmail == 1 && Body != "") {
+            $("#msgEmail").html("");
+            var form = $('#ContectForm')[0]; // Get form
+            var data = new FormData(form); // Create an FormData object
+            $.ajax({
+                url: "/About/ContentPage/",
+                type: "Post",
+                data: data,
+                processData: false,
+                contentType: false,
+                cache: false,
+                timeout: 600000,
+                success: function (data) {
+                    if (data == 1) {
+                        window.location.href = "";
+                        swal("@Resource.Done", "@Resource.SendMailSecc", "success");
+                    }
+
+                },
+                error: function (e) {
+                    swal("@Resource.Error", "@Resource.SendMailError", "error");
+                    window.location.href = "";
+                }
+            });
+        }
+    });
+</script>

@@ -1,0 +1,212 @@
+﻿@model IEnumerable<FWYCategory>
+@using BagGomla.Models;
+@using System.Web.UI.WebControls
+@using IdentityLibrary.DataModel;
+
+@{
+    ViewBag.Title = "فئات";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<link href="~/Content/jsTree/themes/default/style.min.css" rel="stylesheet" />
+<div class="container">
+    <br />
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <a href="/FWYCategories/EditCreate/0?CateID=0" class="btn btn-success">اضافه فئه جديده</a>
+                    <br />
+                    <div id="jstree">
+                        @(Html.TreeView(Model)
+                          .EmptyContent("فئات")
+                          .Children(m => m.FWYCategory1.Where(c => c.IsDeleted == false))
+                          .HtmlAttributes(new { id = "tree" })
+                      .ChildrenHtmlAttributes(new { @class = "subItem" })
+                          .ItemText(m => m.Name)
+                          .ItemTemplate(
+                        @<text>
+                            <a href="@item.ARDescription" desc="@item.ARDescription" onclick="GetCategory(@item.ID);"><span>@item.ARName</span> <span>@if (item.CategoryID == null) { var productcounter = 0; foreach (var c in item.FWYCategory1) { productcounter += c.FWYProduct.Count(); }<span>(@productcounter)</span> } else {<span>(@item.FWYProduct.Count())</span> }</span> </a>
+                        </text>)
+                        )
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <a href="/FWYCategories/HiddenCategories" class="btn btn-danger">عرض الفئات المخفية و المحذوفة</a>
+                    <div id="dvCategoryDetails">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*/// pop up for assign product////*@
+@*<div class="wrap-modal1 js-modal1 p-t-60 p-b-20">
+    <div class="overlay-modal1 js-hide-modal1"></div>
+    <div class="container">
+        <div class="bg0 p-t-60 p-b-30 p-lr-15-lg how-pos3-parent">
+            <button class="how-pos3 hov3 trans-04 js-hide-modal1">
+                <img src="~/Images/icons/icon-close.png" alt="CLOSE">
+            </button>
+            <h4 style="text-align:center;"></h4>
+            <div id="DivCats" style="margin:30px;">
+
+            </div>
+        </div>
+    </div>
+</div>*@
+
+@*/// pop up for Delete////*@
+@*<div class="wrap-modal1 js-modal2 p-t-60 p-b-20" style="width:1000px;height:1000px;">
+    <div class="overlay-modal1 js-hide-modal2"></div>
+    <div class="container">
+        <div class="bg0 p-t-60 p-b-30 p-lr-15-lg how-pos3-parent">
+            <button class="how-pos3 hov3 trans-04 js-hide-modal2" id="DevClose">
+                <img src="~/Images/icons/icon-close.png" alt="CLOSE">
+            </button>
+            <h4 style="text-align:center;"></h4>
+            <div id="DivCoupons" style="margin:30px;">
+                <div class="modal-header">
+                    <h3 class="modal-title">@Resource.Delete?</h3>
+                </div>
+                <div class="modal-body">
+                    <h4>@Resource.ConfirmDeleteMsg</h4>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-success" onclick="Delete()">@Resource.Confirm</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>*@
+
+
+<input id="IDHidden" type="hidden" />
+
+<script src="~/Scripts/js/jquery-1-11-0-min.js"></script>
+@*<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>*@
+
+<script>
+
+    function HideCat(ID) {
+        $.ajax({
+            url: '@Url.Action("HideCat", "FWYCategories")',
+            type: 'GET',
+            cache: false,
+            data: { ID: ID}
+        }).done(function (result) {
+            swal("Done", "تم أخفاء الفئه بنجاح", "success");
+            location.reload();
+            
+        });
+    }
+    function ConfirmDelete(ID) {
+        if (confirm("هل انت متأكد من انك تريد مسح هذه الفئة؟")) {
+            $.ajax({
+                url: '@Url.Action("Delete", "FWYCategories")',
+                type: 'GET',
+                cache: false,
+                data: { Id: ID}
+            }).done(function (result) {
+                if (result == 0) {
+                    swal("خطأ", "لا يمكن مسح هذه الفئة يوجد منتجات بها", "error");
+                }
+                else if (result == 1) {
+                    swal("تم", "تم حذف الفئة بنجاح", "success").then(function () {
+                        window.location.href = "/FWYCategories/Index";
+                    });
+                }
+                else {
+                    window.location.href = "/Account/AccessDenied";
+                }
+            });
+        }
+    }
+</script>
+@*<script type="text/javascript">
+    function AddCat(ID, CateID) {
+        $.ajax({
+            url: '@Url.Action("EditCreate", "FWYCategories")',
+            type: 'GET',
+            cache: false,
+            data: { ID: ID, CateID: CateID }
+        }).done(function (result) {
+            $('#DivCats').empty();
+            $('#DivCats').html(result);
+        });
+        $('.js-modal1').addClass('show-modal1');
+    }
+
+    var ConfirmDelete = function (ID) {
+        $("#IDHidden").val(ID);
+        $('.js-modal2').addClass('show-modal1');
+    }
+
+    var Delete = function () {
+        var ID = $("#IDHidden").val();
+        $.ajax({
+            type: "POST",
+            url: "/FWYCategories/Delete",
+            data: { ID: ID },
+            success: function (result) {
+                $('.js-modal2').removeClass('show-modal1');
+                window.location.href = " ";
+            }
+        })
+    }
+
+    $(document).on("click", "#DevClose", function () {
+        $('.js-modal2').removeClass('show-modal1');
+    });
+</script>*@
+
+<script src="~/Scripts/jsTree3/jstree.min.js"></script>
+<script>
+
+    jQuery(function ($) {
+        var selectedData;
+        $('#jstree').jstree({
+            "core": {
+                "multiple": true,
+                "check_callback": true,
+                'themes': {
+                    "responsive": true,
+                    'variant': 'larg',
+                    'stripes': false,
+                    'dots': false
+                }
+            }
+            ,
+            "types": {
+                "default": {
+                    "icon": "fa fa-list-alt icon-state-warning icon-lg"
+                },
+                "file": {
+                    "icon": "fa fa-list-alt icon-state-warning icon-lg"
+                }
+            }
+            , "plugins": ["dnd", "state", "types", "sort", "none"]
+        });
+    });
+
+</script>
+<script>
+    function GetCategory(id) {
+        $.ajax({
+            url: '@Url.Action("CategoryDetails", "FWYCategories")',
+            type: 'GET',
+            cache: false,
+            data: { ID: id }
+        }).done(function (result) {
+            $('#dvCategoryDetails').empty();
+            $("#dvCategoryDetails").html(result);
+        });
+        
+    }
+</script>
